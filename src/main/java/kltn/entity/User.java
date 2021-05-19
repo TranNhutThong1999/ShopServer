@@ -29,10 +29,7 @@ public class User extends Abstract{
 	private String password;
 	private boolean gender; //true is boy
 	private String address;
-	private String nameShop;
-	private String code;
-	private String hotLine;
-	private String website;
+	
 	
 	@OneToMany(mappedBy = "shop")
 	private List<Product> products;

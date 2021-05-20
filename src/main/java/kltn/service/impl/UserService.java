@@ -42,33 +42,8 @@ public class UserService implements IUserService {
 		return userRepository.findOneByPhone(phone);
 	}
 
-	@Override
-	public UserDTO save(UserDTO u) {
-		// TODO Auto-generated method stub
-		User user = userConverter.toEntity(u);
-		user.setEnabled(false);
-		user.setPassword(encoder.encode(user.getPassword()));
-		user.setRole(roleRepository.findOneByName("ROLE_USER"));
-		//generate token
-		String otp = user.generateToken();
-		//send sms
-		sms.excute(user.getPhone(), otp);
-		return userConverter.toDTO(userRepository.save(user));
-	}
 
-	@Override
-	public boolean verifyOTP(String otp, String phone) {
-		// TODO Auto-generated method stub
-		User user = userRepository.findOneByPhone(phone)
-				.orElseThrow(() -> new UserWasNotFoundException("Phone was not found"));
-		if (user.checkOTP(otp)) {
-			user.setOtp("");
-			user.setEnabled(true);
-			userRepository.save(user);
-			return true;
-		}
-		return false;
-	}
+
 
 	@Override
 	public UserDTO findByPhone(String phone) throws Exception {
@@ -77,14 +52,6 @@ public class UserService implements IUserService {
 				.toDTO(userRepository.findOneByPhone(phone).orElseThrow(() -> new Exception("Phone was not found")));
 	}
 
-	@Override
-	public void sendOtp(String phone) throws Exception {
-		// TODO Auto-generated method stub
-		User user = userRepository.findOneByPhone(phone).orElseThrow(() -> new Exception("phone was not found"));
-		String otp = user.generateToken();
-		userRepository.save(user);
-		sms.excute(phone, otp);
-	}
 
 	@Override
 	public Optional<User> findOneById(int id) {
@@ -99,13 +66,7 @@ public class UserService implements IUserService {
 		return u.getId();
 	}
 
-	@Override
-	public void changePassword(int id, String password) throws Exception {
-		// TODO Auto-generated method stub
-		User u = userRepository.findOneById(id).orElseThrow(()-> new Exception("UserId doesn't exist"));
-		u.setPassword(encoder.encode(password));
-		userRepository.save(u);
-	}
+
 
 	@Override
 	public UserDTO findById(int id){

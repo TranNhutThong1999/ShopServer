@@ -13,17 +13,10 @@ public interface IUserService {
 
 	UserDTO findByPhone(String phone) throws Exception;
 
-	UserDTO save(UserDTO u);
-
-	boolean verifyOTP(String otp, String phone);
-
-	void sendOtp(String phone) throws Exception;
-
 	Optional<User> findOneById(int id);
 	
 	UserDTO findById(int id);
 	
 	int findOtp(String otp) throws Exception;
 	
-	void changePassword(int id,String password) throws Exception;
 }

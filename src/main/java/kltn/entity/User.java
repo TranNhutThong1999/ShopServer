@@ -41,14 +41,5 @@ public class User extends Abstract{
 	@OneToMany(mappedBy = "user")
 	private List<Action> actions;
 	
-// 	public String generateToken() {
-// 		Random rnd = new Random();
-// 	    int number = rnd.nextInt(999999);
-// 		this.otp = String.format("%06d", number);
-// 		return this.otp;
-// 	}
-	
-// 	public boolean checkOTP(String otp) {
-// 		return this.otp.equals(otp);
-// 	}
+
 }

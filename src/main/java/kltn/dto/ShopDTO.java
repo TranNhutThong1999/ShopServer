@@ -1,6 +1,5 @@
 package kltn.dto;
 
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -31,5 +30,7 @@ public class ShopDTO extends AbstractDTO {
 	
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
+	
+	
 	private String token;
 }

@@ -14,4 +14,5 @@ public interface IProductService {
 	Page<ProductDTO> findBySubCategoryLimit(int subCateroryId, int pageSize, int pageNumber);
 	List<ProductDTO> findRandomLimit(int limit);
 	Page<ProductDTO> findProductByShop(String userName, int pageSize, int pageNumber);
+	ProductDTO save(ProductDTO dto, String userName);
 }

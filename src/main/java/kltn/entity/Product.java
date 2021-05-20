@@ -2,6 +2,7 @@ package kltn.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -26,11 +27,11 @@ public class Product extends Abstract{
 	@JoinColumn(name="subCategory_id")
 	private SubCategory subCategory;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "detail_id")
 	private Detail detail;
 	
-	@OneToMany(mappedBy = "product")
+	@OneToMany(mappedBy = "product",cascade = CascadeType.REMOVE)
 	private List<Photo> photos;
 	
 	@ManyToOne

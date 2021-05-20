@@ -20,4 +20,9 @@ public class ProductDTO extends AbstractDTO {
 	private String shopAvatar;
 	private int quantity;
 	private double totalStar;
+	public ProductDTO() {
+		super();
+	}
+	
+	
 }

@@ -31,8 +31,8 @@ public class User extends Abstract{
 	private String address;
 	
 	
-	@OneToMany(mappedBy = "shop")
-	private List<Product> products;
+// 	@OneToMany(mappedBy = "shop")
+// 	private List<Product> products;
 	
 	@ManyToOne
 	@JoinColumn(name="role_id")
@@ -41,14 +41,14 @@ public class User extends Abstract{
 	@OneToMany(mappedBy = "user")
 	private List<Action> actions;
 	
-	public String generateToken() {
-		Random rnd = new Random();
-	    int number = rnd.nextInt(999999);
-		this.otp = String.format("%06d", number);
-		return this.otp;
-	}
+// 	public String generateToken() {
+// 		Random rnd = new Random();
+// 	    int number = rnd.nextInt(999999);
+// 		this.otp = String.format("%06d", number);
+// 		return this.otp;
+// 	}
 	
-	public boolean checkOTP(String otp) {
-		return this.otp.equals(otp);
-	}
+// 	public boolean checkOTP(String otp) {
+// 		return this.otp.equals(otp);
+// 	}
 }

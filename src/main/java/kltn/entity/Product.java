@@ -34,6 +34,6 @@ public class Product extends Abstract{
 	private List<Photo> photos;
 	
 	@ManyToOne
-	@JoinColumn(name="user_id")
+	@JoinColumn(name="shop_id")
 	private Shop shop;
 }

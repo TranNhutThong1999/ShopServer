@@ -1,15 +1,16 @@
 package kltn.converter;
 
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import kltn.dto.DistrictDTO;
+import kltn.dto.ProvincialDTO;
 import kltn.dto.ShopDTO;
+import kltn.dto.WardsDTO;
 import kltn.entity.Shop;
 import kltn.repository.FollowingRepository;
-import kltn.repository.RoleRepository;
 
 @Component
 public class ShopConverter implements IConverter<Shop, ShopDTO> {
@@ -33,7 +34,10 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 		ShopDTO shop = modelMapper.map(s, ShopDTO.class);
 		shop.setRole(s.getRole().getName());
 		shop.setFollow(followingRepository.countUserFollow(s.getId()));
-	//	shop.setProducts(s.getProducts().stream().map(productConverter::toDTO).collect(Collectors.toList()));
+		shop.setLocation(s.getAddress().getLocation());
+		shop.setProdincial(modelMapper.map(s.getAddress().getProvincial(), ProvincialDTO.class));
+		shop.setDistrict(modelMapper.map(s.getAddress().getDistrict(), DistrictDTO.class));
+		shop.setWards(modelMapper.map(s.getAddress().getWards(), WardsDTO.class));
 		return shop;
 	}
 

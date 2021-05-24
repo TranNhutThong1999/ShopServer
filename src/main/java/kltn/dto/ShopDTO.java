@@ -10,7 +10,6 @@ import lombok.Data;
 public class ShopDTO extends AbstractDTO {
 	private String nameBoss;
 	private String avatar;
-	private String address;
 	private String nameShop;
 	
 	@ShopExist
@@ -22,8 +21,7 @@ public class ShopDTO extends AbstractDTO {
 	private String hotLine;
 	private String website;
 	private int follow;
-
-	//private List<ProductDTO> products;
+	
 	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private String role;
@@ -31,6 +29,10 @@ public class ShopDTO extends AbstractDTO {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	
+	private String location;
+	private ProvincialDTO prodincial;
+	private DistrictDTO district;
+	private WardsDTO wards;
 	
 	private String token;
 }

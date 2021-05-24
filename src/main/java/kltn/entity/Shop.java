@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -17,7 +18,6 @@ import lombok.Data;
 public class Shop extends Abstract{
 	private String nameBoss;
 	private String avatar;
-	private String address;
 	private String nameShop;
 	private String userName;
 	private String phone;
@@ -35,4 +35,8 @@ public class Shop extends Abstract{
 	@ManyToOne
 	@JoinColumn(name="role_id")
 	private Role role;
+	
+	@OneToOne
+	@JoinColumn(name="address_id")
+	private Address address;
 }

@@ -110,10 +110,10 @@
 			<version>2.1.5.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.2.19</version>
-		</dependency> 
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.5</version>
+		</dependency>
 	</dependencies>
 
 	<build>

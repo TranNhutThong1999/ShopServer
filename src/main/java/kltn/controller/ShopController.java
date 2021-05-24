@@ -1,5 +1,6 @@
 package kltn.controller;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +46,7 @@ import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IShopService;
 import kltn.service.impl.ProductService;
+import kltn.util.InitialAddress;
 import kltn.util.ValidationBindingResult;
 
 @RestController
@@ -67,13 +69,22 @@ public class ShopController {
 	@Autowired
 	private JwtTokenProvider jwt;
 
-
+	@Autowired
+	private InitialAddress initialAddress;
+	
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody LoginInput s, BindingResult bindingResult) {
 		ResponseEntity<?> error = validationBindingResult.process(bindingResult);
 		if (error != null) {
 			return error;
 		}
+		try {
+			initialAddress.run();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		Authentication auth = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(s.getUsername(), s.getPassword()));
@@ -98,7 +109,7 @@ public class ShopController {
 	}
 
 	@GetMapping("/me")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
+//	@PreAuthorize(value = "")
 	public ResponseEntity<?> getOneShop(Principal principal) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");

@@ -9,10 +9,10 @@ import lombok.Data;
 public class ProductDTO extends AbstractDTO {
 	private String name;
 	private String price;
-	private String sale;
+	private int sale;
 	private String description;
 	//private ProductStatus status;
-	private SubCategoryDTO subCategory;
+	private CategoryDTO category;
 	private List<PhotoDTO> photos;
 	private DetailDTO detail;
 	private int shopId;
@@ -20,9 +20,4 @@ public class ProductDTO extends AbstractDTO {
 	private String shopAvatar;
 	private int quantity;
 	private double totalStar;
-	public ProductDTO() {
-		super();
-	}
-	
-	
 }

@@ -11,5 +11,4 @@ import lombok.Data;
 public class Banner extends Abstract{
 	private String name;
 	private String url;
-	private String image;
 }

@@ -20,9 +20,6 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private RepliesConverter repliesConverter;
-
-	@Autowired
 	private ProductRepository productRepository;
 
 	@Autowired

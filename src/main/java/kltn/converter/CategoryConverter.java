@@ -1,13 +1,13 @@
 package kltn.converter;
 
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import kltn.dto.CategoryDTO;
-import kltn.dto.SubCategoryDTO;
 import kltn.entity.Category;
-import kltn.entity.SubCategory;
 
 @Component
 public class CategoryConverter implements IConverter<Category, CategoryDTO>{
@@ -23,7 +23,11 @@ public class CategoryConverter implements IConverter<Category, CategoryDTO>{
 	@Override
 	public CategoryDTO toDTO(Category s) {
 		// TODO Auto-generated method stub
-		return modelMapper.map(s, CategoryDTO.class);
+		CategoryDTO ca = modelMapper.map(s, CategoryDTO.class);
+		if(s.getCategory() != null)
+		ca.setParentId(s.getCategory().getId());
+		ca.setSubCategorys(s.getSubCategories().stream().map((e)-> toDTO(e)).collect(Collectors.toList()));
+		return ca;
 	}
 	
 

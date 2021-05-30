@@ -36,41 +36,15 @@ public class User extends Abstract{
 	private String address;
 
 	
-	@OneToMany(mappedBy = "shop")
-	private List<Product> products;
 	
 	@ManyToOne
 	@JoinColumn(name="role_id")
 	private Role role;
 	
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Action> actions;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Following> follow;
 	
-	public String generateToken() {
-		Random rnd = new Random();
-	    int number = rnd.nextInt(999999);
-		this.otp = String.format("%06d", number);
-		return this.otp;
-	}
-	
-	public boolean isAfterTime() {
-		if(this.expireOtp == null) {
-			return true;
-		}
-		Calendar time = Calendar.getInstance();
-		Timestamp timetamp = new Timestamp(time.getTime().getTime());
-		return timetamp.after(this.expireOtp);
-	}
-	public void setTimeTokenFuture(int minutes) {
-		Calendar time = Calendar.getInstance();
-		time.add(Calendar.MINUTE, minutes);
-		this.expireOtp = new Timestamp(time.getTime().getTime());
-	}
-	
-	public boolean checkOTP(String otp) {
-		return this.otp.equals(otp);
-	}
 }

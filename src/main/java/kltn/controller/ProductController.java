@@ -59,10 +59,15 @@ public class ProductController {
 //		outPut.setData(commentService.findByProductId(productId, pageSize, pageNumber));
 //		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 //	}
-	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping
+	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Principal principal){
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
 		outPut.setData(productService.save(product, principal.getName()));
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	} 
 	

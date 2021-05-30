@@ -4,11 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import kltn.api.output.productOutput;
 import kltn.dto.DetailDTO;
 import kltn.dto.ProductDTO;
 import kltn.entity.Product;
-import kltn.repository.PhotoRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.RatingRepository;
 import kltn.service.IPhotoService;
@@ -19,13 +17,13 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 	private ModelMapper modelMapper;
 	
 	@Autowired
-	private SubCategoryConverter subCategoryConverter;
-	
-	@Autowired
 	private IPhotoService photoService;
 	
 	@Autowired
 	private ProductRepository productRepository;
+	
+	@Autowired
+	private CategoryConverter categoryConverter;
 	
 	@Autowired
 	private RatingRepository ratingRepository;
@@ -42,7 +40,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 		ProductDTO product = modelMapper.map(s, ProductDTO.class);
 		product.setPhotos(photoService.findByProduct_Id(s.getId()));
 		product.setDetail(modelMapper.map(s.getDetail(), DetailDTO.class));
-		product.setSubCategory(subCategoryConverter.toDTO(s.getSubCategory()));
+		product.setCategory(categoryConverter.toDTO(s.getCategory()));
 		product.setShopId(s.getShop().getId());
 		product.setShopName(s.getShop().getNameShop());
 		product.setShopAvatar(s.getShop().getAvatar());

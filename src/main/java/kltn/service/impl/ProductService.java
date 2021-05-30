@@ -15,11 +15,9 @@ import kltn.dto.ProductDTO;
 import kltn.entity.Detail;
 import kltn.entity.Product;
 import kltn.entity.Shop;
-import kltn.entity.SubCategory;
+import kltn.repository.CategoryRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
-import kltn.repository.SubCategoryRepository;
-import kltn.repository.UserRepository;
 import kltn.service.IProductService;
 
 @Service
@@ -34,11 +32,10 @@ public class ProductService implements IProductService{
 	private ShopRepository shopRepository;
 	
 	@Autowired
-	private SubCategoryRepository subCategoryRepository;
-	
-	@Autowired
 	private ModelMapper modelMapper;
 	
+	@Autowired
+	private CategoryRepository categoryRepository;
 	@Override
 	public ProductDTO findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
@@ -46,17 +43,23 @@ public class ProductService implements IProductService{
 	}
 
 	@Override
-	public Page<ProductDTO> findBySubCategoryLimit(int subCateroryId, int pageSize, int pageNumber) {
+	public Page<ProductDTO> findByCategoryLimit(int cateroryId, int pageSize, int pageNumber) {
 		// TODO Auto-generated method stub
-		System.out.println(subCateroryId +"|"+ pageNumber +"|" + pageSize);
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-		return productRepository.findBySubCategory_Id(pageable, subCateroryId).map(productConverter::toDTO);
+		return productRepository.findByCategory_Id(pageable, cateroryId).map(productConverter::toDTO);
 	}
 	
 	@Override
 	public List<ProductDTO> findRandomLimit(int limit) {
 		// TODO Auto-generated method stub
 		return productRepository.findRandomLimit(limit).stream().map(productConverter::toDTO).collect(Collectors.toList());
+	}
+
+	@Override
+	public Page<ProductDTO> findByShopId(int shopId, int pageSize, int pageNumber) {
+		// TODO Auto-generated method stub
+		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+		return productRepository.findByShop_id(shopId, pageable).map(productConverter::toDTO);
 	}
 
 	@Override
@@ -67,12 +70,12 @@ public class ProductService implements IProductService{
 	}
 
 	@Override
-	public ProductDTO save(ProductDTO dto, String userName) {
+	public ProductDTO save(ProductDTO dto, String userName) throws Exception {
 		// TODO Auto-generated method stub
 		Shop u = shopRepository.findOneByUserName(userName).get();
 		Product p = productConverter.toEntity(dto);
 		p.setDetail(modelMapper.map(dto.getDetail(),Detail.class));
-		p.setSubCategory(subCategoryRepository.findById(dto.getSubCategory().getId()).get());
+		p.setCategory(categoryRepository.findById(dto.getCategory().getId()).orElseThrow(()-> new Exception("Category was not found")));
 		p.setShop(u);
 		return productConverter.toDTO(productRepository.save(p));
 	}

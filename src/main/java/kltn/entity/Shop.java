@@ -2,6 +2,7 @@ package kltn.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -29,14 +30,14 @@ public class Shop extends Abstract{
 	private String hotLine;
 	private String website;
 	
-	@OneToMany(mappedBy = "shop")
+	@OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
 	private List<Product> products;
 	
 	@ManyToOne
 	@JoinColumn(name="role_id")
 	private Role role;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="address_id")
 	private Address address;
 }

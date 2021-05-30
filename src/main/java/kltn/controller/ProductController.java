@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import kltn.api.input.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
 import kltn.service.ICommentService;
@@ -63,4 +65,16 @@ public class ProductController {
 		outPut.setData(productService.save(product, principal.getName()));
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	} 
+	
+	@PostMapping(value ="/comment")
+	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
+	public ResponseEntity<?> comment( Principal principal, @RequestBody CommentOuput m) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			commentService.save(m, principal.getName());
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
 }

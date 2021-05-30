@@ -1,11 +1,11 @@
 package kltn.service;
 
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 
-import kltn.dto.CommentDTO;
+import kltn.api.input.CommentOuput;
 
 public interface ICommentService {
-	Page<CommentDTO> findByProductId(int id, int pageSize, int pageNumber);
+	Page<CommentOuput> findByProductId(int id, int pageSize, int pageNumber);
+	void save(CommentOuput m, String userName) throws Exception;
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import kltn.entity.Comment;
 import kltn.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Integer>{
@@ -21,4 +22,6 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	
 	@Query(value = "select * from product order by rand() limit :limit",nativeQuery = true)
 	List<Product> findRandomLimit(int limit);
+	
+	
 }

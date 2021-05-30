@@ -1,6 +1,5 @@
 package kltn.entity;
 
-import java.security.Timestamp;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -16,13 +15,22 @@ import lombok.Data;
 @Table(name = "comment")
 public class Comment extends Abstract{
 	private String content;
+
+	@ManyToOne
+	@JoinColumn(name = "comment_id")
+	private Comment comment;
+	
 	
 	@OneToMany(mappedBy = "comment")
-	private List<Replies> replies;
+	private List<Comment> replies;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
+	
+	@ManyToOne
+	@JoinColumn(name = "shop_id")
+	private Shop shop;
 	
 	@ManyToOne
 	@JoinColumn(name = "product_id")

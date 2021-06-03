@@ -6,7 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import kltn.api.input.CommentOuput;
+import kltn.api.output.CommentOuput;
 import kltn.entity.Comment;
 import kltn.entity.Shop;
 import kltn.entity.User;

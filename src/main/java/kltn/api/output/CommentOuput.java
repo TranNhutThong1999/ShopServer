@@ -1,4 +1,4 @@
-package kltn.api.input;
+package kltn.api.output;
 
 import java.util.Date;
 import java.util.List;

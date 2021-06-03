@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import kltn.api.input.CommentOuput;
+import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
 import kltn.service.ICommentService;
@@ -76,7 +76,7 @@ public class ProductController {
 	public ResponseEntity<?> comment( Principal principal, @RequestBody CommentOuput m) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			commentService.save(m, principal.getName());
+			outPut.setData(commentService.save(m, principal.getName()));
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

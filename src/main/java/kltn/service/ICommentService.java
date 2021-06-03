@@ -3,9 +3,10 @@ package kltn.service;
 
 import org.springframework.data.domain.Page;
 
-import kltn.api.input.CommentOuput;
+import kltn.api.output.CommentOuput;
+
 
 public interface ICommentService {
 	Page<CommentOuput> findByProductId(int id, int pageSize, int pageNumber);
-	void save(CommentOuput m, String userName) throws Exception;
+	CommentOuput save(CommentOuput m, String userName) throws Exception;
 }

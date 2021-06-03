@@ -21,6 +21,9 @@ public class Product extends Abstract{
 	private String price;
 	private int sale;
 	
+	@OneToMany(mappedBy = "product")
+	private List<Comment> comments;
+	
 	@Column(columnDefinition = "TEXT")
 	
 	private String description;

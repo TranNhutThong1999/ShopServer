@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import kltn.api.input.CommentOuput;
+import kltn.api.output.CommentOuput;
 import kltn.converter.CommentConverter;
 import kltn.entity.Comment;
 import kltn.repository.CommentRepository;
@@ -31,12 +31,15 @@ public class CommentService implements ICommentService{
 	
 	@Override
 	public Page<CommentOuput> findByProductId(int id, int pageSize, int pageNumber) {
-		// TODO Auto-generated method stub
-		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-		return commentRepository.findAllByProduct_IdAndCommentIdIsNull(id, pageable).map(commentConverter::toDTO);
+//		// TODO Auto-generated method stub
+//		Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//		return commentRepository.findAllByProduct_IdAndCommentIdIsNull(id, pageable).map(commentConverter::toDTO);
+//	}
+		return null;
 	}
+	
 	@Override
-	public void save(CommentOuput m, String userName) throws Exception {
+	public CommentOuput save(CommentOuput m, String userName) throws Exception {
 		// TODO Auto-generated method stub
 		Comment cm = commentConverter.toEntity(m);
 		if(m.getParentId()!=0) {
@@ -44,6 +47,6 @@ public class CommentService implements ICommentService{
 		}
 		cm.setShop(ShopRepository.findOneByUserName(userName).get());
 		cm.setProduct(productRepository.findOneById(m.getProductId()).orElseThrow(()-> new Exception("productId was not found")));
-		commentRepository.save(cm);
+		return commentConverter.toDTO(commentRepository.save(cm));
 	}
 }

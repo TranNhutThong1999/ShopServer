@@ -40,4 +40,7 @@ public class Shop extends Abstract{
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="address_id")
 	private Address address;
+	
+	@OneToMany(mappedBy = "shop", cascade = CascadeType.REMOVE)
+	private List<Comment> comment;
 }

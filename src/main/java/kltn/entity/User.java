@@ -47,4 +47,6 @@ public class User extends Abstract{
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Following> follow;
 	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+	private List<Comment> comment;
 }

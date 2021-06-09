@@ -33,10 +33,6 @@ public class Shop extends Abstract{
 	@OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)
 	private List<Product> products;
 	
-	@ManyToOne
-	@JoinColumn(name="role_id")
-	private Role role;
-	
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name="address_id")
 	private Address address;

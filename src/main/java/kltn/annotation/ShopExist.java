@@ -13,7 +13,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME) 
 public @interface ShopExist {
 	// error message
-	public String message() default "Phone existed";
+	public String message() default "username existed";
 
 //represents group of constraints     
 	public Class<?>[] groups() default {};

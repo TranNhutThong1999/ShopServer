@@ -12,6 +12,7 @@ public class ProductDTO extends AbstractDTO {
 	private int sale;
 	private String description;
 	//private ProductStatus status;
+	private String priceSale;
 	private CategoryDTO category;
 	private List<PhotoDTO> photos;
 	private DetailDTO detail;

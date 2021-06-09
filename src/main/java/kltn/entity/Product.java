@@ -20,6 +20,7 @@ public class Product extends Abstract{
 	private String name;
 	private String price;
 	private int sale;
+	private String priceSale;
 	
 	@OneToMany(mappedBy = "product")
 	private List<Comment> comments;
@@ -38,7 +39,7 @@ public class Product extends Abstract{
 	@JoinColumn(name = "detail_id")
 	private Detail detail;
 	
-	@OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
 	private List<Photo> photos;
 	
 	@ManyToOne

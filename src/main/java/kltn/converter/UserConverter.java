@@ -23,7 +23,6 @@ public class UserConverter implements IConverter<User, UserDTO>{
 	public UserDTO toDTO(User s) {
 		// TODO Auto-generated method stub
 		UserDTO user =modelMapper.map(s, UserDTO.class);
-		user.setRole(s.getRole().getName());
 		user.setFullName(s.getFirstName() + " " + s.getLastName());
 		return user;
 	}

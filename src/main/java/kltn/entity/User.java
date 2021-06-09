@@ -36,11 +36,6 @@ public class User extends Abstract{
 	private String address;
 
 	
-	
-	@ManyToOne
-	@JoinColumn(name="role_id")
-	private Role role;
-	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Action> actions;
 	

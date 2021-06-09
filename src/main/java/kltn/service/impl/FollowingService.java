@@ -23,21 +23,21 @@ public class FollowingService implements IFollowingService {
 	@Autowired
 	private CustomUserDetail customUserDetail;
 
-	@Override
-	public void save(int shopId) throws Exception {
-		// TODO Auto-generated method stub
-
-			Following follow = followingRepository.findOneByUser_IdAndShop_Id(customUserDetail.getPrincipleId(), shopId)
-					.orElseThrow(() -> new Exception("ShopId was not existed"));
-			followingRepository.save(follow);
-	}
-
-	@Override
-	public void delete(int shopId) throws Exception {
-		// TODO Auto-generated method stub
-		Following follow = followingRepository.findOneByUser_IdAndShop_Id(customUserDetail.getPrincipleId(), shopId)
-				.orElseThrow(() -> new Exception("ShopId was not existed"));
-		followingRepository.delete(follow);
-	}
+//	@Override
+//	public void save(int shopId) throws Exception {
+//		// TODO Auto-generated method stub
+//
+//			Following follow = followingRepository.findOneByUser_IdAndShop_Id(customUserDetail.getPrincipleId(), shopId)
+//					.orElseThrow(() -> new Exception("ShopId was not existed"));
+//			followingRepository.save(follow);
+//	}
+//
+//	@Override
+//	public void delete(int shopId) throws Exception {
+//		// TODO Auto-generated method stub
+//		Following follow = followingRepository.findOneByUser_IdAndShop_Id(customUserDetail.getPrincipleId(), shopId)
+//				.orElseThrow(() -> new Exception("ShopId was not existed"));
+//		followingRepository.delete(follow);
+//	}
 
 }

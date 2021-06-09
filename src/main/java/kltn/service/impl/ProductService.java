@@ -10,9 +10,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import kltn.converter.PhotoConverter;
 import kltn.converter.ProductConverter;
 import kltn.dto.ProductDTO;
 import kltn.entity.Detail;
+import kltn.entity.Photo;
 import kltn.entity.Product;
 import kltn.entity.Shop;
 import kltn.repository.CategoryRepository;
@@ -36,6 +38,10 @@ public class ProductService implements IProductService{
 	
 	@Autowired
 	private CategoryRepository categoryRepository;
+	
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@Override
 	public ProductDTO findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
@@ -77,6 +83,13 @@ public class ProductService implements IProductService{
 		p.setDetail(modelMapper.map(dto.getDetail(),Detail.class));
 		p.setCategory(categoryRepository.findById(dto.getCategory().getId()).orElseThrow(()-> new Exception("Category was not found")));
 		p.setShop(u);
+		int percen = (Integer.valueOf(dto.getPrice())*100) / Integer.valueOf(dto.getPriceSale());
+		dto.setSale(percen);
+		p.setPhotos(dto.getPhotos().stream().map((x)-> {
+			Photo pho = photoConverter.toEntity(x);
+			pho.setProduct(p);
+			return pho;
+		}).collect(Collectors.toList()));
 		return productConverter.toDTO(productRepository.save(p));
 	}
 

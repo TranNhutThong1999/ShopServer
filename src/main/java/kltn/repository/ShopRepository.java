@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kltn.entity.Role;
 import kltn.entity.Shop;
 
 public interface ShopRepository extends JpaRepository<Shop, Integer>{

@@ -17,7 +17,6 @@ import kltn.entity.Wards;
 import kltn.repository.AddressRepository;
 import kltn.repository.DistrictRepository;
 import kltn.repository.ProvincialRepository;
-import kltn.repository.RoleRepository;
 import kltn.repository.ShopRepository;
 import kltn.repository.WardsRepository;
 import kltn.service.IShopService;
@@ -30,9 +29,6 @@ public class ShopService implements IShopService {
 
 	@Autowired
 	private ShopRepository shopRepository;
-
-	@Autowired
-	private RoleRepository roleRepository;
 
 	@Autowired
 	private PasswordEncoder encoder;
@@ -56,7 +52,6 @@ public class ShopService implements IShopService {
 	public ShopDTO Save(ShopDTO s) {
 		// TODO Auto-generated method stub
 		Shop e = shopConverter.toEntity(s);
-		e.setRole(roleRepository.findOneByName("SHOP"));
 		e.setPassword(encoder.encode(s.getPassword()));
 		Address address = new Address();
 		address.setLocation(s.getLocation());

@@ -27,11 +27,12 @@ public class FollowingConverter implements IConverter<Following, FollowingDTO>{
 	
 	@Override
 	public Following toEntity(FollowingDTO d) throws Exception {
-		// TODO Auto-generated method stub
-		Following entity = modelMapper.map(d, Following.class);
-		entity.setUser(userRepository.findById(customUserDetail.getPrincipleId()).get());
-		entity.setShop(shopRepository.findById(d.getShopId()).orElseThrow(()-> new Exception("shopId was not found")));
-		return entity;
+//		// TODO Auto-generated method stub
+//		Following entity = modelMapper.map(d, Following.class);
+//		entity.setUser(userRepository.findById(customUserDetail.getPrincipleId()).get());
+//		entity.setShop(shopRepository.findById(d.getShopId()).orElseThrow(()-> new Exception("shopId was not found")));
+//		return entity;
+		return null;
 	}
 
 	@Override

@@ -60,19 +60,18 @@ public class ProductController {
 //		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 //	}
 	@PostMapping
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Principal principal){
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
 		outPut.setData(productService.save(product, principal.getName()));
 		} catch (Exception e) {
+			System.out.println(e.getLocalizedMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	} 
 	
 	@PostMapping(value ="/comment")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> comment( Principal principal, @RequestBody CommentOuput m) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {

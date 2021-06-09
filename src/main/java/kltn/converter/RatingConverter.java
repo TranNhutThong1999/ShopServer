@@ -26,11 +26,12 @@ public class RatingConverter implements IConverter<Rating, RatingDTO> {
 	
 	@Override
 	public Rating toEntity(RatingDTO d) throws Exception {
-		// TODO Auto-generated method stub
-		Rating entity = modelMapper.map(d, Rating.class);
-		entity.setProduct(productRepository.findOneById(d.getProductId()).orElseThrow(()-> new Exception("productId was not found")));
-		entity.setUser(userRepository.findById(customUserDetail.getPrincipleId()).get());
-		return entity;
+//		// TODO Auto-generated method stub
+//		Rating entity = modelMapper.map(d, Rating.class);
+//		entity.setProduct(productRepository.findOneById(d.getProductId()).orElseThrow(()-> new Exception("productId was not found")));
+//		entity.setUser(userRepository.findById(customUserDetail.getPrincipleId()).get());
+//		return entity;
+		return null;
 	}
 
 	@Override

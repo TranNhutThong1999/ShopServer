@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +37,7 @@ import kltn.service.IShopService;
 import kltn.util.ValidationBindingResult;
 
 @RestController
+@RequestMapping("/shop")
 public class ShopController {
 	@Autowired
 	private IShopService shopService;
@@ -86,7 +88,6 @@ public class ShopController {
 	}
 
 	@GetMapping("/me")
-//	@PreAuthorize(value = "")
 	public ResponseEntity<?> getOneShop(Principal principal) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -120,7 +121,6 @@ public class ShopController {
 //	}
 
 	@GetMapping("/product")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> getlistProduct(@RequestParam(required = false, defaultValue = "5") int pageSize,
 			@RequestParam(required = false, defaultValue = "0") int pageNumber, Principal principal) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -130,7 +130,6 @@ public class ShopController {
 	}
 
 	@PostMapping("/photo")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> savePhotos(@RequestParam(required = true) MultipartFile[] files,
 			@RequestParam(required = true) int productId, Principal principal) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -146,7 +145,6 @@ public class ShopController {
 	}
 
 	@PostMapping("/avatar")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
 	public ResponseEntity<?> saveAvatar(@RequestParam(required = true) MultipartFile file, Principal principal) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -158,8 +156,7 @@ public class ShopController {
 
 	}
 
-	@DeleteMapping(value = "/shope")
-	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
+	@DeleteMapping
 	public ResponseEntity<?> deleteShope(Principal principal) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");

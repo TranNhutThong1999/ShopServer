@@ -24,6 +24,8 @@ import kltn.security.JwtAuthenticationFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
+	private final String[] AUTH = {"/shop/me", "/shop/photo", "/shop/avatar", "/shop", "/product", "/product/comment"};
+	
 	@Autowired
 	private CustomUserDetail customUserDetail;
 
@@ -52,9 +54,8 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests().antMatchers("/").permitAll().antMatchers("/me").authenticated();
+		http.authorizeRequests().antMatchers(AUTH).authenticated().anyRequest().permitAll();
 		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
-
 	}
 
 	@Override

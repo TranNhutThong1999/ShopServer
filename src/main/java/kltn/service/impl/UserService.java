@@ -11,7 +11,6 @@ import kltn.converter.UserConverter;
 import kltn.dto.UserDTO;
 import kltn.entity.User;
 import kltn.exception.UserWasNotFoundException;
-import kltn.repository.RoleRepository;
 import kltn.repository.UserRepository;
 import kltn.service.IUserService;
 import kltn.util.SMSSender;
@@ -22,17 +21,15 @@ public class UserService implements IUserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder encoder;
 	private final UserConverter userConverter;
-	private final RoleRepository roleRepository;
 	private final SMSSender sms;
 
 	@Autowired
 	public UserService(UserRepository userRepository, PasswordEncoder encoder, UserConverter userConverter,
-			RoleRepository roleRepository, SMSSender sms) {
+		 SMSSender sms) {
 		super();
 		this.userRepository = userRepository;
 		this.encoder = encoder;
 		this.userConverter = userConverter;
-		this.roleRepository = roleRepository;
 		this.sms = sms;
 	}
 

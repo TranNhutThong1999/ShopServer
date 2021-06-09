@@ -26,7 +26,4 @@ public class Address extends Abstract{
 	@JoinColumn(name = "wards_id")
 	private Wards Wards;
 	
-	@OneToOne
-	@JoinColumn(name="shop_id")
-	private Shop shop;
 }

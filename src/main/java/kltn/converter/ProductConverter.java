@@ -37,6 +37,9 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 	@Autowired
 	private CommentConverter commentConverter;
 	
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@Override
 	public Product toEntity(ProductDTO d) {
 		// TODO Auto-generated method stub
@@ -47,7 +50,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 	public ProductDTO toDTO(Product s) {
 		// TODO Auto-generated method stub
 		ProductDTO product = modelMapper.map(s, ProductDTO.class);
-		product.setPhotos(photoService.findByProduct_Id(s.getId()));
+		product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
 		product.setDetail(modelMapper.map(s.getDetail(), DetailDTO.class));
 		product.setCategory(categoryConverter.toDTO(s.getCategory()));
 		product.setShopId(s.getShop().getId());

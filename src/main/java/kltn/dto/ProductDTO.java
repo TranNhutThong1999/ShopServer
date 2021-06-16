@@ -8,14 +8,15 @@ import lombok.Data;
 @Data
 public class ProductDTO extends AbstractDTO {
 	private String name;
-	private String price;
+	private int price;
 	private int sale;
 	private String description;
 	//private ProductStatus status;
-	private String priceSale;
+	private int priceSale;
 	private CategoryDTO category;
 	private List<PhotoDTO> photos;
 	private DetailDTO detail;
+	private int quantitySold;
 	private int shopId;
 	private String shopName;
 	private String shopAvatar;

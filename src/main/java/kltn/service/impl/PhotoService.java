@@ -1,16 +1,25 @@
 package kltn.service.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +35,12 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.StorageClient;
 
+import io.netty.util.Constant;
+import kltn.api.input.UploadFileInput;
 import kltn.converter.PhotoConverter;
 import kltn.dto.PhotoDTO;
 import kltn.entity.Photo;
+import kltn.entity.Product;
 import kltn.entity.Shop;
 import kltn.entity.User;
 import kltn.repository.PhotoRepository;
@@ -36,6 +48,7 @@ import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.repository.UserRepository;
 import kltn.service.IPhotoService;
+import kltn.util.Constants;
 
 @Service
 public class PhotoService implements IPhotoService {
@@ -50,49 +63,48 @@ public class PhotoService implements IPhotoService {
 
 	@Autowired
 	private ShopRepository shopRepository;
-	private Storage storage;
 
-	public static final String rootURL = "https://firebasestorage.googleapis.com/v0/b/kltn-5e877.appspot.com/o/";
+	@Autowired
+	private Constants constant;
 
 	@PostConstruct
-	public void init() {
-		// initialize Firebase
-		try {
-			ClassPathResource serviceAccount = new ClassPathResource("firebase.json");
-			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount.getInputStream()))
-					.setStorageBucket("kltn-5e877.appspot.com").build();
-			FirebaseApp.initializeApp(options);
-
-			storage = StorageOptions.newBuilder().setProjectId("kltn-5e877")
-					.setCredentials(ServiceAccountCredentials.fromStream(serviceAccount.getInputStream())).build()
-					.getService();
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
+	public void run() {
+		File f = new File(constant.rootURL + File.separator + "images");
+		if (!f.exists()) {
+			f.mkdir();
 		}
 	}
 
 	@Override
-	public void savePhotosProduct(int productId, MultipartFile file, String userName) throws Exception {
-		Bucket bucket = StorageClient.getInstance().bucket();
-		String name = file.getOriginalFilename();
-		String token = UUID.randomUUID().toString();
+	public void savePhotosProduct(int productId, List<UploadFileInput> m, String userName) throws Exception {
+		Product p = productRepository.findOneByIdAndShop_UserName(productId, userName)
+				.orElseThrow(() -> new Exception("Author"));
+		ExecutorService executor = Executors.newFixedThreadPool(5);
+		m.stream().forEach((x) -> {
+			CompletableFuture.runAsync(() -> {
+				try {
+					String[] cut = x.getName().split("\\.");
+					String random = UUID.randomUUID().toString();
+					String name = cut[0] + random + "." + cut[1];
+					FileOutputStream fos = new FileOutputStream(
+							constant.rootURL + File.separator + "/images" + File.separator + name);
+					byte[] image = Base64.getDecoder().decode(x.getBase64String());
+					fos.write(image);
+					fos.flush();
+					fos.close();
+					Photo photo = new Photo();
+					photo.setName(name);
+					photo.setProduct(p);
+					photoRepository.save(photo);
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				}
 
-		BlobId blobId = BlobId.of(bucket.getName(), name);
-		Map<String, String> map = new HashMap<>();
-		map.put("firebaseStorageDownloadTokens", token);
+			}, executor);
 
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setMetadata(map).setContentType(file.getContentType()).build();
-		// excute upload
-		storage.create(blobInfo, file.getBytes());
-		String link = rootURL + name + "?alt=media&token=" + token;
-		Photo img = new Photo();
-		img.setName(name);
-		img.setLink(link);
-		img.setProduct(productRepository.findOneByIdAndShop_UserName(productId, userName)
-				.orElseThrow(() -> new Exception("productId does't exist")));
-		photoRepository.save(img);
+		});
+		executor.shutdown();
+
 	}
 
 	@Override
@@ -102,25 +114,20 @@ public class PhotoService implements IPhotoService {
 				.collect(Collectors.toList());
 	}
 
-
 	@Override
-	public void saveAvatar(MultipartFile file, String userName) throws IOException, Exception {
+	public void saveAvatar(UploadFileInput m, String userName) throws Exception {
 		// TODO Auto-generated method stub
-		Bucket bucket = StorageClient.getInstance().bucket();
-		String name = file.getOriginalFilename();
-		String token = UUID.randomUUID().toString();
-
-		BlobId blobId = BlobId.of(bucket.getName(), name);
-		Map<String, String> map = new HashMap<>();
-		map.put("firebaseStorageDownloadTokens", token);
-
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setMetadata(map).setContentType(file.getContentType()).build();
-		// excute upload
-		storage.create(blobInfo, file.getBytes());
-		String link = rootURL + name + "?alt=media&token=" + token;
-		Shop s = shopRepository.findOneByUserName(userName).get();
-		s.setAvatar(link);
+		Shop s = shopRepository.findOneByUserName(userName).orElseThrow(() -> new Exception("shop was not found"));
+		String[] cut = m.getName().split("\\.");
+		String random = UUID.randomUUID().toString();
+		String name = cut[0] + random + "." + cut[1];
+		FileOutputStream fos = new FileOutputStream(
+				constant.rootURL + File.separator + "/images" + File.separator + name);
+		byte[] image = Base64.getDecoder().decode(m.getBase64String());
+		fos.write(image);
+		fos.flush();
+		fos.close();
+		s.setAvatar(constant.showImage + File.separator + "images" + File.separator + name);
 		shopRepository.save(s);
 	}
-
 }

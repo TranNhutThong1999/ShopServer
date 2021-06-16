@@ -25,12 +25,11 @@ public class User extends Abstract{
 	private String lastName;
 	private String pictureURL;
 	private String phone;
-	private String gmail;
+	private String email;
 	private String dayOfBirth;
 	private boolean enabled; //defaul: false is not verify
 	private String otp;
 	private Timestamp expireOtp;
-//	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private int gender; //true is boy
 	private String address;

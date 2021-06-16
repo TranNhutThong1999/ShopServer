@@ -24,7 +24,16 @@ import kltn.security.JwtAuthenticationFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
-	private final String[] AUTH = {"/shop/me", "/shop/photo", "/shop/avatar", "/shop", "/product", "/product/comment"};
+	private final String[] AUTH = {
+			"/shop/me",
+			"/shop/photo",
+			"/shop/avatar",
+			"/shop",
+			"/product",
+			"/product/comment",
+			"/shop/product",
+			"/shop/changepassword"};
+	
 	
 	@Autowired
 	private CustomUserDetail customUserDetail;

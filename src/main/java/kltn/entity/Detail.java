@@ -11,8 +11,11 @@ import lombok.Data;
 public class Detail extends Abstract{
 	private String provideByShop;
 	private String trademark;
+	private String brandOrigin;
+	private String useTutorial;
 	private String madeBy;
-	private String size;
-	private String color;
 	private String material;
+	private String model;
+	private String vat;
+	private String guarantee;
 }

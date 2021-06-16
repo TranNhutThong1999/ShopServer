@@ -83,8 +83,8 @@ public class ProductService implements IProductService{
 		p.setDetail(modelMapper.map(dto.getDetail(),Detail.class));
 		p.setCategory(categoryRepository.findById(dto.getCategory().getId()).orElseThrow(()-> new Exception("Category was not found")));
 		p.setShop(u);
-		int percen = (Integer.valueOf(dto.getPrice())*100) / Integer.valueOf(dto.getPriceSale());
-		dto.setSale(percen);
+		int percen = (dto.getPrice()*100) / dto.getPriceSale();
+		p.setSale(percen);
 		p.setPhotos(dto.getPhotos().stream().map((x)-> {
 			Photo pho = photoConverter.toEntity(x);
 			pho.setProduct(p);

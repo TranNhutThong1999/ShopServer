@@ -13,7 +13,7 @@ public class UserDTO extends AbstractDTO{
 	
 	private String phone;
 	
-	private String gmail;
+	private String email;
 	private String dayOfBirth;
 	
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)

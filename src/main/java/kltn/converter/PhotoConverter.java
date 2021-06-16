@@ -1,5 +1,7 @@
 package kltn.converter;
 
+import java.io.File;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -7,6 +9,7 @@ import org.springframework.stereotype.Component;
 import kltn.dto.PhotoDTO;
 import kltn.entity.Photo;
 import kltn.repository.ProductRepository;
+import kltn.util.Constants;
 
 @Component
 public class PhotoConverter implements IConverter<Photo, PhotoDTO>{
@@ -16,6 +19,9 @@ public class PhotoConverter implements IConverter<Photo, PhotoDTO>{
 	
 	@Autowired
 	private ProductRepository productRepository;
+	
+	@Autowired
+	private Constants constant;
 	
 	@Override
 	public Photo toEntity(PhotoDTO d) {
@@ -28,6 +34,9 @@ public class PhotoConverter implements IConverter<Photo, PhotoDTO>{
 	public PhotoDTO toDTO(Photo s) {
 		// TODO Auto-generated method stub
 		PhotoDTO p = modelMapper.map(s, PhotoDTO.class);
+		if(s.getLink() == null) {
+			p.setLink(constant.showImage + File.separator+ "images" + File.separator + s.getName());
+		}
 		//p.setProductId(s.getProduct().getId());
 		return p;
 	}

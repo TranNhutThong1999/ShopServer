@@ -18,9 +18,9 @@ import lombok.Data;
 @Table(name = "product")
 public class Product extends Abstract{
 	private String name;
-	private String price;
+	private int price;
 	private int sale;
-	private String priceSale;
+	private int priceSale;
 	
 	@OneToMany(mappedBy = "product")
 	private List<Comment> comments;
@@ -30,6 +30,7 @@ public class Product extends Abstract{
 	private String description;
 	private int quantity;
 	//private ProductStatus status;
+	private int quantitySold;
 	
 	@ManyToOne
 	@JoinColumn(name="category_id")

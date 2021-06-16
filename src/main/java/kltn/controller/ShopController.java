@@ -2,6 +2,7 @@ package kltn.controller;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import kltn.api.input.LoginInput;
+import kltn.api.input.OtpInput;
+import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
 import kltn.dto.ShopDTO;
@@ -63,16 +68,22 @@ public class ShopController {
 		if (error != null) {
 			return error;
 		}
-
-		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		Authentication auth = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(s.getUsername(), s.getPassword()));
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		String JWT = jwt.generateToken(auth);
-		ShopDTO shop = shopService.findOneByUserName(auth.getName());
-		shop.setToken(JWT);
-		outPut.setData(shop);
-		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			Authentication auth = authenticationManager
+					.authenticate(new UsernamePasswordAuthenticationToken(s.getUsername(), s.getPassword()));
+			SecurityContextHolder.getContext().setAuthentication(auth);
+			String JWT = jwt.generateToken(auth);
+			ShopDTO shop = shopService.findOneByUserName(auth.getName());
+			shop.setToken(JWT);
+			outPut.setData(shop);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (DisabledException e) {
+			throw new ResponseStatusException(HttpStatus.LOCKED, "User is disabled");
+			
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 
 	@PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -99,17 +110,6 @@ public class ShopController {
 		}
 	}
 
-//	@PutMapping("/unfollow")
-//	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
-//	public ResponseEntity<?> unFollowShopByUser(@RequestParam(required = true) int id, Principal principal) {
-//		try {
-//			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-//			followingService.delete(id);
-//			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-//		} catch (Exception e) {
-//			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-//		}
-//	}
 
 //	@GetMapping("/photo")
 //	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
@@ -129,38 +129,68 @@ public class ShopController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 
-	@PostMapping("/photo")
-	public ResponseEntity<?> savePhotos(@RequestParam(required = true) MultipartFile[] files,
-			@RequestParam(required = true) int productId, Principal principal) {
-		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		Arrays.asList(files).stream().forEach(file -> {
-			try {
-				photoService.savePhotosProduct(productId, file, principal.getName());
-			} catch (Exception e) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-			}
-		});
-		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-
-	}
 
 	@PostMapping("/avatar")
-	public ResponseEntity<?> saveAvatar(@RequestParam(required = true) MultipartFile file, Principal principal) {
+	public ResponseEntity<?> saveAvatar(@RequestBody UploadFileInput m, Principal principal) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			photoService.saveAvatar(file, principal.getName());
+			photoService.saveAvatar(m, principal.getName());
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 
 	}
+//
+//	@DeleteMapping
+//	public ResponseEntity<?> deleteShope(Principal principal) {
+//		try {
+//			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+//			shopService.delete(principal.getName());
+//			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+//		} catch (Exception e) {
+//			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+//		}
+//	}
 
-	@DeleteMapping
-	public ResponseEntity<?> deleteShope(Principal principal) {
+	@PostMapping("sendOTP")
+	public ResponseEntity<?> sendCode(@RequestParam String email) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.delete(principal.getName());
+			shopService.sendOTP(email);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PostMapping("checkOTP")
+	public ResponseEntity<?> checkOTP(@RequestParam String otp, @RequestParam String email) {
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			outPut.setData(shopService.checkOTP(otp, email));
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PostMapping("verify")
+	public ResponseEntity<?> verifyRegister(@RequestBody OtpInput input) {
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			shopService.verify(input.getOtp(), input.getEmail());
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+
+	@PutMapping("changepassword")
+	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> data, Principal principal) {
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			shopService.changePassword(data.get("password"), principal.getName());
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

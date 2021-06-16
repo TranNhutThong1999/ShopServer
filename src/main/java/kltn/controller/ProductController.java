@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import kltn.api.input.UploadFileInput;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
 import kltn.service.ICommentService;
+import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IRatingService;
+import kltn.service.impl.PhotoService;
 
 @RestController
 @RequestMapping("/product")
@@ -37,6 +40,9 @@ public class ProductController {
 
 	@Autowired
 	private IRatingService ratingService;
+
+	@Autowired
+	private IPhotoService photoService;
 
 //	@GetMapping(produces = "application/json")
 //	public ResponseEntity<?> getOneProduct(@RequestParam(required = true) int id) {
@@ -60,22 +66,33 @@ public class ProductController {
 //		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 //	}
 	@PostMapping
-	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Principal principal){
+	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Principal principal) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-		outPut.setData(productService.save(product, principal.getName()));
+			outPut.setData(productService.save(product, principal.getName()));
 		} catch (Exception e) {
 			System.out.println(e.getLocalizedMessage());
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-	} 
-	
-	@PostMapping(value ="/comment")
-	public ResponseEntity<?> comment( Principal principal, @RequestBody CommentOuput m) {
+	}
+
+	@PostMapping(value = "/comment")
+	public ResponseEntity<?> comment(Principal principal, @RequestBody CommentOuput m) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
 			outPut.setData(commentService.save(m, principal.getName()));
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+
+	@PostMapping(value = "photo")
+	public ResponseEntity<?> addPhoto(Principal principal, @RequestBody List<UploadFileInput> m, @RequestParam int id) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			photoService.savePhotosProduct(id, m, principal.getName());
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

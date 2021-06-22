@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +48,7 @@ import kltn.repository.PhotoRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.repository.UserRepository;
+import kltn.security.MyShop;
 import kltn.service.IPhotoService;
 import kltn.util.Constants;
 
@@ -76,8 +78,8 @@ public class PhotoService implements IPhotoService {
 	}
 
 	@Override
-	public void savePhotosProduct(int productId, List<UploadFileInput> m, String userName) throws Exception {
-		Product p = productRepository.findOneByIdAndShop_UserName(productId, userName)
+	public void savePhotosProduct(int productId, List<UploadFileInput> m, Authentication auth) throws Exception {
+		Product p = productRepository.findOneByIdAndShop_Id(productId, getIdFromAuth(auth))
 				.orElseThrow(() -> new Exception("Author"));
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 		m.stream().forEach((x) -> {
@@ -108,16 +110,16 @@ public class PhotoService implements IPhotoService {
 	}
 
 	@Override
-	public List<PhotoDTO> findByProduct_Id(int productId) {
+	public List<PhotoDTO> findByProduct_Shop_id(int shopId) {
 		// TODO Auto-generated method stub
-		return photoRepository.findByProduct_Id(productId).stream().map(photoConverter::toDTO)
+		return photoRepository.findByProduct_Shop_id(shopId).stream().map(photoConverter::toDTO)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void saveAvatar(UploadFileInput m, String userName) throws Exception {
+	public void saveAvatar(UploadFileInput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Shop s = shopRepository.findOneByUserName(userName).orElseThrow(() -> new Exception("shop was not found"));
+		Shop s = shopRepository.findById(getIdFromAuth(auth)).orElseThrow(() -> new Exception("shop was not found"));
 		String[] cut = m.getName().split("\\.");
 		String random = UUID.randomUUID().toString();
 		String name = cut[0] + random + "." + cut[1];
@@ -129,5 +131,10 @@ public class PhotoService implements IPhotoService {
 		fos.close();
 		s.setAvatar(constant.showImage + File.separator + "images" + File.separator + name);
 		shopRepository.save(s);
+	}
+	
+	private int getIdFromAuth(Authentication auth) {
+		MyShop u = (MyShop)auth.getPrincipal();
+		return u.getId();
 	}
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -24,16 +25,6 @@ import kltn.security.JwtAuthenticationFilter;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
-	private final String[] AUTH = {
-			"/shop/me",
-			"/shop/photo",
-			"/shop/avatar",
-			"/shop",
-			"/product",
-			"/product/comment",
-			"/shop/product",
-			"/shop/changepassword"};
-	
 	
 	@Autowired
 	private CustomUserDetail customUserDetail;
@@ -63,7 +54,10 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests().antMatchers(AUTH).authenticated().anyRequest().permitAll();
+		http.authorizeRequests()
+		.antMatchers(HttpMethod.GET, "/shop/photo", "/shop/product","/product/comment").permitAll()
+		.antMatchers(HttpMethod.POST, "/shop/login","/shop/register", "/shop/sendotp", "/shop/checkotp","/shop/verify").permitAll()
+		.anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 	}
 

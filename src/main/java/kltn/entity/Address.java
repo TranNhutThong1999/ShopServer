@@ -15,8 +15,8 @@ public class Address extends Abstract{
 	private String location;
 	
 	@ManyToOne
-	@JoinColumn(name = "provincial_id")
-	private Provincial provincial;
+	@JoinColumn(name = "province_id")
+	private Province province;
 	
 	@ManyToOne
 	@JoinColumn(name = "district_id")

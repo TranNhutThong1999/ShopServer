@@ -22,7 +22,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	@Query(value = "select * from product order by rand() limit :limit",nativeQuery = true)
 	List<Product> findRandomLimit(int limit);
 	
-	Page<Product> findByShop_UserName(String userName, Pageable p);
-	Optional<Product> findOneByIdAndShop_UserName(int id, String userName);
+	Page<Product> findByShop_Id(int id, Pageable p);
+	Optional<Product> findOneByIdAndShop_Id(int id, int userId);
 	
+	Page<Product> findByCategory_Category_Id(Pageable p, int cateroryId);
 }

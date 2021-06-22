@@ -9,8 +9,8 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "provincial")
-public class Provincial extends Abstract{
+@Table(name = "province")
+public class Province extends Abstract{
 	private String name;
 	private int code;
 	

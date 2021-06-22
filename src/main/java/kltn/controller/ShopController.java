@@ -2,6 +2,7 @@ package kltn.controller;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,7 @@ import kltn.api.input.LoginInput;
 import kltn.api.input.OtpInput;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
+import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.dto.ShopDTO;
 import kltn.jwt.JwtTokenProvider;
@@ -74,12 +77,15 @@ public class ShopController {
 					.authenticate(new UsernamePasswordAuthenticationToken(s.getUsername(), s.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(auth);
 			String JWT = jwt.generateToken(auth);
-			ShopDTO shop = shopService.findOneByUserName(auth.getName());
+			ShopDTO shop = shopService.getOne(auth);
 			shop.setToken(JWT);
 			outPut.setData(shop);
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (DisabledException e) {
 			throw new ResponseStatusException(HttpStatus.LOCKED, "User is disabled");
+			
+		} catch (UsernameNotFoundException e) {
+			throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage());
 			
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -99,10 +105,10 @@ public class ShopController {
 	}
 
 	@GetMapping("/me")
-	public ResponseEntity<?> getOneShop(Principal principal) {
+	public ResponseEntity<?> getOneShop(Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			ShopDTO shop = shopService.findOneByUserName(principal.getName());
+			ShopDTO shop = shopService.getOne(auth);
 			outPut.setData(shop);
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
@@ -111,30 +117,28 @@ public class ShopController {
 	}
 
 
-//	@GetMapping("/photo")
-//	@PreAuthorize("hasAnyRole('ROLE_SHOP')")
-//	public ResponseEntity<?> getlistPhoto(Principal principal) {
-//		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-//		List<PhotoDTO> photo = photoService.findByProduct_Id(customUserDetail.getPrincipleId());
-//		outPut.setData(photo);
-//		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-//	}
+	@GetMapping("/photo")
+	public ResponseEntity<?> getlistPhoto(@RequestParam int id) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		List<PhotoDTO> photo = photoService.findByProduct_Shop_id(id);
+		outPut.setData(photo);
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
 
 	@GetMapping("/product")
 	public ResponseEntity<?> getlistProduct(@RequestParam(required = false, defaultValue = "5") int pageSize,
-			@RequestParam(required = false, defaultValue = "0") int pageNumber, Principal principal) {
+			@RequestParam(required = false, defaultValue = "0") int pageNumber,@RequestParam int id) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		Page<ProductDTO> photo = productService.findProductByShop(principal.getName(), pageSize, pageNumber);
-		outPut.setData(photo);
+		outPut.setData(productService.findByShopId(id, pageSize, pageNumber));
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 
 
 	@PostMapping("/avatar")
-	public ResponseEntity<?> saveAvatar(@RequestBody UploadFileInput m, Principal principal) {
+	public ResponseEntity<?> saveAvatar(@RequestBody UploadFileInput m, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			photoService.saveAvatar(m, principal.getName());
+			photoService.saveAvatar(m, auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
@@ -153,7 +157,7 @@ public class ShopController {
 //		}
 //	}
 
-	@PostMapping("sendOTP")
+	@PostMapping("/sendotp")
 	public ResponseEntity<?> sendCode(@RequestParam String email) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -164,18 +168,18 @@ public class ShopController {
 		}
 	}
 
-	@PostMapping("checkOTP")
-	public ResponseEntity<?> checkOTP(@RequestParam String otp, @RequestParam String email) {
+	@PostMapping("/checkotp")
+	public ResponseEntity<?> checkOTP(@RequestBody Map<String, String> data) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			outPut.setData(shopService.checkOTP(otp, email));
+			outPut.setData(shopService.checkOTP(data.get("otp"), data.get("email")));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
 
-	@PostMapping("verify")
+	@PostMapping("/verify")
 	public ResponseEntity<?> verifyRegister(@RequestBody OtpInput input) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -187,10 +191,21 @@ public class ShopController {
 	}
 
 	@PutMapping("changepassword")
-	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> data, Principal principal) {
+	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> data, Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.changePassword(data.get("password"), principal.getName());
+			shopService.changePassword(data.get("password"), auth);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+	}
+	
+	@PutMapping("forgotpassword")
+	public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> data) {
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			shopService.updatePassword(Integer.valueOf(data.get("userId")), data.get("password"), data.get("otp"));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

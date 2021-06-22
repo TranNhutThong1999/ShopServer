@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import kltn.converter.ShopConverter;
 import kltn.dto.ShopDTO;
 import kltn.entity.Address;
 import kltn.entity.District;
-import kltn.entity.Provincial;
+import kltn.entity.Province;
 import kltn.entity.Shop;
 import kltn.entity.Wards;
 import kltn.repository.AddressRepository;
@@ -20,6 +21,7 @@ import kltn.repository.DistrictRepository;
 import kltn.repository.ProvincialRepository;
 import kltn.repository.ShopRepository;
 import kltn.repository.WardsRepository;
+import kltn.security.MyShop;
 import kltn.service.IShopService;
 import kltn.util.EmailService;
 
@@ -58,16 +60,17 @@ public class ShopService implements IShopService {
 		// TODO Auto-generated method stub
 		Shop e = shopConverter.toEntity(s);
 		e.setPassword(encoder.encode(s.getPassword()));
+		e.setEnable(false);
 		Address address = new Address();
 		address.setLocation(s.getLocation());
 
-		Optional<Provincial> p = provincialRepository.findOneByCode(s.getProdincial().getCode());
+		Optional<Province> p = provincialRepository.findOneByCode(s.getProdincial().getCode());
 		if (!p.isPresent()) {
-			Provincial pro = modelMapper.map(s.getProdincial(), Provincial.class);
+			Province pro = modelMapper.map(s.getProdincial(), Province.class);
 			provincialRepository.save(pro);
-			address.setProvincial(pro);
+			address.setProvince(pro);
 		} else
-			address.setProvincial(p.get());
+			address.setProvince(p.get());
 
 		Optional<District> d = districtRepository.findOneByCode(s.getDistrict().getCode());
 		if (!d.isPresent()) {
@@ -96,16 +99,16 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public ShopDTO findOneById(int id) throws Exception {
+	public ShopDTO getOne(Authentication auth)  {
 		// TODO Auto-generated method stub
 		return shopConverter
-				.toDTO(shopRepository.findById(id).orElseThrow(() -> new Exception("shopeId was not found")));
+				.toDTO(shopRepository.findById(getIdFromAuth(auth)).get());
 	}
 
 	@Override
-	public void delete(String userName) {
+	public void delete(Authentication auth) {
 		// TODO Auto-generated method stub
-		Shop shop = shopRepository.findOneByUserName(userName).get();
+		Shop shop = shopRepository.findById(getIdFromAuth(auth)).get();
 		shopRepository.delete(shop);
 	}
 
@@ -144,11 +147,24 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public void changePassword(String password, String userName) {
+	public void changePassword(String password, Authentication auth) {
 		// TODO Auto-generated method stub
-		Shop s = shopRepository.findOneByUserName(userName).get();
+		Shop s = shopRepository.findById(getIdFromAuth(auth)).get();
 		s.setPassword(encoder.encode(password));
 		shopRepository.save(s);
 	}
+	
+	private int getIdFromAuth(Authentication auth) {
+		MyShop u = (MyShop)auth.getPrincipal();
+		return u.getId();
+	}
 
+	@Override
+	public void updatePassword(int shopId, String password, String otp) throws Exception {
+		// TODO Auto-generated method stub
+		Shop s = shopRepository.findOneByIdAndOtp(shopId, otp).orElseThrow(() -> new Exception("shopId was not found"));
+		s.setPassword(encoder.encode(password));
+		s.setOtp("");
+		shopRepository.save(s);
+	}
 }

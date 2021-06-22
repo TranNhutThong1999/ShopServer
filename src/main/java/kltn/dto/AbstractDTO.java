@@ -22,9 +22,9 @@ public abstract class AbstractDTO {
 	
 	private Date createdDate;
 	
-	private String createdBy;
-	
-	private Date modifiedDate;
-	
-	private String modifedBy;
+//	private String createdBy;
+//	
+//	private Date modifiedDate;
+//	
+//	private String modifedBy;
 }

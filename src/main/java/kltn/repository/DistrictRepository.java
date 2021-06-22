@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import kltn.entity.Banner;
 import kltn.entity.District;
-import kltn.entity.Provincial;
+import kltn.entity.Province;
 
 public interface DistrictRepository extends JpaRepository<District, Integer>{
 	Optional<District> findOneByCode(int code);

@@ -20,7 +20,6 @@ import lombok.Data;
 @Entity
 @Table(name = "shop")
 public class Shop extends Abstract {
-	private String nameBoss;
 	private String avatar;
 	private String nameShop;
 	private String userName;

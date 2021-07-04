@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -106,8 +107,39 @@ public class PhotoService implements IPhotoService {
 
 		});
 		executor.shutdown();
-
 	}
+	@Override
+	public List<Photo> saveOnePhotoProduct(Product p, List<PhotoDTO> m)  {
+		ExecutorService executor = Executors.newFixedThreadPool(5);
+		List<Photo>  list = new ArrayList<Photo>();
+		m.stream().forEach((x) -> {
+			CompletableFuture.runAsync(() -> {
+				try {
+					String[] cut = x.getName().split("\\.");
+					String random = UUID.randomUUID().toString();
+					String name = cut[0] + random + "." + cut[1];
+					FileOutputStream fos = new FileOutputStream(
+							constant.rootURL + File.separator + "/images" + File.separator + name);
+					byte[] image = Base64.getDecoder().decode(x.getBase64String());
+					fos.write(image);
+					fos.flush();
+					fos.close();
+					System.out.println(name);
+					Photo photo = new Photo();
+					photo.setName(name);
+					photo.setProduct(p);
+					list.add(photo);
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				}
+
+			}, executor);
+
+		});
+		executor.shutdown();
+		return list;
+	}
+
 
 	@Override
 	public List<PhotoDTO> findByProduct_Shop_id(int shopId) {
@@ -117,7 +149,7 @@ public class PhotoService implements IPhotoService {
 	}
 
 	@Override
-	public void saveAvatar(UploadFileInput m, Authentication auth) throws Exception {
+	public String saveAvatar(UploadFileInput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
 		Shop s = shopRepository.findById(getIdFromAuth(auth)).orElseThrow(() -> new Exception("shop was not found"));
 		String[] cut = m.getName().split("\\.");
@@ -131,7 +163,10 @@ public class PhotoService implements IPhotoService {
 		fos.close();
 		s.setAvatar(constant.showImage + File.separator + "images" + File.separator + name);
 		shopRepository.save(s);
+		return s.getAvatar();
 	}
+	
+	
 	
 	private int getIdFromAuth(Authentication auth) {
 		MyShop u = (MyShop)auth.getPrincipal();

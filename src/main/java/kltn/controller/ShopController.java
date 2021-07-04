@@ -2,6 +2,7 @@ package kltn.controller;
 
 import java.security.Principal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import kltn.api.input.LoginInput;
 import kltn.api.input.OtpInput;
+import kltn.api.input.ShopDetail;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.PhotoDTO;
@@ -103,6 +105,19 @@ public class ShopController {
 		outPut.setData(s);
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
+	@PutMapping(value="/shopDetail")
+	public ResponseEntity<?> createShopDetail(@RequestBody ShopDetail d) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			Map<String, String> s = new HashMap<String, String>();
+			shopService.createDetail(d);
+			outPut.setData(s);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+
+	}
 
 	@GetMapping("/me")
 	public ResponseEntity<?> getOneShop(Authentication auth) {
@@ -138,7 +153,9 @@ public class ShopController {
 	public ResponseEntity<?> saveAvatar(@RequestBody UploadFileInput m, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			photoService.saveAvatar(m, auth);
+			Map<String, String> s = new HashMap<String, String>();
+			s.put("url", photoService.saveAvatar(m, auth));
+			outPut.setData(s);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}

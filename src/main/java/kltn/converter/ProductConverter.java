@@ -61,10 +61,10 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 		// TODO Auto-generated method stub
 		ProductList product = modelMapper.map(s, ProductList.class);
 		product.setPhoto(photoConverter.toDTO(s.getPhotos().get(0)).getLink());
-		double sum = ratingRepository.sumStar(s.getId());
-		double realQuantity = ratingRepository.quantityStar(s.getId());
-		double quantity = realQuantity == 0 ? 1 : realQuantity;
-		product.setTotalStar(sum / quantity);
+		//double sum = ratingRepository.sumStar(s.getId());
+		//double realQuantity = ratingRepository.quantityStar(s.getId());
+	//double quantity = realQuantity == 0 ? 1 : realQuantity;
+		//product.setTotalStar(sum / quantity);
 		return product;
 	}
 	
@@ -77,8 +77,8 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 				.supplyAsync(() -> commentRepository.findAllByProduct_IdAndCommentIdIsNull(s.getId()).stream()
 						.map(commentConverter::toDTO).collect(Collectors.toList()), executor);
 		
-		CompletableFuture<List<RatingDTO>> futureRating = CompletableFuture
-				.supplyAsync(() ->s.getRatings().stream().map(ratingConverter::toDTO).collect(Collectors.toList()),executor);
+//		CompletableFuture<List<RatingDTO>> futureRating = CompletableFuture
+//				.supplyAsync(() ->s.getRatings().stream().map(ratingConverter::toDTO).collect(Collectors.toList()),executor);
 	
 		CompletableFuture<Double> futureStar = CompletableFuture.supplyAsync(()->{
 			double sum = ratingRepository.sumStar(s.getId());
@@ -93,7 +93,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO>{
 		product.setShopName(s.getShop().getNameShop());
 		product.setShopAvatar(s.getShop().getAvatar());
 		try {
-			product.setRating(futureRating.get());
+		//	product.setRating(futureRating.get());
 			product.setTotalStar(futureStar.get());
 			product.setComment(futureCmt.get());
 		} catch (InterruptedException e) {

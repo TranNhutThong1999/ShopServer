@@ -2,6 +2,7 @@ package kltn.service;
 
 import org.springframework.security.core.Authentication;
 
+import kltn.api.input.ShopDetail;
 import kltn.dto.ShopDTO;
 
 public interface IShopService {
@@ -22,4 +23,6 @@ public interface IShopService {
 	void changePassword(String password, Authentication auth);
 	
 	void updatePassword(int shopId, String password, String otp) throws Exception;
+	
+	void createDetail(ShopDetail s) throws Exception;
 }

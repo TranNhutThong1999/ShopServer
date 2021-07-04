@@ -1,14 +1,18 @@
 package kltn.service.impl;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import kltn.SHOPConstant;
+import kltn.api.input.ShopDetail;
 import kltn.converter.ShopConverter;
 import kltn.dto.ShopDTO;
 import kltn.entity.Address;
@@ -27,7 +31,8 @@ import kltn.util.EmailService;
 
 @Service
 public class ShopService implements IShopService {
-
+	Logger logger = LoggerFactory.getLogger(ShopService.class);
+	
 	@Autowired
 	private ShopConverter shopConverter;
 
@@ -61,6 +66,22 @@ public class ShopService implements IShopService {
 		Shop e = shopConverter.toEntity(s);
 		e.setPassword(encoder.encode(s.getPassword()));
 		e.setEnable(false);
+		e.generateToken();
+		e.setTimeTokenFuture(60*12);
+		emailService.sendSimpleMessage(e.getEmail(), "HI SHOP", "Your code: "+ e.getOtp());
+		return shopConverter.toDTO(shopRepository.save(e));
+	}
+	
+	@Override
+	public void createDetail(ShopDetail s) throws Exception {
+		Shop shop = shopRepository.findOneById(s.getShopId()).orElseThrow(()->{
+			logger.error("shopId was not found");
+		 return new Exception("shopId was not found");
+		});
+		shop.setNameShop(s.getNameShop());
+		shop.setCode(UUID.randomUUID().toString());
+		shop.setHotLine(s.getHotLine());
+		shop.setWebsite(s.getWebsite());
 		Address address = new Address();
 		address.setLocation(s.getLocation());
 
@@ -87,15 +108,10 @@ public class ShopService implements IShopService {
 			address.setWards(wards);
 		} else
 			address.setWards(w.get());
-
-	//	address.setDistrict(modelMapper.map(s.getDistrict(), District.class));
-	//	address.setWards(modelMapper.map(s.getWards(), Wards.class));
-		e.setAddress(address);
-		e.generateToken();
-		e.setTimeTokenFuture(60*12);
-		emailService.sendSimpleMessage(e.getEmail(), "HI SHOP", "Your code: "+ e.getOtp());
+		shop.setAddress(address);
+		shopRepository.save(shop);
 		addressRepository.save(address);
-		return shopConverter.toDTO(shopRepository.save(e));
+		
 	}
 
 	@Override
@@ -167,4 +183,5 @@ public class ShopService implements IShopService {
 		s.setOtp("");
 		shopRepository.save(s);
 	}
+
 }

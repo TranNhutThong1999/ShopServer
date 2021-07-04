@@ -12,5 +12,5 @@ public class ProductList {
 	private int priceSale;
 	private int quantitySold;
 	private String photo;
-	private double totalStar;
+//	private double totalStar;
 }

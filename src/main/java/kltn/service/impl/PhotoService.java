@@ -51,6 +51,7 @@ import kltn.repository.ShopRepository;
 import kltn.repository.UserRepository;
 import kltn.security.MyShop;
 import kltn.service.IPhotoService;
+import kltn.util.Common;
 import kltn.util.Constants;
 
 @Service
@@ -80,7 +81,7 @@ public class PhotoService implements IPhotoService {
 
 	@Override
 	public void savePhotosProduct(int productId, List<UploadFileInput> m, Authentication auth) throws Exception {
-		Product p = productRepository.findOneByIdAndShop_Id(productId, getIdFromAuth(auth))
+		Product p = productRepository.findOneByIdAndShop_Id(productId, Common.getIdFromAuth(auth))
 				.orElseThrow(() -> new Exception("Author"));
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 		m.stream().forEach((x) -> {
@@ -108,10 +109,11 @@ public class PhotoService implements IPhotoService {
 		});
 		executor.shutdown();
 	}
+
 	@Override
-	public List<Photo> saveOnePhotoProduct(Product p, List<PhotoDTO> m)  {
+	public List<Photo> saveOnePhotoProduct(Product p, List<PhotoDTO> m) {
 		ExecutorService executor = Executors.newFixedThreadPool(5);
-		List<Photo>  list = new ArrayList<Photo>();
+		List<Photo> list = new ArrayList<Photo>();
 		m.stream().forEach((x) -> {
 			CompletableFuture.runAsync(() -> {
 				try {
@@ -140,7 +142,6 @@ public class PhotoService implements IPhotoService {
 		return list;
 	}
 
-
 	@Override
 	public List<PhotoDTO> findByProduct_Shop_id(int shopId) {
 		// TODO Auto-generated method stub
@@ -151,7 +152,8 @@ public class PhotoService implements IPhotoService {
 	@Override
 	public String saveAvatar(UploadFileInput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Shop s = shopRepository.findById(getIdFromAuth(auth)).orElseThrow(() -> new Exception("shop was not found"));
+		Shop s = shopRepository.findById(Common.getIdFromAuth(auth))
+				.orElseThrow(() -> new Exception("shop was not found"));
 		String[] cut = m.getName().split("\\.");
 		String random = UUID.randomUUID().toString();
 		String name = cut[0] + random + "." + cut[1];
@@ -165,11 +167,37 @@ public class PhotoService implements IPhotoService {
 		shopRepository.save(s);
 		return s.getAvatar();
 	}
-	
-	
-	
-	private int getIdFromAuth(Authentication auth) {
-		MyShop u = (MyShop)auth.getPrincipal();
-		return u.getId();
+
+	public List<Photo> updatePhoto(List<PhotoDTO> photos, Product pro) {
+		// TODO Auto-generated method stub
+		List<Photo> list = new ArrayList<Photo>();
+		photos.stream().forEach((x) -> {
+			if (x.getId() != 0) {
+				Photo p = photoRepository.findById(x.getId()).get();
+				photoRepository.delete(p);
+				File f = new File(constant.rootURL + File.separator + "/images" + File.separator + p.getName());
+				f.deleteOnExit();
+			} else {
+				try {
+					String[] cut = x.getName().split("\\.");
+					String random = UUID.randomUUID().toString();
+					String name = cut[0] + random + "." + cut[1];
+					FileOutputStream fos = new FileOutputStream(
+							constant.rootURL + File.separator + "/images" + File.separator + name);
+					byte[] image = Base64.getDecoder().decode(x.getBase64String());
+					fos.write(image);
+					fos.flush();
+					fos.close();
+					System.out.println(name);
+					Photo photo = new Photo();
+					photo.setName(name);
+					photo.setProduct(pro);
+					list.add(photo);
+				} catch (FileNotFoundException e) {
+				} catch (IOException e) {
+				}
+			}
+		});
+		return list;
 	}
 }

@@ -32,8 +32,9 @@ public class ShopDTO extends AbstractDTO {
 	private String website;
 	private int follow;
 	
+	private int addressId;
 	private String location;
-	private ProvinceDTO prodincial;
+	private ProvinceDTO province;
 	private DistrictDTO district;
 	private WardsDTO wards;
 	

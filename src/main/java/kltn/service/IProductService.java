@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import kltn.api.input.UpdateDetailProduct;
+import kltn.api.input.UpdateInforProduct;
 import kltn.api.output.ProductList;
 import kltn.dto.ProductDTO;
 
@@ -23,4 +25,10 @@ public interface IProductService {
 	Page<ProductList> findByShopId(int shopId, int pageSize, int pageNumber);
 	
 	void deletePhoto(Authentication auth, int photoId, int productId) throws Exception;
+	
+	void updateInfor(UpdateInforProduct product, Authentication auth) throws Exception;
+	
+	void updateDetail(UpdateDetailProduct detail, Authentication auth) throws Exception;
+	
+	void delete(int id, Authentication auth);
 }

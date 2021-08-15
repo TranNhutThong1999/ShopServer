@@ -3,10 +3,11 @@ package kltn.service;
 import org.springframework.security.core.Authentication;
 
 import kltn.api.input.ShopDetail;
+import kltn.dto.AddressDTO;
 import kltn.dto.ShopDTO;
 
 public interface IShopService {
-	ShopDTO Save(ShopDTO s);
+	ShopDTO save(ShopDTO s);
 
 	ShopDTO getOne(Authentication auth);
 
@@ -14,6 +15,8 @@ public interface IShopService {
 
 	void delete(Authentication auth);
 
+	void update(ShopDTO shop, Authentication auth);
+	
 	void sendOTP(String mail) throws Exception;
 
 	int checkOTP(String otp, String email) throws Exception;
@@ -24,5 +27,7 @@ public interface IShopService {
 	
 	void updatePassword(int shopId, String password, String otp) throws Exception;
 	
-	void createDetail(ShopDetail s) throws Exception;
+	ShopDTO createDetail(ShopDetail s) throws Exception;
+	
+	AddressDTO getAddress(Authentication auth);
 }

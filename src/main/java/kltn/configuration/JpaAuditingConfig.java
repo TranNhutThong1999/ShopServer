@@ -8,7 +8,6 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class JpaAuditingConfig {
@@ -21,7 +20,10 @@ public class JpaAuditingConfig {
 
 		@Override
 		public Optional<String> getCurrentAuditor() {
-			String username = SecurityContextHolder.getContext().getAuthentication().getName();
+			String username = "";
+			if (SecurityContextHolder.getContext().getAuthentication() != null) {
+				 username = SecurityContextHolder.getContext().getAuthentication().getName();
+			}
 			return Optional.of(username);
 		}
 	}

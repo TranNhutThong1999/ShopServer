@@ -9,5 +9,5 @@ import kltn.entity.Photo;
 
 public interface PhotoRepository extends JpaRepository<Photo, Integer>{
 	List<Photo> findByProduct_Shop_id(int id);
-	Photo findOneByProduct_id(int productId);
+	Optional<Photo> findOneByProduct_id(int productId);
 }

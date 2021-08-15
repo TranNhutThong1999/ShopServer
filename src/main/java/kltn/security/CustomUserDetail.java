@@ -19,9 +19,8 @@ public class CustomUserDetail implements UserDetailsService{
 	@Autowired
 	private ShopRepository shopRepository;
 	
-	//add context-can bas-packet
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Shop shop = shopRepository.findOneByUserName(username).orElseThrow(()-> new UsernameNotFoundException("username was not found")) ;
+		Shop shop = shopRepository.findOneByUserName(username).orElseThrow(()-> new UsernameNotFoundException("username")) ;
 		List<GrantedAuthority> authortity = new ArrayList<GrantedAuthority>();
 		MyShop myShop = new MyShop(shop.getUserName(), shop.getPassword(), shop.isEnable(), true, true, true, authortity);
 		myShop.setId(shop.getId());

@@ -2,6 +2,7 @@ package kltn.service.impl;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -16,12 +17,13 @@ import org.springframework.stereotype.Service;
 
 import com.google.rpc.context.AttributeContext.Auth;
 
+import kltn.api.input.UpdateInforProduct;
+import kltn.api.input.UpdateDetailProduct;
 import kltn.api.output.ProductList;
 import kltn.converter.PhotoConverter;
 import kltn.converter.ProductConverter;
 import kltn.dto.ProductDTO;
 import kltn.entity.Category;
-import kltn.entity.Detail;
 import kltn.entity.Photo;
 import kltn.entity.Product;
 import kltn.entity.Shop;
@@ -31,12 +33,13 @@ import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.security.MyShop;
 import kltn.service.IProductService;
+import kltn.util.Common;
 import kltn.util.Constants;
 
 @Service
 public class ProductService implements IProductService {
 	Logger logger = LoggerFactory.getLogger(ProductService.class);
-	
+
 	@Autowired
 	private ProductRepository productRepository;
 
@@ -63,7 +66,7 @@ public class ProductService implements IProductService {
 
 	@Autowired
 	private PhotoService photoService;
-	
+
 	@Override
 	public ProductDTO findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
@@ -74,11 +77,10 @@ public class ProductService implements IProductService {
 	@Override
 	public Page<ProductList> findByCategoryLimit(int cateroryId, int pageSize, int pageNumber) throws Exception {
 		// TODO Auto-generated method stub
-		Category ca = categoryRepository.findById(cateroryId)
-				.orElseThrow(() ->{
-					logger.error("categoryId was not found");
-				 return new Exception("categoryId was not found");
-				 });
+		Category ca = categoryRepository.findById(cateroryId).orElseThrow(() -> {
+			logger.error("categoryId was not found");
+			return new Exception("categoryId was not found");
+		});
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 		if (ca.getCategory() != null) {
 			return productRepository.findByCategory_Id(pageable, cateroryId).map(productConverter::toList);
@@ -100,22 +102,22 @@ public class ProductService implements IProductService {
 		return productRepository.findByShop_id(shopId, pageable).map(productConverter::toList);
 	}
 
-
-
 	@Override
 	public ProductDTO save(ProductDTO dto, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Shop u = shopRepository.findById(getIdFromAuth(auth)).get();
+		Shop u = shopRepository.findById(Common.getIdFromAuth(auth)).get();
 		Product p = productConverter.toEntity(dto);
-		p.setDetail(modelMapper.map(dto.getDetail(), Detail.class));
-		p.setCategory(categoryRepository.findById(dto.getCategory().getId())
-				.orElseThrow(() ->{
-					logger.error("Category was not found");
-				return new Exception("Category was not found");}));
+		p.setCategory(categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> {
+			logger.error("Category was not found");
+			return new Exception("Category was not found");
+		}));
 		p.setShop(u);
-		int percen = (dto.getPriceSale() * 100) / dto.getPrice();
-		p.setSale(percen);
-		p.setPhotos(photoService.saveOnePhotoProduct(p,dto.getPhotos()));
+		int percen = (int) ((dto.getPriceSale() * 100) / dto.getPrice());
+		p.setSale(100 - percen);
+		p.setQuantitySold(0);
+		if(dto.getPhotos().size() > 0) {
+			p.setPhotos(photoService.saveOnePhotoProduct(p, dto.getPhotos()));
+		}
 		Product pro = productRepository.save(p);
 		return productConverter.toDTO(pro);
 	}
@@ -123,17 +125,45 @@ public class ProductService implements IProductService {
 	@Override
 	public void deletePhoto(Authentication auth, int photoId, int productId) throws Exception {
 		// TODO Auto-generated method stub
-		Product pr = productRepository.findOneByIdAndShop_Id(productId, getIdFromAuth(auth))
-				.orElseThrow(() ->{
-					logger.error("Auth");
-					return new Exception("Auth");});
-		Photo p = photoRepository.findOneByProduct_id(pr.getId());
-		File file = new File(constants.rootURL + File.separator + "images" + File.separator + p.getName());
-		file.deleteOnExit();
+		Product pr = productRepository.findOneByIdAndShop_Id(productId, Common.getIdFromAuth(auth)).orElseThrow(() -> {
+			logger.error("Auth");
+			return new Exception("Auth");
+		});
+		Optional<Photo> p = photoRepository.findOneByProduct_id(pr.getId());
+		if(p.isPresent()) {
+			File file = new File(constants.rootURL + File.separator + "images" + File.separator + p.get().getName());
+			file.deleteOnExit();
+		}
 	}
 
-	private int getIdFromAuth(Authentication auth) {
-		MyShop u = (MyShop) auth.getPrincipal();
-		return u.getId();
+	@Override
+	public void updateInfor(UpdateInforProduct product, Authentication auth) throws Exception {
+		// TODO Auto-generated method stub
+		Product p = productRepository.findOneByIdAndShop_Id(product.getId(),Common.getIdFromAuth(auth)).orElseThrow(()-> new Exception("id was not found"));
+		p.setName(product.getName());
+		p.setPrice(product.getPrice());
+		p.setPriceSale(product.getPriceSale());
+		p.setDescription(product.getDescription());
+		p.setWeight(product.getWeight());
+		p.setCategory(categoryRepository.findById(product.getCategoryId()).get());
+		p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
+		productRepository.save(p);
 	}
+
+	@Override
+	public void updateDetail(UpdateDetailProduct detail, Authentication auth) throws Exception {
+		// TODO Auto-generated method stub
+		Product p = productRepository.findOneByIdAndShop_Id(detail.getId(),Common.getIdFromAuth(auth)).orElseThrow(()-> new Exception("id was not found"));
+		p.setDetail(detail.getDetail());
+		productRepository.save(p);
+	}
+
+	@Override
+	public void delete(int id, Authentication auth) {
+		// TODO Auto-generated method stub
+		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id,Common.getIdFromAuth(auth));
+		if(p.isPresent())
+			productRepository.delete(p.get());
+	}
+	
 }

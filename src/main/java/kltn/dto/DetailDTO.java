@@ -13,4 +13,5 @@ public class DetailDTO extends AbstractDTO{
 	private String model;
 	private String vat;
 	private String guarantee;
+	private double weight;
 }

@@ -11,7 +11,7 @@ import lombok.Data;
 @Entity
 @Table(name = "action")
 public class Action extends Abstract{
-	private ActionType name;
+	private int name;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")

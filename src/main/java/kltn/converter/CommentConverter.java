@@ -1,5 +1,10 @@
 package kltn.converter;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -8,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import kltn.api.output.CommentOuput;
 import kltn.entity.Comment;
+import kltn.entity.Reply;
 import kltn.entity.Shop;
 import kltn.entity.User;
 import kltn.repository.ProductRepository;
@@ -29,10 +35,46 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 	public Comment toEntity(CommentOuput d) {
 		return modelMapper.map(d, Comment.class);
 	}
+	
+	public CommentOuput toReply(Reply d) {
+		CommentOuput outPut = new CommentOuput();
+		outPut.setId(d.getId());
+		outPut.setContent(d.getContent());
+		outPut.setParentId(d.getComment().getId());
+		outPut.setCreateOn(d.getCreatedDate());
+		if (d.getUser() != null) {
+			User u = d.getUser();
+			outPut.setUserId(u.getId());
+			outPut.setFullName(u.getFirstName() + " " + u.getLastName());
+			outPut.setUserAvatar(u.getPictureURL());
+		} else {
+			Shop s = d.getShop();
+			outPut.setUserId(s.getId());
+			outPut.setFullName(s.getNameShop());
+			outPut.setUserAvatar(s.getAvatar());
+		}
+		return outPut;
+	}
 
 	@Override
 	public CommentOuput toDTO(Comment d) {
 		CommentOuput outPut = new CommentOuput();
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		if(d.getReplies()!=null) {
+			CompletableFuture<List<CommentOuput>> futureChild = CompletableFuture.supplyAsync(()->d.getReplies().stream().map((e) -> toReply(e)).collect(Collectors.toList()), executor);
+			try {
+				outPut.setCommentChild(futureChild.get());
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (ExecutionException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			executor.shutdown();
+		}
+		
+		
 		outPut.setId(d.getId());
 		outPut.setContent(d.getContent());
 		outPut.setCreateOn(d.getCreatedDate());
@@ -48,9 +90,7 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 			outPut.setFullName(s.getNameShop());
 			outPut.setUserAvatar(s.getAvatar());
 		}
-		if (d.getComment() != null)
-			outPut.setParentId(d.getComment().getId());
-		outPut.setCommentChild(d.getReplies().stream().map((e) -> toDTO(e)).collect(Collectors.toList()));
+		
 		return outPut;
 	}
 

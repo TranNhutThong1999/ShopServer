@@ -23,15 +23,20 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.google.rpc.context.AttributeContext.Auth;
 
+import kltn.api.input.UpdateDetailProduct;
+import kltn.api.input.UpdateInforProduct;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
+import kltn.firebase.user.FirebaseUser;
+import kltn.firebase.user.UpdateStatusOrderUser;
 import kltn.service.ICommentService;
 import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IRatingService;
 import kltn.service.impl.PhotoService;
+import kltn.util.Common;
 import lombok.Delegate;
 
 @RestController
@@ -56,21 +61,12 @@ public class ProductController {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 			ProductDTO product = productService.findOneById(id);
 			outPut.setData(product);
+			
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 	}
-//
-//	
-//	@GetMapping(value ="/comment", produces = "application/json")
-//	public ResponseEntity<?> getCommentByProductId(@RequestParam(required = true) int productId,
-//			@RequestParam(required = false, defaultValue = "5") int pageSize,
-//			@RequestParam(required = false, defaultValue = "0") int pageNumber) {
-//		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-//		outPut.setData(commentService.findByProductId(productId, pageSize, pageNumber));
-//		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-//	}
 	@PostMapping
 	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -84,10 +80,10 @@ public class ProductController {
 	}
 
 	@PostMapping(value = "/comment")
-	public ResponseEntity<?> comment(Principal principal, @RequestBody CommentOuput m) {
+	public ResponseEntity<?> comment(Authentication auth, @RequestBody CommentOuput m) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			outPut.setData(commentService.save(m, principal.getName()));
+			outPut.setData(commentService.save(m, auth));
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
@@ -116,14 +112,36 @@ public class ProductController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 	
-	@PutMapping
-	public ResponseEntity<?> UpdateProduct(@RequestBody ProductDTO product, Authentication auth) {
+	@PutMapping("/infor")
+	public ResponseEntity<?> UpdateProduct(@RequestBody UpdateInforProduct product, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			productService.save(product, auth);
+			productService.updateInfor(product, auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@PutMapping("/detail")
+	public ResponseEntity<?> UpdateProductDetail(@RequestBody UpdateDetailProduct detail, Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			productService.updateDetail(detail, auth);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/product")
+	public ResponseEntity<?> deleteProdut(@RequestBody Map<String, String> data, Authentication auth) {
+		try {
+			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+			productService.delete(Integer.valueOf(data.get("id")), auth);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
 	}
 }

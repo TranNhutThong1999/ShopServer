@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	List<Product> findRandomLimit(int limit);
 	
 	Page<Product> findByShop_Id(int id, Pageable p);
-	Optional<Product> findOneByIdAndShop_Id(int id, int userId);
+	Optional<Product> findOneByIdAndShop_Id(int id, int shopId);
 	
 	Page<Product> findByCategory_Category_Id(Pageable p, int cateroryId);
 }

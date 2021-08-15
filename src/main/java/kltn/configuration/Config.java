@@ -14,7 +14,7 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 public class Config {
-	
+
 	@Bean
 	public ModelMapper modelMapper() {
 		ModelMapper m = new ModelMapper();
@@ -22,16 +22,15 @@ public class Config {
 		m.getConfiguration().setPropertyCondition(Conditions.isNotNull());
 		return m;
 	}
-//	@Bean
-//	public ResourceBundleMessageSource messageSource() {
-//
-//		ResourceBundleMessageSource source = new ResourceBundleMessageSource();
-//		source.setBasenames("messages/messages");
-//		source.setDefaultEncoding("UTF-8");
-//		source.setUseCodeAsDefaultMessage(true);
-//
-//		return source;
-//	}
+
+	@Bean
+	public ResourceBundleMessageSource messageSource() {
+		ResourceBundleMessageSource source = new ResourceBundleMessageSource();
+		source.setBasenames("Client-messages");
+		source.setDefaultEncoding("UTF-8");
+		source.setUseCodeAsDefaultMessage(true);
+		return source;
+	}
 
 	@Bean
 	public CorsFilter corsFilter() {

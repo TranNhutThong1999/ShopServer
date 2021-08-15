@@ -16,5 +16,8 @@ public interface IPhotoService {
 	void savePhotosProduct(int productId, List<UploadFileInput> m, Authentication auth) throws IOException, Exception;
 
 	String saveAvatar(UploadFileInput m, Authentication auth) throws Exception;
-	List<Photo> saveOnePhotoProduct( Product p, List<PhotoDTO> m);
+
+	List<Photo> saveOnePhotoProduct(Product p, List<PhotoDTO> m);
+	
+	List<Photo> updatePhoto(List<PhotoDTO> m, Product pro);
 }

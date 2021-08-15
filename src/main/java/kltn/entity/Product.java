@@ -19,23 +19,21 @@ import lombok.Data;
 @Table(name = "product")
 public class Product extends Abstract{
 	private String name;
-	private int price;
+	private float price;
 	private int sale;
-	private int priceSale;
+	private float priceSale;
 	
 	@Column(columnDefinition = "TEXT")
 	private String description;
 	private int quantity;
-	//private ProductStatus status;
+	private int avaiable;
 	private int quantitySold;
+	private double weight;
+	private String detail;
 	
 	@ManyToOne
 	@JoinColumn(name="category_id")
 	private Category category;
-	
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@JoinColumn(name = "detail_id")
-	private Detail detail;
 	
 	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
 	private List<Photo> photos;

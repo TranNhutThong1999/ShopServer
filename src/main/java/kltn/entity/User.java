@@ -30,16 +30,12 @@ public class User extends Abstract{
 	private boolean enabled; //defaul: false is not verify
 	private String otp;
 	private Timestamp expireOtp;
-	private String password;
 	private int gender; //true is boy
 	private String address;
 
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Action> actions;
-	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-	private List<Following> follow;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
 	private List<Comment> comment;

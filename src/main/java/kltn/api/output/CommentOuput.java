@@ -9,7 +9,7 @@ import lombok.Data;
 public class CommentOuput {
 	private int id;
 	private String content;
-	private int parentId;
+	private Integer parentId;
 	private int productId;
 	private int userId;
 	private String fullName;

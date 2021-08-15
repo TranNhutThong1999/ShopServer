@@ -3,6 +3,7 @@ package kltn.entity;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -15,14 +16,9 @@ import lombok.Data;
 @Table(name = "comment")
 public class Comment extends Abstract{
 	private String content;
-
-	@ManyToOne
-	@JoinColumn(name = "comment_id")
-	private Comment comment;
 	
-	
-	@OneToMany(mappedBy = "comment")
-	private List<Comment> replies;
+	@OneToMany(mappedBy = "comment", fetch = FetchType.EAGER)
+	private List<Reply> replies;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")

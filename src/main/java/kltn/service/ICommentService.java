@@ -1,12 +1,15 @@
 package kltn.service;
 
 
-import org.springframework.data.domain.Page;
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
 
 import kltn.api.output.CommentOuput;
 
 
 public interface ICommentService {
-	Page<CommentOuput> findByProductId(int id, int pageSize, int pageNumber);
-	CommentOuput save(CommentOuput m, String userName) throws Exception;
+	CommentOuput save(CommentOuput m, Authentication auth) throws Exception;
+	void delete(Authentication auth, int id);
+	List<CommentOuput> findByShopAndLimit(Authentication auth, int limit);
 }

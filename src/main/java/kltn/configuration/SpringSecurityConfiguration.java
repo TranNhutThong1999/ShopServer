@@ -55,7 +55,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.csrf().disable().addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.authorizeRequests()
-		.antMatchers(HttpMethod.GET, "/shop/photo", "/shop/product","/product/comment").permitAll()
+		.antMatchers(HttpMethod.GET, "/shop/photo", "/shop/product","/product/comment", "/product","/basic/**").permitAll()
 		.antMatchers(HttpMethod.POST, "/shop/login","/shop/register", "/shop/sendotp", "/shop/checkotp","/shop/verify").permitAll()
 		.anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);

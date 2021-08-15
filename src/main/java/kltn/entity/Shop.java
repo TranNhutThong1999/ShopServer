@@ -20,8 +20,8 @@ import lombok.Data;
 @Entity
 @Table(name = "shop")
 public class Shop extends Abstract {
-	private String avatar;
 	private String nameShop;
+	private String avatar;
 	private String userName;
 	private String phone;
 	private String email;

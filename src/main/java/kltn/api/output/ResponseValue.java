@@ -1,5 +1,7 @@
 package kltn.api.output;
 
+import org.springframework.http.HttpStatus;
+
 import lombok.Data;
 
 @Data
@@ -16,5 +18,10 @@ public class ResponseValue {
 		this.message = message;
 	}
 	
-	
+	public ResponseValue() {}
+
+	public void setCode(HttpStatus accepted) {
+		// TODO Auto-generated method stub
+		this.code = accepted.value();
+	};
 }

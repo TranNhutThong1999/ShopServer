@@ -1,7 +1,7 @@
 package kltn.entity;
 
-import java.security.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,6 +14,9 @@ import lombok.Data;
 @Table(name = "rating")
 public class Rating extends Abstract{
 	private int star;
+	
+	@Column(columnDefinition = "TEXT")
+	private String content;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")

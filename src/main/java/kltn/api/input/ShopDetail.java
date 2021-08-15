@@ -6,8 +6,7 @@ import kltn.dto.WardsDTO;
 import lombok.Data;
 @Data
 public class ShopDetail {
-	private int shopId;
-//	private String avatar;
+	private int id;
 	private String nameShop;
 	private String code;
 	private String hotLine;

@@ -11,7 +11,7 @@ import kltn.entity.Comment;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 	List<Comment> findAllByProduct_Id(int productId);
 
-	Optional<Comment> findOneByIdAndUser_Id(int id, int userId);
+	Optional<Comment> findOneByIdAndShop_Id(int id, String shopId);
 
 	@Query(value = "select * from comment where limit :limit", nativeQuery = true)
 	List<Comment> findByShopIdAndLimit();

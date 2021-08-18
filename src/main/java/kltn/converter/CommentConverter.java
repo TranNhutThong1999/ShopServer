@@ -49,7 +49,7 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 			outPut.setUserAvatar(u.getPictureURL());
 		} else {
 			Shop s = d.getShop();
-			outPut.setUserId(s.getId());
+			outPut.setShopId(s.getId());
 			outPut.setFullName(s.getNameShop());
 			outPut.setUserAvatar(s.getAvatar());
 		}
@@ -86,7 +86,7 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 			outPut.setUserAvatar(u.getPictureURL());
 		} else {
 			Shop s = d.getShop();
-			outPut.setUserId(s.getId());
+			outPut.setShopId(s.getId());
 			outPut.setFullName(s.getNameShop());
 			outPut.setUserAvatar(s.getAvatar());
 		}

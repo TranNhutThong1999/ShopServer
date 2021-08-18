@@ -19,13 +19,13 @@ public interface IShopService {
 	
 	void sendOTP(String mail) throws Exception;
 
-	int checkOTP(String otp, String email) throws Exception;
+	String checkOTP(String otp, String email) throws Exception;
 
 	void verify(String otp, String email) throws Exception;
 
 	void changePassword(String password, Authentication auth);
 	
-	void updatePassword(int shopId, String password, String otp) throws Exception;
+	void updatePassword(String shopId, String password, String otp) throws Exception;
 	
 	ShopDTO createDetail(ShopDetail s) throws Exception;
 	

@@ -11,7 +11,8 @@ public class CommentOuput {
 	private String content;
 	private Integer parentId;
 	private int productId;
-	private int userId;
+	private String userId;
+	private String shopId;
 	private String fullName;
 	private String userAvatar;
 	private Date createOn;

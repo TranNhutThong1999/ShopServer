@@ -13,10 +13,10 @@ public interface IUserService {
 
 	UserDTO findByPhone(String phone) throws Exception;
 
-	Optional<User> findOneById(int id);
+	Optional<User> findOneById(String id);
 	
-	UserDTO findById(int id);
+	UserDTO findById(String id);
 	
-	int findOtp(String otp) throws Exception;
+	String findOtp(String otp) throws Exception;
 	
 }

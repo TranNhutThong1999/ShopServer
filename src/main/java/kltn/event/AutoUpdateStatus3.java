@@ -6,9 +6,9 @@ public class AutoUpdateStatus3 extends ApplicationEvent {
 
 	private int orderId;
 
-	private int shopId;
+	private String shopId;
 
-	public AutoUpdateStatus3(Object source, int orderId, int shopId) {
+	public AutoUpdateStatus3(Object source, int orderId, String shopId) {
 		super(source);
 		// TODO Auto-generated constructor stub
 		this.orderId = orderId;
@@ -19,7 +19,7 @@ public class AutoUpdateStatus3 extends ApplicationEvent {
 		return orderId;
 	}
 
-	public int getShopId() {
+	public String getShopId() {
 		return shopId;
 	}
 

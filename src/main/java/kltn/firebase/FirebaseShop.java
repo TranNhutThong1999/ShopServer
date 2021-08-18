@@ -100,7 +100,7 @@ public class FirebaseShop {
 
 		Query query = null;
 		if (r.getParentCommentId() != null) {
-			query = ref.child(String.valueOf(r.getUserId()));
+			query = ref.child(r.getShopId());
 			query.addListenerForSingleValueEvent(new ValueEventListener() {
 
 				@Override
@@ -131,7 +131,7 @@ public class FirebaseShop {
 						childs.put("childs", childCommentId);
 						commentId.put(String.valueOf(r.getParentCommentId()), childs);
 						productId.put(String.valueOf(r.getProductId()), commentId);
-						userId.put(String.valueOf(r.getUserId()), productId);
+						userId.put(r.getShopId(), productId);
 						System.out.println(userId);
 						ref.updateChildrenAsync(userId);
 						return;
@@ -144,7 +144,7 @@ public class FirebaseShop {
 
 					commentId.put(String.valueOf(r.getParentCommentId()), childs);
 					productId.put(String.valueOf(r.getProductId()), commentId);
-					userId.put(String.valueOf(r.getUserId()), productId);
+					userId.put(r.getShopId(), productId);
 					ref.updateChildrenAsync(userId);
 					return;
 				}
@@ -158,7 +158,7 @@ public class FirebaseShop {
 			});
 			return;
 		}
-		query = ref.child(String.valueOf(r.getUserId()));
+		query = ref.child(r.getShopId());
 		query.addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(DataSnapshot snapshot) {
@@ -176,7 +176,7 @@ public class FirebaseShop {
 					item.put("createDate", r.getCreateDate());
 					commentId.put(String.valueOf(r.getCommentId()), item);
 					productId.put(String.valueOf(r.getProductId()), commentId);
-					userId.put(String.valueOf(r.getUserId()), productId);
+					userId.put(r.getShopId(), productId);
 					System.out.println(userId);
 					ref.updateChildrenAsync(userId);
 					return;
@@ -186,7 +186,7 @@ public class FirebaseShop {
 				childs.put("createDate", r.getCreateDate());
 				commentId.put(String.valueOf(r.getCommentId()), childs);
 				productId.put(String.valueOf(r.getProductId()), commentId);
-				userId.put(String.valueOf(r.getUserId()), productId);
+				userId.put(r.getShopId(), productId);
 				ref.updateChildrenAsync(userId);
 				return;
 			}

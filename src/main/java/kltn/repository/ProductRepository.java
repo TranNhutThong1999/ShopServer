@@ -14,7 +14,7 @@ import kltn.entity.Product;
 public interface ProductRepository extends JpaRepository<Product, Integer>{
 	Optional<Product> findOneById(int id);
 	
-	Page<Product> findByShop_id(int shopId, Pageable p);
+	Page<Product> findByShop_id(String shopId, Pageable p);
 	
 	//@Query(value = "select product.* from product, sub_category where product.sub_category_id = sub_category.id and sub_category.id = :subCateroryId limit :quantity",nativeQuery = true)
 	Page<Product> findByCategory_Id(Pageable p, int cateroryId);
@@ -23,7 +23,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer>{
 	List<Product> findRandomLimit(int limit);
 	
 	Page<Product> findByShop_Id(int id, Pageable p);
-	Optional<Product> findOneByIdAndShop_Id(int id, int shopId);
+	Optional<Product> findOneByIdAndShop_Id(int id, String shopId);
 	
 	Page<Product> findByCategory_Category_Id(Pageable p, int cateroryId);
 }

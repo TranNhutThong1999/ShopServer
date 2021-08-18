@@ -33,20 +33,20 @@ public class JwtTokenProvider {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + constants.getJWT_Expire());
 		// mã hóa token
-		return constants.getPrefix()+" "+ Jwts.builder().setSubject(Long.toString(myShop.getId())).setIssuedAt(new Date()).setExpiration(expiryDate)
+		return constants.getPrefix()+" "+ Jwts.builder().setSubject(myShop.getId()).setIssuedAt(new Date()).setExpiration(expiryDate)
 				.signWith(SignatureAlgorithm.HS512, constants.getJWT_Secret()).compact();
 	}
 	public String generateToken(ShopDTO shop) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + constants.getJWT_Expire());
 		// mã hóa token
-		return constants.getPrefix()+" "+ Jwts.builder().setSubject(Long.toString(shop.getId())).setIssuedAt(new Date()).setExpiration(expiryDate)
+		return constants.getPrefix()+" "+ Jwts.builder().setSubject(shop.getId()).setIssuedAt(new Date()).setExpiration(expiryDate)
 				.signWith(SignatureAlgorithm.HS512, constants.getJWT_Secret()).compact();
 	}
 	// Lấy id_user từ token đã được mã hóa
-	public int getUserIdFromJWT(String token) {
+	public String getUserIdFromJWT(String token) {
 		Claims claims = Jwts.parser().setSigningKey(constants.getJWT_Secret()).parseClaimsJws(token).getBody();
-		return (int) Long.parseLong(claims.getSubject());
+		return claims.getSubject();
 	}
 	public Date getTimeExprire(String token) {
 		Claims claims = Jwts.parser().setSigningKey(constants.getJWT_Secret()).parseClaimsJws(token).getBody();

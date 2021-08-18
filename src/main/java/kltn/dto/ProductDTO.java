@@ -6,7 +6,8 @@ import kltn.api.output.CommentOuput;
 import lombok.Data;
 
 @Data
-public class ProductDTO extends AbstractDTO {
+public class ProductDTO  {
+	private String id;
 	private String name;
 	private float price;
 	private int sale;

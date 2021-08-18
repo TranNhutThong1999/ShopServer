@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import kltn.entity.User;
 
-public interface UserRepository extends JpaRepository<User, Integer>{
+public interface UserRepository extends JpaRepository<User, String>{
 	Optional<User> findOneByPhone(String phone);
-	Optional<User> findOneById(int id);
+	Optional<User> findOneById(String id);
 	Optional<User> findOneByOtp(String otp);
 	
 }

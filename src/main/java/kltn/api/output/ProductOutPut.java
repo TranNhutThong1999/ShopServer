@@ -20,7 +20,7 @@ public class ProductOutPut {
 	private String detail;
 	private double weight;
 	private int quantitySold;
-	private int shopId;
+	private String shopId;
 	private String shopName;
 	private String shopAvatar;
 	private int quantity;

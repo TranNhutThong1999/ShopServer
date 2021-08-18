@@ -16,5 +16,5 @@ public interface IOrderService {
 	OrderDTO getOrder(int id, Authentication auth) throws Exception;
 	
 	void updateStatus(int orderId, Authentication auth, int status) throws Exception;
-	void updateStatusSuccess(int orderId, int shopId, int status);
+	void updateStatusSuccess(int orderId, String shopId, int status);
 }

@@ -10,7 +10,6 @@ import kltn.entity.Order;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer>{
-	List<Order> findByShop_Id(int userId);
-	Optional<Order> findOneByIdAndShop_Id(int id, int userId);
-//	Optional<List<Order>> findOneByShop_Id(int id);
+	List<Order> findByShop_Id(String userId);
+	Optional<Order> findOneByIdAndShop_Id(int id, String shopId);
 }

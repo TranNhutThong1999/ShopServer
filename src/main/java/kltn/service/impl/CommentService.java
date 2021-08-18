@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,9 @@ import kltn.entity.Product;
 import kltn.entity.Reply;
 import kltn.entity.Shop;
 import kltn.entity.User;
+import kltn.event.PushEventCommentShop;
+import kltn.event.PushEventCommentUser;
+import kltn.firebase.RealtimeComment;
 import kltn.repository.CommentRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ReplyRepository;
@@ -46,10 +50,13 @@ public class CommentService implements ICommentService{
 	@Autowired
 	private ReplyRepository replyRepository;
 	
+	@Autowired
+	private ApplicationEventPublisher applicationEventPublisher;
+	
 	@Override
 	public CommentOuput save(CommentOuput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Optional<Product> pro = productRepository.findOneByIdAndShop_Id(m.getProductId(), m.getUserId());
+		Optional<Product> pro = productRepository.findOneByIdAndShop_Id(m.getProductId(), Common.getIdFromAuth(auth));
 		if(pro.isPresent()) {
 			Shop u = ShopRepository.findOneById(Common.getIdFromAuth(auth)).get();
 			Comment cm = null;
@@ -58,14 +65,22 @@ public class CommentService implements ICommentService{
 				cm.setShop(u);
 				cm.setProduct(productRepository.findOneById(m.getProductId())
 						.orElseThrow(() -> new Exception("productId was not found")));
-				return commentConverter.toDTO(commentRepository.save(cm));
+				cm = commentRepository.save(cm);
+				RealtimeComment data = new RealtimeComment(cm.getId(), cm.getProduct().getId(), cm.getShop().getId(), null, cm.getContent(), cm.getCreatedDate());
+				applicationEventPublisher.publishEvent(new PushEventCommentUser(this, data));
+				applicationEventPublisher.publishEvent(new PushEventCommentShop(this, data));
+				return commentConverter.toDTO(cm);
 			} else {
 				cm = commentRepository.findById(m.getParentId())
 						.orElseThrow(() -> new Exception("commentId was not found"));
 				Reply rl = modelMap.map(m, Reply.class);
 				rl.setComment(cm);
 				rl.setShop(u);
-				return commentConverter.toReply(replyRepository.save(rl));
+				Reply reply = replyRepository.save(rl);
+				RealtimeComment data = new RealtimeComment(reply.getId(),cm.getProduct().getId(),reply.getShop().getId(),cm.getId(),reply.getContent(), reply.getCreatedDate());
+				applicationEventPublisher.publishEvent(new PushEventCommentUser(this, data));
+				applicationEventPublisher.publishEvent(new PushEventCommentShop(this, data));
+				return commentConverter.toReply(reply);
 			}
 		}
 		 throw new Exception("auth");
@@ -74,7 +89,7 @@ public class CommentService implements ICommentService{
 	@Override
 	public void delete(Authentication auth, int id) {
 		// TODO Auto-generated method stub
-		Optional<Comment> comment = commentRepository.findOneByIdAndUser_Id(id, Common.getIdFromAuth(auth));
+		Optional<Comment> comment = commentRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
 		if(comment.isPresent()) {
 			commentRepository.delete(comment.get());
 		}

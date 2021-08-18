@@ -100,9 +100,9 @@ public class ShopService implements IShopService {
 		Address address = new Address();
 		address.setLocation(s.getLocation());
 
-		Optional<Province> p = provincialRepository.findOneByCode(s.getProdincial().getCode());
+		Optional<Province> p = provincialRepository.findOneByCode(s.getProvince().getCode());
 		if (!p.isPresent()) {
-			Province pro = modelMapper.map(s.getProdincial(), Province.class);
+			Province pro = modelMapper.map(s.getProvince(), Province.class);
 			provincialRepository.save(pro);
 			address.setProvince(pro);
 		} else
@@ -159,7 +159,7 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public int checkOTP(String otp, String email) throws Exception {
+	public String checkOTP(String otp, String email) throws Exception {
 		// TODO Auto-generated method stub
 		Shop s = shopRepository.findOneByEmailAndOtp(email, otp).orElseThrow(() -> new Exception("otp was not found"));
 		if (!s.isAfterTime())
@@ -186,7 +186,7 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public void updatePassword(int shopId, String password, String otp) throws Exception {
+	public void updatePassword(String shopId, String password, String otp) throws Exception {
 		// TODO Auto-generated method stub
 		Shop s = shopRepository.findOneByIdAndOtp(shopId, otp).orElseThrow(() -> new Exception("shopId was not found"));
 		s.setPassword(encoder.encode(password));
@@ -211,12 +211,12 @@ public class ShopService implements IShopService {
 		s.setEnable(old.isEnable());
 		s.setOtp(old.getOtp());
 		s.setExpireOtp(old.getExpireOtp());
-		s.setCreatedDate(old.getCreatedDate());
-		s.setCreatedBy(old.getCreatedBy());
+	//	s.setCreatedDate(old.getCreatedDate());
+		//s.setCreatedBy(old.getCreatedBy());
 		s.setCode(old.getCode());
 		
 		
-		Address address = addressRepository.findById(shop.getAddressId()).get();
+		Address address = old.getAddress();
 		address.setLocation(shop.getLocation());
 
 		Optional<Province> p = provincialRepository.findOneByCode(shop.getProvince().getCode());

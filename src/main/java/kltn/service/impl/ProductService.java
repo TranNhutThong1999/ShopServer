@@ -100,7 +100,6 @@ public class ProductService implements IProductService {
 	@Override
 	public Page<ProductList> findByShopId(Authentication auth, int pageSize, int pageNumber) {
 		// TODO Auto-generated method stub
-		
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 		return productRepository.findByShop_id(Common.getIdFromAuth(auth), pageable).map(productConverter::toList);

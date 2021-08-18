@@ -27,6 +27,7 @@ import kltn.repository.CommentRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.RatingRepository;
 import kltn.service.IPhotoService;
+import kltn.util.Constants;
 
 @Component
 public class ProductConverter implements IConverter<Product, ProductDTO> {
@@ -56,6 +57,9 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 
 	@Autowired
 	private RatingConverter ratingConverter;
+	
+	@Autowired
+	private Constants constants;
 
 	@Override
 	public Product toEntity(ProductDTO d) {
@@ -66,8 +70,9 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	public ProductList toList(Product s) {
 		// TODO Auto-generated method stub
 		ProductList product = modelMapper.map(s, ProductList.class);
-		product.setPhoto(photoConverter.toDTO(s.getPhotos().get(0)).getLink());
-
+		if(s.getPhotos().size() !=0) {
+			product.setPhoto(photoConverter.toDTO(s.getPhotos().get(0)).getLink());
+		}
 		double sum = ratingRepository.sumStar(s.getId());
 		double realQuantity = ratingRepository.quantityStar(s.getId());
 		double quantity = realQuantity == 0 ? 1 : realQuantity;
@@ -105,7 +110,9 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 			double quantity = realQuantity == 0 ? 1 : realQuantity;
 			return sum / quantity;
 		}, executor);
-		product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
+		if(s.getPhotos().size() !=0) {
+			product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
+		}
 		CategoryOutPut cateOutPut = modelMapper.map(s.getCategory().getCategory(), CategoryOutPut.class);
 		List<CategoryOutPut> list = new ArrayList<CategoryOutPut>();
 		list.add(modelMapper.map(s.getCategory(), CategoryOutPut.class));

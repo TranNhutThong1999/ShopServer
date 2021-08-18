@@ -28,7 +28,7 @@ public class CustomUserDetail implements UserDetailsService{
 		return myShop;
 		
 	}
-	public UserDetails loadUserById(int id) throws UsernameNotFoundException {
+	public UserDetails loadUserById(String id) throws UsernameNotFoundException {
 		Shop shop = shopRepository.findOneById(id).orElseThrow(()-> new UsernameNotFoundException("username was not found")) ;
 		List<GrantedAuthority> authortity = new ArrayList<GrantedAuthority>();
 		MyShop myShop = new MyShop(shop.getUserName(), shop.getPassword(),  shop.isEnable(), true, true, true, authortity);

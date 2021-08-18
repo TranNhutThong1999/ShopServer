@@ -10,7 +10,9 @@ import kltn.annotation.ShopExist;
 import lombok.Data;
 
 @Data
-public class ShopDTO extends AbstractDTO {
+public class ShopDTO {
+	
+	private String id;
 	@ShopExist
 	@NotBlank
 	private String userName;

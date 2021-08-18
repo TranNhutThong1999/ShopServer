@@ -12,7 +12,6 @@ import lombok.Data;
 @Table(name = "photo")
 public class Photo extends Abstract{
 	private String name;
-	private String link;
 
 	@ManyToOne
 	@JoinColumn(name = "product_id")

@@ -1,23 +1,24 @@
 package kltn.firebase;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class UpdateStatusOrder {
 	private int orderId;
-	private int userId;
+	private String userId;
 	private String code;
 	private int status;
-	private int shopId;
+	private String shopId;
 	private String createDate;
-	public UpdateStatusOrder(int orderId, int userId, String code, int status, int shopId, String createDate) {
+	public UpdateStatusOrder(int orderId, String userId, String code, int status, String shopId, Date createDate) {
 		super();
 		this.orderId = orderId;
 		this.userId = userId;
 		this.code = code;
 		this.status = status;
 		this.shopId = shopId;
-		this.createDate = createDate;
-	}
-	public UpdateStatusOrder() {
-		super();
+		this.createDate = parse(createDate);
 	}
 	public int getOrderId() {
 		return orderId;
@@ -25,10 +26,10 @@ public class UpdateStatusOrder {
 	public void setOrderId(int orderId) {
 		this.orderId = orderId;
 	}
-	public int getUserId() {
+	public String getUserId() {
 		return userId;
 	}
-	public void setUserId(int userId) {
+	public void setUserId(String userId) {
 		this.userId = userId;
 	}
 	public String getCode() {
@@ -43,17 +44,26 @@ public class UpdateStatusOrder {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public int getShopId() {
+	public String getShopId() {
 		return shopId;
 	}
-	public void setShopId(int shopId) {
+	public void setShopId(String shopId) {
 		this.shopId = shopId;
 	}
 	public String getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(String createDate) {
-		this.createDate = createDate;
+	public void setCreateDate(Date createDate) {
+		this.createDate = parse(createDate);
 	}
+
+	public String parse(Date date) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");  
+		return dateFormat.format(date);  
+	}
+//	public static void main(String[] args) {
+//		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");  
+//		System.out.println(dateFormat.format(new Date())); 
+//	}
 
 }

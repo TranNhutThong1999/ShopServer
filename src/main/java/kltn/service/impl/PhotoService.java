@@ -163,9 +163,12 @@ public class PhotoService implements IPhotoService {
 		fos.write(image);
 		fos.flush();
 		fos.close();
-		s.setAvatar(constant.showImage + File.separator + "images" + File.separator + name);
-		shopRepository.save(s);
-		return s.getAvatar();
+		s.setAvatar(name);
+		if(s.getAvatar() != null) {
+			File f = new File(constant.rootURL + File.separator + "/images" + File.separator + s.getAvatar());
+			f.deleteOnExit();
+		}
+		return shopRepository.save(s).getAvatar();
 	}
 
 	public List<Photo> updatePhoto(List<PhotoDTO> photos, Product pro) {

@@ -1,25 +1,43 @@
 package kltn.entity;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "shop")
-public class Shop extends Abstract {
+public class Shop  extends AbstractId implements Serializable {
+	@Id
+	@GeneratedValue(generator = "my_generator")
+	@GenericGenerator(name = "my_generator", strategy = "kltn.util.MyGenerator")
+	@Column(nullable = false)
+	private String id;
+
+	private String modifedBy;
 	private String nameShop;
 	private String avatar;
 	private String userName;

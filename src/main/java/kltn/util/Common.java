@@ -28,7 +28,7 @@ public class Common {
 		return s.toString();
 	}
 
-	public static int getIdFromAuth(Authentication auth) {
+	public static String getIdFromAuth(Authentication auth) {
 		MyShop u = (MyShop) auth.getPrincipal();
 		return u.getId();
 	}

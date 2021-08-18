@@ -55,55 +55,11 @@ public class OrderService implements IOrderService {
 	@Autowired
 	private UserRepository userRepository;
 
-//	@Autowired
-//	private PaymentRepository paymentRepository;
-
 	@Autowired
 	private ItemRepository itemRepository;
 
 	@Autowired
 	private ApplicationEventPublisher ApplicationEventPublisher;
-
-//	@Override
-//	public void save(OrderDTO order, Authentication auth) throws Exception {
-//		// TODO Auto-generated method stub
-//		logger.info("create order");
-//		Order or = orderConverter.toEntity(order);
-//		or.setOrderCode(generateOrderCode());
-//		or.setUser(userRepository.findOneById(Common.getIdFromAuth(auth)).get());
-//		or.setStatus(Common.ORDER_PROCESS);
-//		Payment payment = new Payment();
-//		payment.setPamentOnline(order.getIsPaymentOnline() == 1 ? true : false);
-//		if (order.getIsPaymentOnline() == 1) {
-//			payment.setPayment(true);
-//		} else {
-//			payment.setPayment(false);
-//		}
-//		payment.setPaymentName(order.getPaymentName());
-//
-//		or.setPayment(payment);
-//		int price = 0;
-//		List<ItemDTO> listOrderDetail = order.getProduct();
-//		for (ItemDTO dto : listOrderDetail) {
-//			Item item = itemRepository.findById(dto.getItemId()).orElseThrow(() -> new Exception("Item was not found"));
-//			Product p = item.getProduct();
-//			item.setCart(null);
-//			item.setOrder(or);
-//			item.setPrice(p.getPriceSale());
-//			
-//			if (p.getAvaiable() - item.getQuantity() < 0) {
-//				throw new Exception("min avaiable < 0");
-//			}
-//			p.setAvaiable(p.getAvaiable() - dto.getQuantity());
-//			p.setQuantitySold(p.getQuantitySold()+1);
-//			itemRepository.save(item);
-//			productRepository.save(p);
-//			price += p.getPriceSale() * item.getQuantity();
-//		}
-//		or.setTempPrice(price);
-//		or.setTotalMoney(price + or.getFeeShip());
-//		orderRepository.save(or);
-//	}
 
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
@@ -136,25 +92,25 @@ public class OrderService implements IOrderService {
 				.orElseThrow(() -> new Exception("id was not found"));
 		or.setStatus(status);
 		Order o = orderRepository.save(or);
-		UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate().toString());
+		UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate());
 		//push realtime user
 		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
-		//push realtime shop
+	//	push realtime shop
 		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, data));
-		//push change status 2 to 3
+	//	push change status 2 to 3
 		ApplicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, orderId, Common.getIdFromAuth(auth)));
 	}
 
 	@Override
 	@Transactional
-	public void updateStatusSuccess(int orderId, int shopId, int status) {
+	public void updateStatusSuccess(int orderId, String shopId, int status) {
 		// TODO Auto-generated method stub
 		Optional<Order> order = orderRepository.findOneByIdAndShop_Id(orderId, shopId);
 		if (order.isPresent()) {
 			Order or = order.get();
 			or.setStatus(status);
 			Order o = orderRepository.save(or);
-			UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate().toString());
+			UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate());
 		//realtime user
 			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
 		//realtime shop

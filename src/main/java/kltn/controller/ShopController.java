@@ -244,7 +244,7 @@ public class ShopController {
 	public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> data) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.updatePassword(Integer.valueOf(data.get("userId")), data.get("password"), data.get("otp"));
+			shopService.updatePassword(data.get("userId"), data.get("password"), data.get("otp"));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

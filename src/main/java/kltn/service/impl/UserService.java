@@ -51,13 +51,13 @@ public class UserService implements IUserService {
 
 
 	@Override
-	public Optional<User> findOneById(int id) {
+	public Optional<User> findOneById(String id) {
 		// TODO Auto-generated method stub
 		return userRepository.findOneById(id);
 	}
 
 	@Override
-	public int findOtp(String otp) throws Exception {
+	public String findOtp(String otp) throws Exception {
 		// TODO Auto-generated method stub
 		User u = userRepository.findOneByOtp(otp).orElseThrow(() -> new Exception("otp was not found"));
 		return u.getId();
@@ -66,7 +66,7 @@ public class UserService implements IUserService {
 
 
 	@Override
-	public UserDTO findById(int id){
+	public UserDTO findById(String id){
 		// TODO Auto-generated method stub
 		return userConverter.toDTO(userRepository.findOneById(id).get());
 	}

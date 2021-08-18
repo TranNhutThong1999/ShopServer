@@ -1,5 +1,7 @@
 package kltn.converter;
 
+import java.io.File;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,6 +11,7 @@ import kltn.dto.ProvinceDTO;
 import kltn.dto.ShopDTO;
 import kltn.dto.WardsDTO;
 import kltn.entity.Shop;
+import kltn.util.Constants;
 
 @Component
 public class ShopConverter implements IConverter<Shop, ShopDTO> {
@@ -18,6 +21,9 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 	@Autowired
 	private ProductConverter productConverter;
 
+	@Autowired
+	private Constants constant;
+	
 	@Override
 	public Shop toEntity(ShopDTO d) {
 		// TODO Auto-generated method stub
@@ -28,7 +34,9 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 	public ShopDTO toDTO(Shop s) {
 		// TODO Auto-generated method stub
 		ShopDTO shop = modelMapper.map(s, ShopDTO.class);
-	
+		if(!s.getAvatar().equals("")) {
+			shop.setAvatar(constant.showImage + File.separator + "images" + File.separator + s.getAvatar());;
+		}
 		if (s.getAddress() != null) {
 			shop.setAddressId(s.getAddress().getId());
 			shop.setLocation(s.getAddress().getLocation());

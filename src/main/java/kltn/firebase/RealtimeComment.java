@@ -1,5 +1,7 @@
 package kltn.firebase;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import lombok.Data;
@@ -7,22 +9,19 @@ import lombok.Data;
 public class RealtimeComment {
 	private int commentId;
 	private int productId;
-	private int userId;
+	private String shopId;
 	private Integer parentCommentId;
 	private String content;
 	private String createDate;
-	public RealtimeComment(int commentId, int productId, int userId, Integer parentCommentId,
-			String content, String createDate) {
+	public RealtimeComment(int commentId, int productId, String shopId, Integer parentCommentId, String content,
+			Date createDate) {
 		super();
 		this.commentId = commentId;
 		this.productId = productId;
-		this.userId = userId;
+		this.shopId = shopId;
 		this.parentCommentId = parentCommentId;
 		this.content = content;
-		this.createDate = createDate;
-	}
-	public RealtimeComment() {
-		super();
+		this.createDate = parse(createDate);
 	}
 	public int getCommentId() {
 		return commentId;
@@ -36,11 +35,11 @@ public class RealtimeComment {
 	public void setProductId(int productId) {
 		this.productId = productId;
 	}
-	public int getUserId() {
-		return userId;
+	public String getShopId() {
+		return shopId;
 	}
-	public void setUserId(int userId) {
-		this.userId = userId;
+	public void setShopId(String shopId) {
+		this.shopId = shopId;
 	}
 	public Integer getParentCommentId() {
 		return parentCommentId;
@@ -57,13 +56,12 @@ public class RealtimeComment {
 	public String getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(String createDate) {
-		this.createDate = createDate;
-	}
-	@Override
-	public String toString() {
-		return "RealtimeCommentUser [commentId=" + commentId + ", productId=" + productId + ", userId=" + userId
-				+ ", parentCommentId=" + parentCommentId + ", content=" + content + ", createDate=" + createDate + "]";
+	public void setCreateDate(Date createDate) {
+		this.createDate = parse(createDate);
 	}
 	
+	public String parse(Date date) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");  
+		return dateFormat.format(date);  
+	}
 }

@@ -29,11 +29,9 @@ import kltn.entity.Order;
 import kltn.entity.Payment;
 import kltn.entity.Product;
 import kltn.event.PushEventUpdateOrderUser;
+import kltn.firebase.UpdateStatusOrder;
 import kltn.event.AutoUpdateStatus3;
 import kltn.event.PushEventUpdateOrderShop;
-import kltn.firebase.shop.FirebaseShop;
-import kltn.firebase.shop.UpdateStatusOrderShop;
-import kltn.firebase.user.UpdateStatusOrderUser;
 import kltn.repository.ItemRepository;
 import kltn.repository.OrderRepository;
 import kltn.repository.ProductRepository;
@@ -66,9 +64,6 @@ public class OrderService implements IOrderService {
 	@Autowired
 	private ApplicationEventPublisher ApplicationEventPublisher;
 
-	@Autowired
-	private FirebaseShop firebaseShop;
-	
 //	@Override
 //	public void save(OrderDTO order, Authentication auth) throws Exception {
 //		// TODO Auto-generated method stub
@@ -141,10 +136,11 @@ public class OrderService implements IOrderService {
 				.orElseThrow(() -> new Exception("id was not found"));
 		or.setStatus(status);
 		Order o = orderRepository.save(or);
+		UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate().toString());
 		//push realtime user
-		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, new UpdateStatusOrderUser(o.getUser().getId(), o.getOrderCode(), o.getStatus())));
+		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
 		//push realtime shop
-		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, new UpdateStatusOrderShop(o.getUser().getId(), o.getShop().getId(), o.getOrderCode(), o.getStatus())));
+		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, data));
 		//push change status 2 to 3
 		ApplicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, orderId, Common.getIdFromAuth(auth)));
 	}
@@ -153,16 +149,16 @@ public class OrderService implements IOrderService {
 	@Transactional
 	public void updateStatusSuccess(int orderId, int shopId, int status) {
 		// TODO Auto-generated method stub
-		Optional<Order> o = orderRepository.findOneByIdAndShop_Id(orderId, shopId);
-		if (o.isPresent()) {
-			Order or = o.get();
+		Optional<Order> order = orderRepository.findOneByIdAndShop_Id(orderId, shopId);
+		if (order.isPresent()) {
+			Order or = order.get();
 			or.setStatus(status);
-			Order order = orderRepository.save(or);
-		//	firebaseShop.insertOrderStatus( new UpdateStatusOrderShop(order.getUser().getId(), order.getShop().getId(), order.getOrderCode(), order.getStatus()));
+			Order o = orderRepository.save(or);
+			UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate().toString());
 		//realtime user
-			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, new UpdateStatusOrderUser(order.getUser().getId(), order.getOrderCode(), order.getStatus())));
+			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
 		//realtime shop
-			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, new UpdateStatusOrderShop(order.getUser().getId(), order.getShop().getId(), order.getOrderCode(), order.getStatus())));
+			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, data));
 		}
 
 	}

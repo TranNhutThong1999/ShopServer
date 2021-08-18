@@ -29,4 +29,13 @@ public class Constants {
 	
 	@Value("${upload.file.url.show}")
 	public String showImage;
+	
+	@Value("${set.status.success.time.secords}")
+	public long sleep;
+	
+	@Value("${firebase.realtime.user.path}")
+	private String fileUser;
+	
+	@Value("${firebase.realtime.shop.path}")
+	private String fileShop;
 }

@@ -1,5 +1,6 @@
 package kltn.converter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -11,8 +12,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.twilio.rest.api.v2010.account.usage.record.AllTime.Category;
+
+import kltn.api.output.CategoryOutPut;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ProductList;
+import kltn.api.output.ProductOutPut;
 import kltn.dto.DetailDTO;
 import kltn.dto.ProductDTO;
 import kltn.dto.RatingDTO;
@@ -80,9 +85,13 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 
 	@Override
 	public ProductDTO toDTO(Product s) {
+		return null;
+	}
+	
+	public ProductOutPut toProductOutPut(Product s) {
 		// TODO Auto-generated method stub
 		ExecutorService executor = Executors.newFixedThreadPool(5);
-		ProductDTO product = modelMapper.map(s, ProductDTO.class);
+		ProductOutPut product = modelMapper.map(s, ProductOutPut.class);
 		CompletableFuture<List<CommentOuput>> futureCmt = CompletableFuture
 				.supplyAsync(() -> commentRepository.findAllByProduct_Id(s.getId()).stream()
 						.map(commentConverter::toDTO).collect(Collectors.toList()), executor);
@@ -97,6 +106,11 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 			return sum / quantity;
 		}, executor);
 		product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
+		CategoryOutPut cateOutPut = modelMapper.map(s.getCategory().getCategory(), CategoryOutPut.class);
+		List<CategoryOutPut> list = new ArrayList<CategoryOutPut>();
+		list.add(modelMapper.map(s.getCategory(), CategoryOutPut.class));
+		cateOutPut.setSubCategories(list);
+		product.setCategory(cateOutPut);
 		product.setCategoryId(s.getCategory().getId());
 		product.setShopId(s.getShop().getId());
 		product.setShopName(s.getShop().getNameShop());

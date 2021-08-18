@@ -9,11 +9,12 @@ import org.springframework.stereotype.Service;
 import kltn.api.input.UpdateDetailProduct;
 import kltn.api.input.UpdateInforProduct;
 import kltn.api.output.ProductList;
+import kltn.api.output.ProductOutPut;
 import kltn.dto.ProductDTO;
 
 @Service
 public interface IProductService {
-	ProductDTO findOneById(int id) throws Exception;
+	ProductOutPut findOneById(int id) throws Exception;
 
 	Page<ProductList> findByCategoryLimit(int cateroryId, int pageSize, int pageNumber) throws Exception;
 
@@ -22,7 +23,7 @@ public interface IProductService {
 //	Page<ProductDTO> findProductByShop_Id(int id, int pageSize, int pageNumber);
 	ProductDTO save(ProductDTO dto, Authentication auth) throws Exception;
 
-	Page<ProductList> findByShopId(int shopId, int pageSize, int pageNumber);
+	Page<ProductList> findByShopId(Authentication auth, int pageSize, int pageNumber);
 	
 	void deletePhoto(Authentication auth, int photoId, int productId) throws Exception;
 	

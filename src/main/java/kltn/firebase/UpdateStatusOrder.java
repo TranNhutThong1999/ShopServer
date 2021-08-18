@@ -1,29 +1,29 @@
-package kltn.firebase.shop;
+package kltn.firebase;
 
-public class UpdateStatusOrderShop {
-	private String id;
+public class UpdateStatusOrder {
+	private int orderId;
 	private int userId;
-	private int shopId;
 	private String code;
 	private int status;
-	private String message;
-	public UpdateStatusOrderShop( int userId, int shopId, String code, int status) {
+	private int shopId;
+	private String createDate;
+	public UpdateStatusOrder(int orderId, int userId, String code, int status, int shopId, String createDate) {
 		super();
+		this.orderId = orderId;
 		this.userId = userId;
 		this.code = code;
 		this.status = status;
-		this.shopId =shopId;
+		this.shopId = shopId;
+		this.createDate = createDate;
 	}
-	
-	public UpdateStatusOrderShop() {
+	public UpdateStatusOrder() {
 		super();
-	
 	}
-	public String getId() {
-		return id;
+	public int getOrderId() {
+		return orderId;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
 	}
 	public int getUserId() {
 		return userId;
@@ -43,20 +43,17 @@ public class UpdateStatusOrderShop {
 	public void setStatus(int status) {
 		this.status = status;
 	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
 	public int getShopId() {
 		return shopId;
 	}
-
 	public void setShopId(int shopId) {
 		this.shopId = shopId;
 	}
-
+	public String getCreateDate() {
+		return createDate;
+	}
+	public void setCreateDate(String createDate) {
+		this.createDate = createDate;
+	}
 
 }

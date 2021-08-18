@@ -28,8 +28,9 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 	public ShopDTO toDTO(Shop s) {
 		// TODO Auto-generated method stub
 		ShopDTO shop = modelMapper.map(s, ShopDTO.class);
-		shop.setAddressId(s.getAddress().getId());
+	
 		if (s.getAddress() != null) {
+			shop.setAddressId(s.getAddress().getId());
 			shop.setLocation(s.getAddress().getLocation());
 			shop.setProvince(modelMapper.map(s.getAddress().getProvince(), ProvinceDTO.class));
 			shop.setDistrict(modelMapper.map(s.getAddress().getDistrict(), DistrictDTO.class));

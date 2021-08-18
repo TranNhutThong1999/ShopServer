@@ -14,5 +14,6 @@ public class UpdateInforProduct {
 	private String description;
 	private double weight;
 	private int categoryId;
+	private int avaiable;
 	private List<PhotoDTO> photos;
 }

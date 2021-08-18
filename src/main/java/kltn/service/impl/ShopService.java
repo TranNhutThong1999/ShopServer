@@ -1,5 +1,6 @@
 package kltn.service.impl;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,11 +19,13 @@ import kltn.converter.ShopConverter;
 import kltn.dto.AddressDTO;
 import kltn.dto.ShopDTO;
 import kltn.entity.Address;
+import kltn.entity.DeviceToken;
 import kltn.entity.District;
 import kltn.entity.Province;
 import kltn.entity.Shop;
 import kltn.entity.Wards;
 import kltn.repository.AddressRepository;
+import kltn.repository.DeviceTokenRepository;
 import kltn.repository.DistrictRepository;
 import kltn.repository.ProvincialRepository;
 import kltn.repository.ShopRepository;
@@ -66,6 +69,9 @@ public class ShopService implements IShopService {
 	@Autowired
 	private AddressConverter addressConverter;
 
+	@Autowired
+	private DeviceTokenRepository deviceTokenRepository;
+	
 	@Override
 	public ShopDTO save(ShopDTO s) {
 		// TODO Auto-generated method stub
@@ -240,5 +246,23 @@ public class ShopService implements IShopService {
 		s.setAddress(address);
 		
 		shopRepository.save(s);
+	}
+
+	@Override
+	public void saveFCMToken(String token, Authentication auth) {
+		// TODO Auto-generated method stub
+//		Optional<DeviceToken> de = deviceTokenRepository.findOneByUser_Id(Common.getIdFromAuth(auth));
+//		DeviceToken d =  null;
+//		if(!de.isPresent()) {
+//			 d = new DeviceToken();
+//			d.setFCMToken(token);
+//			d.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
+//			d.setCreateDate(new Date());
+//			deviceTokenRepository.save(d);
+//			return;
+//		}
+//		d =de.get();
+//		d.setFCMToken(token);
+		
 	}
 }

@@ -2,19 +2,19 @@ package kltn.event;
 
 import org.springframework.context.ApplicationEvent;
 
-import kltn.firebase.user.UpdateStatusOrderUser;
+import kltn.firebase.UpdateStatusOrder;
 
 public class PushEventUpdateOrderUser extends ApplicationEvent{
 	
-	private UpdateStatusOrderUser updateStatusOrder;
+	private UpdateStatusOrder updateStatusOrder;
 	
-	public PushEventUpdateOrderUser(Object source, UpdateStatusOrderUser o) {
+	public PushEventUpdateOrderUser(Object source, UpdateStatusOrder o) {
 		super(source);
 		// TODO Auto-generated constructor stub
 		this.updateStatusOrder = o;
 	}
 
-	public UpdateStatusOrderUser getO() {
+	public UpdateStatusOrder getO() {
 		return updateStatusOrder;
 	}
 

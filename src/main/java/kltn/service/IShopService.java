@@ -30,4 +30,6 @@ public interface IShopService {
 	ShopDTO createDetail(ShopDetail s) throws Exception;
 	
 	AddressDTO getAddress(Authentication auth);
+	
+	void saveFCMToken(String token, Authentication auth);
 }

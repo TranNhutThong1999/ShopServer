@@ -1,15 +1,11 @@
 package kltn.controller;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.google.rpc.context.AttributeContext.Auth;
 
 import kltn.api.input.UpdateDetailProduct;
 import kltn.api.input.UpdateInforProduct;
@@ -29,15 +24,10 @@ import kltn.api.input.UploadFileInput;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ProductDTO;
-import kltn.firebase.user.FirebaseUser;
-import kltn.firebase.user.UpdateStatusOrderUser;
 import kltn.service.ICommentService;
 import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IRatingService;
-import kltn.service.impl.PhotoService;
-import kltn.util.Common;
-import lombok.Delegate;
 
 @RestController
 @RequestMapping("/product")
@@ -59,8 +49,7 @@ public class ProductController {
 	public ResponseEntity<?> getOneProduct(@RequestParam(required = true) int id) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			ProductDTO product = productService.findOneById(id);
-			outPut.setData(product);
+			outPut.setData(productService.findOneById(id));
 			
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {

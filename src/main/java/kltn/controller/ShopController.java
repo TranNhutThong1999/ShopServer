@@ -38,8 +38,6 @@ import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.PhotoDTO;
 import kltn.dto.ShopDTO;
-import kltn.firebase.user.FirebaseUser;
-import kltn.firebase.user.UpdateStatusOrderUser;
 import kltn.jwt.JwtTokenProvider;
 import kltn.service.IAddressService;
 import kltn.service.ICommentService;
@@ -83,8 +81,6 @@ public class ShopController {
 	@Autowired
 	private IOrderService orderService;
 	
-	@Autowired
-	private FirebaseUser firebaseUser;
 	
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody LoginInput s, BindingResult bindingResult) {
@@ -180,9 +176,9 @@ public class ShopController {
 
 	@GetMapping("/product")
 	public ResponseEntity<?> getlistProduct(@RequestParam(required = false, defaultValue = "5") int pageSize,
-			@RequestParam(required = false, defaultValue = "0") int pageNumber,@RequestParam int id) {
+			@RequestParam(required = false, defaultValue = "0") int pageNumber, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		outPut.setData(productService.findByShopId(id, pageSize, pageNumber));
+		outPut.setData(productService.findByShopId(auth, pageSize, pageNumber));
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 
@@ -306,5 +302,15 @@ public class ShopController {
 		}
 	}
 	
+	@PostMapping("/fcmtoken")
+	public ResponseEntity<?> addFCMToken(@RequestBody Map<String, String> data, Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			shopService.saveFCMToken(data.get("FCMToken"), auth);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
 
 }

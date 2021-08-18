@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import com.google.rpc.context.AttributeContext.Auth;
 import kltn.api.input.UpdateInforProduct;
 import kltn.api.input.UpdateDetailProduct;
 import kltn.api.output.ProductList;
+import kltn.api.output.ProductOutPut;
 import kltn.converter.PhotoConverter;
 import kltn.converter.ProductConverter;
 import kltn.dto.ProductDTO;
@@ -68,10 +70,10 @@ public class ProductService implements IProductService {
 	private PhotoService photoService;
 
 	@Override
-	public ProductDTO findOneById(int id) throws Exception {
+	public ProductOutPut findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
 		return productConverter
-				.toDTO(productRepository.findById(id).orElseThrow(() -> new Exception("productId was not found")));
+				.toProductOutPut(productRepository.findById(id).orElseThrow(() -> new Exception("productId was not found")));
 	}
 
 	@Override
@@ -96,10 +98,12 @@ public class ProductService implements IProductService {
 	}
 
 	@Override
-	public Page<ProductList> findByShopId(int shopId, int pageSize, int pageNumber) {
+	public Page<ProductList> findByShopId(Authentication auth, int pageSize, int pageNumber) {
 		// TODO Auto-generated method stub
-		Pageable pageable = PageRequest.of(pageNumber, pageSize);
-		return productRepository.findByShop_id(shopId, pageable).map(productConverter::toList);
+		
+		Sort sort = Sort.by(Sort.Direction.DESC, "id");
+		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+		return productRepository.findByShop_id(Common.getIdFromAuth(auth), pageable).map(productConverter::toList);
 	}
 
 	@Override
@@ -144,9 +148,12 @@ public class ProductService implements IProductService {
 		p.setPrice(product.getPrice());
 		p.setPriceSale(product.getPriceSale());
 		p.setDescription(product.getDescription());
+		p.setAvaiable(product.getAvaiable());
 		p.setWeight(product.getWeight());
-		p.setCategory(categoryRepository.findById(product.getCategoryId()).get());
-		p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
+		p.setCategory(categoryRepository.findById(product.getCategoryId()).orElseThrow(()-> new Exception("categoryId was not found")));
+		if(product.getPhotos() != null) {
+			p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
+		}
 		productRepository.save(p);
 	}
 

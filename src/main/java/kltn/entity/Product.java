@@ -25,7 +25,6 @@ public class Product extends Abstract{
 	
 	@Column(columnDefinition = "TEXT")
 	private String description;
-	private int quantity;
 	private int avaiable;
 	private int quantitySold;
 	private double weight;

@@ -20,20 +20,18 @@ public class CustomUserDetail implements UserDetailsService{
 	private ShopRepository shopRepository;
 	
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Shop shop = shopRepository.findOneByUserName(username).orElseThrow(()-> new UsernameNotFoundException("username")) ;
+		Shop shop = shopRepository.findOneByEmail(username).orElseThrow(()-> new UsernameNotFoundException("email was not found")) ;
 		List<GrantedAuthority> authortity = new ArrayList<GrantedAuthority>();
-		MyShop myShop = new MyShop(shop.getUserName(), shop.getPassword(), shop.isEnable(), true, true, true, authortity);
+		MyShop myShop = new MyShop(shop.getEmail(), shop.getPassword(), shop.isEnable(), true, true, true, authortity);
 		myShop.setId(shop.getId());
-		myShop.setUserName(shop.getUserName());
 		return myShop;
 		
 	}
 	public UserDetails loadUserById(String id) throws UsernameNotFoundException {
 		Shop shop = shopRepository.findOneById(id).orElseThrow(()-> new UsernameNotFoundException("username was not found")) ;
 		List<GrantedAuthority> authortity = new ArrayList<GrantedAuthority>();
-		MyShop myShop = new MyShop(shop.getUserName(), shop.getPassword(),  shop.isEnable(), true, true, true, authortity);
+		MyShop myShop = new MyShop(shop.getEmail(), shop.getPassword(),  shop.isEnable(), true, true, true, authortity);
 		myShop.setId(shop.getId());
-		myShop.setUserName(shop.getUserName());
 		return myShop;
 	}
 	

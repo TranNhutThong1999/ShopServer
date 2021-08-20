@@ -4,13 +4,14 @@ import lombok.Data;
 
 @Data 
 public class LoginInput {
-	private String username;
+	private String email;
 	private String password;
-	public LoginInput(String username, String password) {
+	public LoginInput(String email, String password) {
 		super();
-		this.username = username;
+		this.email = email;
 		this.password = password;
 	}
+	
 	
 	
 }

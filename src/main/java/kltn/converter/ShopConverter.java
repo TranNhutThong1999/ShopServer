@@ -34,7 +34,7 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 	public ShopDTO toDTO(Shop s) {
 		// TODO Auto-generated method stub
 		ShopDTO shop = modelMapper.map(s, ShopDTO.class);
-		if(!s.getAvatar().equals("")) {
+		if(s.getAvatar() != null) {
 			shop.setAvatar(constant.showImage + File.separator + "images" + File.separator + s.getAvatar());;
 		}
 		if (s.getAddress() != null) {

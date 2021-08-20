@@ -76,14 +76,14 @@ public class ShopService implements IShopService {
 	public ShopDTO save(ShopDTO s) {
 		// TODO Auto-generated method stub
 		Shop e = new Shop();
-		e.setUserName(s.getUserName());
 		e.setPhone(s.getPhone());
 		e.setEmail(s.getEmail());
 		e.setPassword(encoder.encode(s.getPassword()));
 		e.setEnable(false);
 		e.generateToken();
-		e.setTimeTokenFuture(60 * 12);
-		emailService.sendSimpleMessage(e.getEmail(), "HI SHOP", "Your code: " + e.getOtp());
+		e.setTimeTokenFuture(SHOPConstant.TIME_OTP_EXPIRE);
+		emailService.sendRegisterMessage(e.getEmail(), e.getOtp());
+//		emailService.sendSimpleMessage(e.getEmail(), "HI SHOP", "Your code: " + e.getOtp());
 		return shopConverter.toDTO(shopRepository.save(e));
 	}
 
@@ -143,28 +143,22 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public ShopDTO findOneByUserName(String userName) {
-		// TODO Auto-generated method stub
-		return shopConverter.toDTO(shopRepository.findOneByUserName(userName).get());
-	}
-
-	@Override
-	public void sendOTP(String mail) throws Exception {
+	public String sendOTP(String mail) throws Exception {
 		// TODO Auto-generated method stub
 		Shop shop = shopRepository.findOneByEmail(mail).orElseThrow(() -> new Exception("Email was not found"));
 		shop.generateToken();
 		shop.setTimeTokenFuture(SHOPConstant.TIME_OTP_EXPIRE);
-		shopRepository.save(shop);
-		emailService.sendSimpleMessage(mail, "HI SHOP", "Your Code: " + shop.getOtp());
+		shop = shopRepository.save(shop);
+		emailService.sendOtpMessage(mail, shop.getOtp());
+		return shop.getId();
 	}
 
 	@Override
-	public String checkOTP(String otp, String email) throws Exception {
+	public String checkOTP(String otp, String shopId) throws Exception {
 		// TODO Auto-generated method stub
-		Shop s = shopRepository.findOneByEmailAndOtp(email, otp).orElseThrow(() -> new Exception("otp was not found"));
-		if (!s.isAfterTime())
+		Shop s = shopRepository.findOneByIdAndOtp(shopId, otp).orElseThrow(() -> new Exception("otp was not found"));
+		if (s.isAfterTime())
 			throw new Exception("Opt expired");
-		s.setOtp("");
 		shopRepository.save(s);
 		return s.getId();
 	}
@@ -205,16 +199,11 @@ public class ShopService implements IShopService {
 	public void update(ShopDTO shop, Authentication auth) {
 		// TODO Auto-generated method stub
 		Shop old = shopRepository.findById(Common.getIdFromAuth(auth)).get();
-		Shop s = shopConverter.toEntity(shop);
-		s.setUserName(old.getUserName());
-		s.setPassword(old.getPassword());
-		s.setEnable(old.isEnable());
-		s.setOtp(old.getOtp());
-		s.setExpireOtp(old.getExpireOtp());
-	//	s.setCreatedDate(old.getCreatedDate());
-		//s.setCreatedBy(old.getCreatedBy());
-		s.setCode(old.getCode());
-		
+		//Shop s = shopConverter.toEntity(shop);
+		old.setNameShop(shop.getNameShop());
+		old.setPhone(shop.getPhone());
+		old.setHotLine(shop.getHotLine());
+		old.setWebsite(shop.getWebsite());
 		
 		Address address = old.getAddress();
 		address.setLocation(shop.getLocation());
@@ -222,7 +211,7 @@ public class ShopService implements IShopService {
 		Optional<Province> p = provincialRepository.findOneByCode(shop.getProvince().getCode());
 		if (!p.isPresent()) {
 			Province pro = modelMapper.map(shop.getProvince(), Province.class);
-			provincialRepository.save(pro);
+			pro = provincialRepository.save(pro);
 			address.setProvince(pro);
 		} else
 			address.setProvince(p.get());
@@ -230,7 +219,7 @@ public class ShopService implements IShopService {
 		Optional<District> d = districtRepository.findOneByCode(shop.getDistrict().getCode());
 		if (!d.isPresent()) {
 			District dis = modelMapper.map(shop.getDistrict(), District.class);
-			districtRepository.save(dis);
+			dis = districtRepository.save(dis);
 			address.setDistrict(dis);
 		} else
 			address.setDistrict(d.get());
@@ -238,14 +227,14 @@ public class ShopService implements IShopService {
 		Optional<Wards> w = wardsRepository.findOneByCode(shop.getWards().getCode());
 		if (!w.isPresent()) {
 			Wards wards = modelMapper.map(shop.getWards(), Wards.class);
-			wardsRepository.save(wards);
+			wards = wardsRepository.save(wards);
 			address.setWards(wards);
 		} else
 			address.setWards(w.get());
 		
-		s.setAddress(address);
+		old.setAddress(address);
 		
-		shopRepository.save(s);
+		shopRepository.save(old);
 	}
 
 	@Override

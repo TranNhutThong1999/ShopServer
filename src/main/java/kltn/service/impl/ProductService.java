@@ -72,8 +72,8 @@ public class ProductService implements IProductService {
 	@Override
 	public ProductOutPut findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
-		return productConverter
-				.toProductOutPut(productRepository.findById(id).orElseThrow(() -> new Exception("productId was not found")));
+		return productConverter.toProductOutPut(
+				productRepository.findById(id).orElseThrow(() -> new Exception("productId was not found")));
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class ProductService implements IProductService {
 		int percen = (int) ((dto.getPriceSale() * 100) / dto.getPrice());
 		p.setSale(100 - percen);
 		p.setQuantitySold(0);
-		if(dto.getPhotos().size() > 0) {
+		if (dto.getPhotos().size() > 0) {
 			p.setPhotos(photoService.saveOnePhotoProduct(p, dto.getPhotos()));
 		}
 		Product pro = productRepository.save(p);
@@ -133,7 +133,7 @@ public class ProductService implements IProductService {
 			return new Exception("Auth");
 		});
 		Optional<Photo> p = photoRepository.findOneByProduct_id(pr.getId());
-		if(p.isPresent()) {
+		if (p.isPresent()) {
 			File file = new File(constants.rootURL + File.separator + "images" + File.separator + p.get().getName());
 			file.deleteOnExit();
 		}
@@ -142,15 +142,17 @@ public class ProductService implements IProductService {
 	@Override
 	public void updateInfor(UpdateInforProduct product, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Product p = productRepository.findOneByIdAndShop_Id(product.getId(),Common.getIdFromAuth(auth)).orElseThrow(()-> new Exception("id was not found"));
+		Product p = productRepository.findOneByIdAndShop_Id(product.getId(), Common.getIdFromAuth(auth))
+				.orElseThrow(() -> new Exception("id was not found"));
 		p.setName(product.getName());
 		p.setPrice(product.getPrice());
 		p.setPriceSale(product.getPriceSale());
 		p.setDescription(product.getDescription());
 		p.setAvaiable(product.getAvaiable());
 		p.setWeight(product.getWeight());
-		p.setCategory(categoryRepository.findById(product.getCategoryId()).orElseThrow(()-> new Exception("categoryId was not found")));
-		if(product.getPhotos() != null) {
+		p.setCategory(categoryRepository.findById(product.getCategoryId())
+				.orElseThrow(() -> new Exception("categoryId was not found")));
+		if (product.getPhotos() != null) {
 			p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
 		}
 		productRepository.save(p);
@@ -159,7 +161,8 @@ public class ProductService implements IProductService {
 	@Override
 	public void updateDetail(UpdateDetailProduct detail, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Product p = productRepository.findOneByIdAndShop_Id(detail.getId(),Common.getIdFromAuth(auth)).orElseThrow(()-> new Exception("id was not found"));
+		Product p = productRepository.findOneByIdAndShop_Id(detail.getId(), Common.getIdFromAuth(auth))
+				.orElseThrow(() -> new Exception("id was not found"));
 		p.setDetail(detail.getDetail());
 		productRepository.save(p);
 	}
@@ -167,9 +170,14 @@ public class ProductService implements IProductService {
 	@Override
 	public void delete(int id, Authentication auth) {
 		// TODO Auto-generated method stub
-		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id,Common.getIdFromAuth(auth));
-		if(p.isPresent())
-			productRepository.delete(p.get());
+		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
+		if (p.isPresent())
+			System.out.println("vao");
+		productRepository.delete(p.get());
+		p.get().getPhotos().stream().forEach((x) -> {
+			File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x.getName());
+			f.deleteOnExit();
+		});
 	}
-	
+
 }

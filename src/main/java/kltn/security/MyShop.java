@@ -10,7 +10,6 @@ import lombok.Data;
 @Data
 public class MyShop extends User {
 	private String id;
-	private String userName;
 
 	public MyShop(String username, String password, boolean enabled, boolean accountNonExpired,
 			boolean credentialsNonExpired, boolean accountNonLocked,

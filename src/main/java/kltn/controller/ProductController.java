@@ -123,14 +123,14 @@ public class ProductController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/product")
-	public ResponseEntity<?> deleteProdut(@RequestBody Map<String, String> data, Authentication auth) {
+	@DeleteMapping
+	public ResponseEntity<?> deleteProduct(Authentication auth, @RequestBody Map<String, Integer> data) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			productService.delete(Integer.valueOf(data.get("id")), auth);
-			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+			productService.delete(data.get("id"), auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 }

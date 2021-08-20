@@ -36,11 +36,8 @@ public class Shop  extends AbstractId implements Serializable {
 	@GenericGenerator(name = "my_generator", strategy = "kltn.util.MyGenerator")
 	@Column(nullable = false)
 	private String id;
-
-	private String modifedBy;
 	private String nameShop;
 	private String avatar;
-	private String userName;
 	private String phone;
 	private String email;
 	private String password;

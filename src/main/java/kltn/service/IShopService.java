@@ -11,13 +11,11 @@ public interface IShopService {
 
 	ShopDTO getOne(Authentication auth);
 
-	ShopDTO findOneByUserName(String userName);
-
 	void delete(Authentication auth);
 
 	void update(ShopDTO shop, Authentication auth);
 	
-	void sendOTP(String mail) throws Exception;
+	String sendOTP(String mail) throws Exception;
 
 	String checkOTP(String otp, String email) throws Exception;
 

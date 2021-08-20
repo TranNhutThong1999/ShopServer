@@ -1,5 +1,6 @@
 package kltn.converter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -59,7 +60,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	private RatingConverter ratingConverter;
 	
 	@Autowired
-	private Constants constants;
+	private Constants constant;
 
 	@Override
 	public Product toEntity(ProductDTO d) {
@@ -70,7 +71,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	public ProductList toList(Product s) {
 		// TODO Auto-generated method stub
 		ProductList product = modelMapper.map(s, ProductList.class);
-		if(s.getPhotos().size() !=0) {
+		if(s.getPhotos().size() > 0) {
 			product.setPhoto(photoConverter.toDTO(s.getPhotos().get(0)).getLink());
 		}
 		double sum = ratingRepository.sumStar(s.getId());
@@ -110,18 +111,27 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 			double quantity = realQuantity == 0 ? 1 : realQuantity;
 			return sum / quantity;
 		}, executor);
-		if(s.getPhotos().size() !=0) {
+		if(s.getPhotos().size() > 0) {
 			product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
 		}
 		CategoryOutPut cateOutPut = modelMapper.map(s.getCategory().getCategory(), CategoryOutPut.class);
+		if(cateOutPut.getImage() != null)
+			cateOutPut.setImage(constant.showImage + File.separator+ "images" + File.separator + "category" + File.separator +cateOutPut.getImage());
+	
 		List<CategoryOutPut> list = new ArrayList<CategoryOutPut>();
-		list.add(modelMapper.map(s.getCategory(), CategoryOutPut.class));
+		CategoryOutPut cate = modelMapper.map(s.getCategory(), CategoryOutPut.class);
+		if(cate.getImage() != null)
+			cate.setImage(constant.showImage + File.separator+ "images" + File.separator + "category" + File.separator + cate.getImage());
+		list.add(cate);
 		cateOutPut.setSubCategories(list);
+		
 		product.setCategory(cateOutPut);
 		product.setCategoryId(s.getCategory().getId());
 		product.setShopId(s.getShop().getId());
 		product.setShopName(s.getShop().getNameShop());
-		product.setShopAvatar(s.getShop().getAvatar());
+		if (s.getShop().getAvatar() != null)
+			product.setShopAvatar(
+					constant.showImage + File.separator + "images" + File.separator + s.getShop().getAvatar());
 		try {
 			// product.setRating(futureRating.get());
 			product.setTotalStar(futureStar.get());

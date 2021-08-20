@@ -6,16 +6,12 @@ import javax.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import kltn.annotation.EmailExist;
-import kltn.annotation.ShopExist;
 import lombok.Data;
 
 @Data
 public class ShopDTO {
 	
 	private String id;
-	@ShopExist
-	@NotBlank
-	private String userName;
 	private String phone;
 	
 	@EmailExist

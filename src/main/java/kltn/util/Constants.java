@@ -38,4 +38,7 @@ public class Constants {
 	
 	@Value("${firebase.realtime.shop.path}")
 	private String fileShop;
+	
+	@Value("${spring.mail.username}")
+	private String emailSend;
 }

@@ -46,6 +46,7 @@ import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IShopService;
 import kltn.util.Common;
+import kltn.util.EmailService;
 import kltn.util.ValidationBindingResult;
 
 @RestController
@@ -81,17 +82,15 @@ public class ShopController {
 	@Autowired
 	private IOrderService orderService;
 	
+	@Autowired
+	private EmailService emailService;
 	
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> login(@RequestBody LoginInput s, BindingResult bindingResult) {
-//		ResponseEntity<?> error = validationBindingResult.process(bindingResult);
-//		if (error != null) {
-//			return error;
-//		}
+	public ResponseEntity<?> login(@RequestBody LoginInput s) {
 		ResponseValue outPut = new ResponseValue();
 		try {
 			Authentication auth = authenticationManager
-					.authenticate(new UsernamePasswordAuthenticationToken(s.getUsername(), s.getPassword()));
+					.authenticate(new UsernamePasswordAuthenticationToken(s.getEmail(), s.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(auth);
 			String JWT = jwt.generateToken(auth);
 			ShopDTO shop = shopService.getOne(auth);
@@ -104,6 +103,7 @@ public class ShopController {
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		
 		} catch (BadCredentialsException e) {
+			System.out.println("err");
 			outPut.setSuccess(false);
 			outPut.setCode(HttpStatus.BAD_REQUEST);
 			outPut.setMessage(resource.getMessage("user.login.fail", null, new Locale("vi")));
@@ -197,10 +197,12 @@ public class ShopController {
 	}
 
 	@PostMapping("/sendotp")
-	public ResponseEntity<?> sendCode(@RequestParam String email) {
+	public ResponseEntity<?> sendCode(@RequestBody Map<String, String> data) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.sendOTP(email);
+			Map<String, String> s = new HashMap<String, String>();
+			s.put("shopId", shopService.sendOTP(data.get("email")));
+			outPut.setData(s);
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -211,7 +213,7 @@ public class ShopController {
 	public ResponseEntity<?> checkOTP(@RequestBody Map<String, String> data) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			outPut.setData(shopService.checkOTP(data.get("otp"), data.get("email")));
+			shopService.checkOTP(data.get("otp"), data.get("shopId"));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -244,7 +246,7 @@ public class ShopController {
 	public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> data) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.updatePassword(data.get("userId"), data.get("password"), data.get("otp"));
+			shopService.updatePassword(data.get("shopId"), data.get("password"), data.get("otp"));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -312,5 +314,5 @@ public class ShopController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 	}
-
+	
 }

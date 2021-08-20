@@ -36,7 +36,7 @@ public class OrderConverter implements IConverter<Order, OrderDTO>{
 		ListOrder list = new ListOrder();
 		list.setPrice(s.getPrice());
 		list.setName(s.getProduct().getName());
-		if(s.getProduct().getPhotos().size() != 0) {
+		if(s.getProduct().getPhotos().size() > 0) {
 			list.setPhoto(constant.showImage + File.separator+ "images" + File.separator + s.getProduct().getPhotos().get(0).getName());
 		}
 		list.setProductId(s.getProduct().getId());

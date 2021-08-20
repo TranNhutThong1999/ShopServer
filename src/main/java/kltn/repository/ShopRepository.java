@@ -9,9 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import kltn.entity.Shop;
 
 public interface ShopRepository extends JpaRepository<Shop, String>{
-	Optional<Shop> findOneByUserName(String userName);
 	Optional<Shop> findOneById(String id);
 	Optional<Shop> findOneByEmail(String email);
-	Optional<Shop> findOneByEmailAndOtp(String email, String otp);
 	Optional<Shop> findOneByIdAndOtp(String shopId, String otp);
+	Optional<Shop> findOneByEmailAndOtp(String email, String otp);
 }

@@ -40,7 +40,6 @@ public class Order extends Abstract {
 	@JoinColumn(name = "payment_id")
 	private Payment payment;
 	
-	private String priceAndQuantity;
 	private String transportedName;
 	private float tempPrice;
 	private float feeShip;

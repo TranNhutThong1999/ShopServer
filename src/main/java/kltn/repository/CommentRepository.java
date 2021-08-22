@@ -10,6 +10,7 @@ import kltn.entity.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 	List<Comment> findAllByProduct_Id(int productId);
+	List<Comment> findAllByProduct_IdAndProduct_Shop_Id(int productId, String shopId);
 
 	Optional<Comment> findOneByIdAndShop_Id(int id, String shopId);
 

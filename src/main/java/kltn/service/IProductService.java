@@ -10,6 +10,7 @@ import kltn.api.input.UpdateDetailProduct;
 import kltn.api.input.UpdateInforProduct;
 import kltn.api.output.ProductList;
 import kltn.api.output.ProductOutPut;
+import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 
 @Service
@@ -32,4 +33,6 @@ public interface IProductService {
 	void updateDetail(UpdateDetailProduct detail, Authentication auth) throws Exception;
 	
 	void delete(int id, Authentication auth);
+	
+	List<PhotoDTO> getListPhotoByShop(Authentication auth);
 }

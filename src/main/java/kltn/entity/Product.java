@@ -29,15 +29,12 @@ public class Product extends Abstract{
 	private int quantitySold;
 	private double weight;
 	private String detail;
-	
+	private String photos;
 	@ManyToOne
 	@JoinColumn(name="category_id")
 	private Category category;
 	
-	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-	private List<Photo> photos;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name="shop_id")
 	private Shop shop;
 	

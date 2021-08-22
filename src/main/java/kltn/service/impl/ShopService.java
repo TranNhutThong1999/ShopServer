@@ -1,8 +1,10 @@
 package kltn.service.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
@@ -17,16 +19,19 @@ import kltn.api.input.ShopDetail;
 import kltn.converter.AddressConverter;
 import kltn.converter.ShopConverter;
 import kltn.dto.AddressDTO;
+import kltn.dto.NotificationDTO;
 import kltn.dto.ShopDTO;
 import kltn.entity.Address;
 import kltn.entity.DeviceToken;
 import kltn.entity.District;
+import kltn.entity.Notification;
 import kltn.entity.Province;
 import kltn.entity.Shop;
 import kltn.entity.Wards;
 import kltn.repository.AddressRepository;
 import kltn.repository.DeviceTokenRepository;
 import kltn.repository.DistrictRepository;
+import kltn.repository.NotificationRepository;
 import kltn.repository.ProvincialRepository;
 import kltn.repository.ShopRepository;
 import kltn.repository.WardsRepository;
@@ -71,7 +76,10 @@ public class ShopService implements IShopService {
 
 	@Autowired
 	private DeviceTokenRepository deviceTokenRepository;
-	
+
+	@Autowired
+	private NotificationRepository notificationRepository;
+
 	@Override
 	public ShopDTO save(ShopDTO s) {
 		// TODO Auto-generated method stub
@@ -164,8 +172,8 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public void verify(String otp, String email) throws Exception {
-		Shop s = shopRepository.findOneByEmailAndOtp(email, otp).orElseThrow(() -> new Exception("otp was not found"));
+	public void verify(String otp, String shopId) throws Exception {
+		Shop s = shopRepository.findOneByIdAndOtp(shopId, otp).orElseThrow(() -> new Exception("otp was not found"));
 		s.setEnable(true);
 		s.setOtp("");
 		shopRepository.save(s);
@@ -199,12 +207,12 @@ public class ShopService implements IShopService {
 	public void update(ShopDTO shop, Authentication auth) {
 		// TODO Auto-generated method stub
 		Shop old = shopRepository.findById(Common.getIdFromAuth(auth)).get();
-		//Shop s = shopConverter.toEntity(shop);
+		// Shop s = shopConverter.toEntity(shop);
 		old.setNameShop(shop.getNameShop());
 		old.setPhone(shop.getPhone());
 		old.setHotLine(shop.getHotLine());
 		old.setWebsite(shop.getWebsite());
-		
+
 		Address address = old.getAddress();
 		address.setLocation(shop.getLocation());
 
@@ -231,27 +239,48 @@ public class ShopService implements IShopService {
 			address.setWards(wards);
 		} else
 			address.setWards(w.get());
-		
+
 		old.setAddress(address);
-		
+
 		shopRepository.save(old);
 	}
 
 	@Override
 	public void saveFCMToken(String token, Authentication auth) {
 		// TODO Auto-generated method stub
-//		Optional<DeviceToken> de = deviceTokenRepository.findOneByUser_Id(Common.getIdFromAuth(auth));
-//		DeviceToken d =  null;
-//		if(!de.isPresent()) {
-//			 d = new DeviceToken();
-//			d.setFCMToken(token);
-//			d.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
-//			d.setCreateDate(new Date());
-//			deviceTokenRepository.save(d);
-//			return;
-//		}
-//		d =de.get();
-//		d.setFCMToken(token);
-		
+		Optional<DeviceToken> de = deviceTokenRepository.findOneByShop_Id(Common.getIdFromAuth(auth));
+		DeviceToken d = null;
+		if(!de.isPresent()) {
+			 d = new DeviceToken();
+			d.setFCMToken(token);
+			d.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
+			d.setCreateDate(new Date());
+			deviceTokenRepository.save(d);
+		}else {
+			d = de.get();
+			d.setFCMToken(token);
+			d.setCreateDate(new Date());
+			deviceTokenRepository.save(d);
+		}
+
 	}
+
+	@Override
+	public List<NotificationDTO> getListNoti(Authentication auth) {
+		// TODO Auto-generated method stub
+		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth)).stream()
+				.map((x) -> modelMapper.map(x, NotificationDTO.class)).collect(Collectors.toList());
+	}
+
+	@Override
+	public void setIsSeen(Authentication auth, int id) {
+		// TODO Auto-generated method stub
+		Optional<Notification> no = notificationRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
+		if (no.isPresent()) {
+			Notification noti = no.get();
+			noti.setIsSeen(1);
+			notificationRepository.save(noti);
+		}
+	}
+
 }

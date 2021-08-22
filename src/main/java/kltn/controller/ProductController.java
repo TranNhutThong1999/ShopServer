@@ -23,6 +23,7 @@ import kltn.api.input.UpdateInforProduct;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
+import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.service.ICommentService;
 import kltn.service.IPhotoService;
@@ -79,27 +80,34 @@ public class ProductController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 
-	@PostMapping(value = "photo")
-	public ResponseEntity<?> addPhoto(Authentication auth, @RequestBody List<UploadFileInput> m, @RequestParam int id) {
+	@GetMapping(value = "/comment", produces = "application/json")
+	public ResponseEntity<?> getCommentByProductId(@RequestParam(required = true) int productId, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		try {
-			photoService.savePhotosProduct(id, m, auth);
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-		}
+		outPut.setData(commentService.getListCommentProduct(productId, auth));
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 	
-	@DeleteMapping(value = "photo")
-	public ResponseEntity<?> deletePhoto(Authentication auth, @RequestBody Map<String, String> data) {
-		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		try {
-			productService.deletePhoto(auth, Integer.valueOf(data.get("photoId")), Integer.valueOf(data.get("productId")));
-		} catch (Exception e) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-		}
-		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-	}
+//	@PostMapping(value = "photo")
+//	public ResponseEntity<?> addPhoto(Authentication auth, @RequestBody List<UploadFileInput> m, @RequestParam int id) {
+//		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+//		try {
+//			photoService.savePhotosProduct(id, m, auth);
+//		} catch (Exception e) {
+//			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+//		}
+//		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+//	}
+//	
+//	@DeleteMapping(value = "photo")
+//	public ResponseEntity<?> deletePhoto(Authentication auth, @RequestBody Map<String, String> data) {
+//		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+//		try {
+//			productService.deletePhoto(auth, Integer.valueOf(data.get("photoId")), Integer.valueOf(data.get("productId")));
+//		} catch (Exception e) {
+//			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+//		}
+//		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+//	}
 	
 	@PutMapping("/infor")
 	public ResponseEntity<?> UpdateProduct(@RequestBody UpdateInforProduct product, Authentication auth) {
@@ -131,6 +139,14 @@ public class ProductController {
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@GetMapping("/photo")
+	public ResponseEntity<?> getlistPhoto(Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		List<PhotoDTO> photo = productService.getListPhotoByShop(auth);
+		outPut.setData(photo);
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 }

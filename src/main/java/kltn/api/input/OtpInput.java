@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class OtpInput {
 	private String otp;
-	private String email;
+	private String shopId;
 }

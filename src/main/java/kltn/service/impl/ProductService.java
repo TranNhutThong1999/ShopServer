@@ -1,6 +1,8 @@
 package kltn.service.impl;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,13 +26,12 @@ import kltn.api.output.ProductList;
 import kltn.api.output.ProductOutPut;
 import kltn.converter.PhotoConverter;
 import kltn.converter.ProductConverter;
+import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.entity.Category;
-import kltn.entity.Photo;
 import kltn.entity.Product;
 import kltn.entity.Shop;
 import kltn.repository.CategoryRepository;
-import kltn.repository.PhotoRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.security.MyShop;
@@ -62,9 +63,6 @@ public class ProductService implements IProductService {
 
 	@Autowired
 	private Constants constants;
-
-	@Autowired
-	private PhotoRepository photoRepository;
 
 	@Autowired
 	private PhotoService photoService;
@@ -102,7 +100,7 @@ public class ProductService implements IProductService {
 		// TODO Auto-generated method stub
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-		return productRepository.findByShop_id(Common.getIdFromAuth(auth), pageable).map(productConverter::toList);
+		return productRepository.findByShop_Id(Common.getIdFromAuth(auth), pageable).map(productConverter::toList);
 	}
 
 	@Override
@@ -110,6 +108,7 @@ public class ProductService implements IProductService {
 		// TODO Auto-generated method stub
 		Shop u = shopRepository.findById(Common.getIdFromAuth(auth)).get();
 		Product p = productConverter.toEntity(dto);
+		p.setPhotos("");
 		p.setCategory(categoryRepository.findById(dto.getCategoryId()).orElseThrow(() -> {
 			logger.error("Category was not found");
 			return new Exception("Category was not found");
@@ -119,7 +118,7 @@ public class ProductService implements IProductService {
 		p.setSale(100 - percen);
 		p.setQuantitySold(0);
 		if (dto.getPhotos().size() > 0) {
-			p.setPhotos(photoService.saveOnePhotoProduct(p, dto.getPhotos()));
+			p.setPhotos(photoService.saveOnePhotoProduct(p , dto.getPhotos()));
 		}
 		Product pro = productRepository.save(p);
 		return productConverter.toDTO(pro);
@@ -127,16 +126,16 @@ public class ProductService implements IProductService {
 
 	@Override
 	public void deletePhoto(Authentication auth, int photoId, int productId) throws Exception {
-		// TODO Auto-generated method stub
-		Product pr = productRepository.findOneByIdAndShop_Id(productId, Common.getIdFromAuth(auth)).orElseThrow(() -> {
-			logger.error("Auth");
-			return new Exception("Auth");
-		});
-		Optional<Photo> p = photoRepository.findOneByProduct_id(pr.getId());
-		if (p.isPresent()) {
-			File file = new File(constants.rootURL + File.separator + "images" + File.separator + p.get().getName());
-			file.deleteOnExit();
-		}
+//		// TODO Auto-generated method stub
+//		Product pr = productRepository.findOneByIdAndShop_Id(productId, Common.getIdFromAuth(auth)).orElseThrow(() -> {
+//			logger.error("Auth");
+//			return new Exception("Auth");
+//		});
+//		Optional<Photo> p = photoRepository.findOneByProduct_id(pr.getId());
+//		if (p.isPresent()) {
+//			File file = new File(constants.rootURL + File.separator + "images" + File.separator + p.get().getName());
+//			file.deleteOnExit();
+//		}
 	}
 
 	@Override
@@ -152,7 +151,7 @@ public class ProductService implements IProductService {
 		p.setWeight(product.getWeight());
 		p.setCategory(categoryRepository.findById(product.getCategoryId())
 				.orElseThrow(() -> new Exception("categoryId was not found")));
-		if (product.getPhotos() != null) {
+		if (product.getPhotos().size() > 0) {
 			p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
 		}
 		productRepository.save(p);
@@ -172,12 +171,24 @@ public class ProductService implements IProductService {
 		// TODO Auto-generated method stub
 		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
 		if (p.isPresent())
-			System.out.println("vao");
 		productRepository.delete(p.get());
-		p.get().getPhotos().stream().forEach((x) -> {
-			File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x.getName());
+		for (String x : p.get().getPhotos().split(",")) {
+			if (x.equals(""))
+				continue;
+			File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x);
 			f.deleteOnExit();
-		});
+		}
+	}
+
+	@Override
+	public List<PhotoDTO> getListPhotoByShop(Authentication auth) {
+		// TODO Auto-generated method stub
+		List<Product> pro = productRepository.findByShop_Id(Common.getIdFromAuth(auth));
+		List<PhotoDTO> result = new ArrayList<PhotoDTO>();
+		 for(Product o : pro) {
+			 result.addAll(Arrays.asList(o.getPhotos().split(",")).stream().map(photoConverter::toDTO).collect(Collectors.toList()));
+		 }
+		return result;
 	}
 
 }

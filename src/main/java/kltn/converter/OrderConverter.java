@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Component;
 
 import kltn.api.output.ListOrder;
@@ -20,7 +21,7 @@ public class OrderConverter implements IConverter<Order, OrderDTO>{
 	private ModelMapper modelMapper;
 	
 	@Autowired
-	private Constants constant;
+	private PhotoConverter photoConverter;
 	
 	@Autowired
 	private ItemConverter itemConverter;
@@ -36,8 +37,8 @@ public class OrderConverter implements IConverter<Order, OrderDTO>{
 		ListOrder list = new ListOrder();
 		list.setPrice(s.getPrice());
 		list.setName(s.getProduct().getName());
-		if(s.getProduct().getPhotos().size() > 0) {
-			list.setPhoto(constant.showImage + File.separator+ "images" + File.separator + s.getProduct().getPhotos().get(0).getName());
+		if(s.getProduct().getPhotos() != null) {
+			list.setPhoto(photoConverter.toLink(s.getProduct().getPhotos().split(",")[0]));
 		}
 		list.setProductId(s.getProduct().getId());
 		list.setQuantity(s.getQuantity());

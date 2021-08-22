@@ -11,6 +11,10 @@ import kltn.firebase.FirebaseUser;
 import kltn.event.AutoUpdateStatus3;
 import kltn.event.PushEventCommentShop;
 import kltn.event.PushEventCommentUser;
+import kltn.event.PushEventNotiCommentShop;
+import kltn.event.PushEventNotiCommentUser;
+import kltn.event.PushEventNotiOrderShop;
+import kltn.event.PushEventNotiOrderUser;
 import kltn.event.PushEventUpdateOrderShop;
 import kltn.service.IOrderService;
 import kltn.util.Common;
@@ -73,5 +77,33 @@ public class EventListener {
 	@Transactional
 	public void handleEventListener(PushEventCommentShop e) {
 		firebaseShop.updateRealtimeCommentShop(e.getComment());
+	}
+	
+	@Async
+	@org.springframework.context.event.EventListener
+	@Transactional
+	public void handleEventListener(PushEventNotiOrderUser e) {
+		firebaseUser.updateNotificationOrder(e.getNoti());
+	}
+	
+	@Async
+	@org.springframework.context.event.EventListener
+	@Transactional
+	public void handleEventListener(PushEventNotiOrderShop e) {
+		firebaseShop.updateNotificationOrder(e.getNoti());
+	}
+	
+	@Async
+	@org.springframework.context.event.EventListener
+	@Transactional
+	public void handleEventListener(PushEventNotiCommentUser e) {
+		firebaseUser.updateNotificationComment(e.getNoti());
+	}
+	
+	@Async
+	@org.springframework.context.event.EventListener
+	@Transactional
+	public void handleEventListener(PushEventNotiCommentShop e) {
+		firebaseShop.updateNotificationComment(e.getNoti());
 	}
 }

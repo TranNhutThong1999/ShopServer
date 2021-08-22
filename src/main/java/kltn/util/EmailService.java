@@ -33,7 +33,6 @@ public class EmailService {
 
 	@Async
 	public void sendRegisterMessage(String to, String otp) {
-		String toAddress = "thongmap0909310872@gmail.com";
 		String content = "<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">\r\n"
 				+ "  <div style=\"margin:50px auto;width:70%;padding:20px 0\">\r\n"
 				+ "    <div style=\"border-bottom:1px solid #eee\">\r\n"

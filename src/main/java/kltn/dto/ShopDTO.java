@@ -28,7 +28,6 @@ public class ShopDTO {
 	private String code;
 	private String hotLine;
 	private String website;
-	private int follow;
 	
 	private int addressId;
 	private String location;

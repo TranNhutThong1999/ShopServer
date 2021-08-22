@@ -2,6 +2,7 @@ package kltn.converter;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -58,9 +59,6 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 
 	@Autowired
 	private RatingConverter ratingConverter;
-	
-	@Autowired
-	private Constants constant;
 
 	@Override
 	public Product toEntity(ProductDTO d) {
@@ -71,20 +69,20 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	public ProductList toList(Product s) {
 		// TODO Auto-generated method stub
 		ProductList product = modelMapper.map(s, ProductList.class);
-		if(s.getPhotos().size() > 0) {
-			product.setPhoto(photoConverter.toDTO(s.getPhotos().get(0)).getLink());
+		if (s.getPhotos() != null) {
+			product.setPhoto(photoConverter.toLink(s.getPhotos().split(",")[0]));
 		}
 		double sum = ratingRepository.sumStar(s.getId());
 		double realQuantity = ratingRepository.quantityStar(s.getId());
 		double quantity = realQuantity == 0 ? 1 : realQuantity;
 		product.setTotalStar(sum / quantity);
-		int totalComment=0;
-		if(s.getComments().size()>0) {
-			for(Comment c :s.getComments()) {
+		int totalComment = 0;
+		if (s.getComments().size() > 0) {
+			for (Comment c : s.getComments()) {
 				totalComment++;
 			}
 		}
-	
+
 		product.setTotalComment(totalComment);
 		return product;
 	}
@@ -93,14 +91,14 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	public ProductDTO toDTO(Product s) {
 		return null;
 	}
-	
+
 	public ProductOutPut toProductOutPut(Product s) {
 		// TODO Auto-generated method stub
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 		ProductOutPut product = modelMapper.map(s, ProductOutPut.class);
-		CompletableFuture<List<CommentOuput>> futureCmt = CompletableFuture
-				.supplyAsync(() -> commentRepository.findAllByProduct_Id(s.getId()).stream()
-						.map(commentConverter::toDTO).collect(Collectors.toList()), executor);
+		CompletableFuture<List<CommentOuput>> futureCmt = CompletableFuture.supplyAsync(() -> commentRepository
+				.findAllByProduct_Id(s.getId()).stream().map(commentConverter::toDTO).collect(Collectors.toList()),
+				executor);
 
 //		CompletableFuture<List<RatingDTO>> futureRating = CompletableFuture
 //				.supplyAsync(() ->s.getRatings().stream().map(ratingConverter::toDTO).collect(Collectors.toList()),executor);
@@ -111,27 +109,27 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 			double quantity = realQuantity == 0 ? 1 : realQuantity;
 			return sum / quantity;
 		}, executor);
-		if(s.getPhotos().size() > 0) {
-			product.setPhotos(s.getPhotos().stream().map(photoConverter::toDTO).collect(Collectors.toList()));
+		if (s.getPhotos() != null) {
+			List<String> l = Arrays.asList(s.getPhotos().split(","));
+			product.setPhotos(l.stream().map(photoConverter::toDTO).collect(Collectors.toList()));
 		}
 		CategoryOutPut cateOutPut = modelMapper.map(s.getCategory().getCategory(), CategoryOutPut.class);
-		if(cateOutPut.getImage() != null)
-			cateOutPut.setImage(constant.showImage + File.separator+ "images" + File.separator + "category" + File.separator +cateOutPut.getImage());
-	
+		if (cateOutPut.getImage() != null)
+			cateOutPut.setImage(photoConverter.toLinkCategory(cateOutPut.getImage()));
+
 		List<CategoryOutPut> list = new ArrayList<CategoryOutPut>();
 		CategoryOutPut cate = modelMapper.map(s.getCategory(), CategoryOutPut.class);
-		if(cate.getImage() != null)
-			cate.setImage(constant.showImage + File.separator+ "images" + File.separator + "category" + File.separator + cate.getImage());
+		if (cate.getImage() != null)
+			cate.setImage(photoConverter.toLinkCategory(cate.getImage()));
 		list.add(cate);
 		cateOutPut.setSubCategories(list);
-		
+
 		product.setCategory(cateOutPut);
 		product.setCategoryId(s.getCategory().getId());
 		product.setShopId(s.getShop().getId());
 		product.setShopName(s.getShop().getNameShop());
 		if (s.getShop().getAvatar() != null)
-			product.setShopAvatar(
-					constant.showImage + File.separator + "images" + File.separator + s.getShop().getAvatar());
+			product.setShopAvatar(photoConverter.toLink(s.getShop().getAvatar()));
 		try {
 			// product.setRating(futureRating.get());
 			product.setTotalStar(futureStar.get());

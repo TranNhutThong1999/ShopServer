@@ -30,7 +30,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "shop")
-public class Shop  extends AbstractId implements Serializable {
+public class Shop  extends AbstractId  {
 	@Id
 	@GeneratedValue(generator = "my_generator")
 	@GenericGenerator(name = "my_generator", strategy = "kltn.util.MyGenerator")

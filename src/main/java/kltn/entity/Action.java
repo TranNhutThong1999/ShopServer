@@ -13,6 +13,8 @@ import lombok.Data;
 public class Action extends Abstract{
 	private int name;
 	
+	private int isRating;
+	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;

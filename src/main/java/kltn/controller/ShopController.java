@@ -82,9 +82,6 @@ public class ShopController {
 	@Autowired
 	private IOrderService orderService;
 	
-	@Autowired
-	private EmailService emailService;
-	
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody LoginInput s) {
 		ResponseValue outPut = new ResponseValue();
@@ -103,7 +100,7 @@ public class ShopController {
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		
 		} catch (BadCredentialsException e) {
-			System.out.println("err");
+			System.out.println("er");
 			outPut.setSuccess(false);
 			outPut.setCode(HttpStatus.BAD_REQUEST);
 			outPut.setMessage(resource.getMessage("user.login.fail", null, new Locale("vi")));
@@ -166,13 +163,6 @@ public class ShopController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 	
-	@GetMapping("/photo")
-	public ResponseEntity<?> getlistPhoto(@RequestParam int id) {
-		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-		List<PhotoDTO> photo = photoService.findByProduct_Shop_id(id);
-		outPut.setData(photo);
-		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
-	}
 
 	@GetMapping("/product")
 	public ResponseEntity<?> getlistProduct(@RequestParam(required = false, defaultValue = "5") int pageSize,
@@ -224,7 +214,7 @@ public class ShopController {
 	public ResponseEntity<?> verifyRegister(@RequestBody OtpInput input) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.verify(input.getOtp(), input.getEmail());
+			shopService.verify(input.getOtp(), input.getShopId());
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -315,4 +305,36 @@ public class ShopController {
 		}
 	}
 	
+	@GetMapping("/notification")
+	public ResponseEntity<?> getListNoti(Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			outPut.setData(shopService.getListNoti(auth));
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@PutMapping("/notification")
+	public ResponseEntity<?> UpdateIsSeen(Authentication auth, @RequestBody Map<String, Integer> data) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			shopService.setIsSeen(auth, data.get("id"));
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@PutMapping("/order/cancel")
+	public ResponseEntity<?> cancelOrder(Authentication auth, @RequestBody Map<String, Integer> data) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			orderService.updateStatus( data.get("orderId"), auth, Common.ORDER_CANCEL);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+		}
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
 }

@@ -31,9 +31,9 @@ public class ItemConverter implements IConverter<Item, ItemDTO> {
 		ItemDTO i = new ItemDTO();
 		i.setId(s.getId());
 		i.setName(s.getProduct().getName());
-		if (s.getProduct().getPhotos().size() > 0)
+		if (s.getProduct().getPhotos() != null)
 			i.setPhoto(constant.showImage + File.separator + "images" + File.separator
-					+ s.getProduct().getPhotos().get(0).getName());
+					+ s.getProduct().getPhotos().split(",")[0]);
 		i.setQuantity(s.getQuantity());
 		i.setProductId(s.getProduct().getId());
 		i.setPrice(s.getPrice());

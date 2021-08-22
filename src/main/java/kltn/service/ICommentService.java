@@ -12,4 +12,5 @@ public interface ICommentService {
 	CommentOuput save(CommentOuput m, Authentication auth) throws Exception;
 	void delete(Authentication auth, int id);
 	List<CommentOuput> findByShopAndLimit(Authentication auth, int limit);
+	List<CommentOuput> getListCommentProduct(int productId, Authentication auth);
 }

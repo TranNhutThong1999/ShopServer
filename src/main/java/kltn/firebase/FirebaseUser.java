@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -23,7 +25,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 
+import kltn.entity.DeviceToken;
+import kltn.repository.DeviceTokenRepository;
+import kltn.repository.NotificationRepository;
 import kltn.util.Common;
 import kltn.util.Constants;
 
@@ -35,6 +44,12 @@ public class FirebaseUser {
 	@Autowired
 	private Constants contants;
 
+	@Autowired
+	private NotificationRepository notificationRepository;
+	
+	@Autowired
+	private DeviceTokenRepository deviceTokenRepository; 
+	
 	@PostConstruct
 	public void initialize() {
 		try {
@@ -57,8 +72,8 @@ public class FirebaseUser {
 		Map<String, Object> item = new HashMap<>();
 		Map<String, Object> orderId = new HashMap<>();
 		Map<String, Object> userId = new HashMap<>();
-
-		Query query = ref.child(String.valueOf(o.getUserId()));
+		System.out.println("vào user");
+		Query query = ref.child(o.getUserId());
 		query.addListenerForSingleValueEvent(new ValueEventListener() {
 
 			@Override
@@ -74,8 +89,8 @@ public class FirebaseUser {
 					item.put("shopId", o.getShopId());
 					item.put("status", o.getStatus());
 					orderId.put(String.valueOf(o.getOrderId()), item);
-					userId.put(String.valueOf(o.getUserId()), orderId);
-					System.out.println("run");
+					userId.put(o.getUserId(), orderId);
+					System.out.println("run user "+ o.getUserId());
 					ref.updateChildrenAsync(userId);
 					return;
 				}
@@ -202,5 +217,54 @@ public class FirebaseUser {
 
 			}
 		});
+	}
+	public void updateNotificationOrder(kltn.entity.Notification noti) {
+		noti = Common.setDataOrder(noti);
+		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
+		FirebaseMessaging f = FirebaseMessaging.getInstance(secondaryApp);
+		DeviceToken de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId()).get();
+		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
+				.build();
+		ObjectMapper o = new ObjectMapper();
+		Message message = null;
+		try {
+			message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.getFCMToken())
+					.setNotification(notification).build();
+		} catch (JsonProcessingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		String response = null;
+		try {
+			response = f.send(message);
+			System.out.println(response);
+			
+		} catch (FirebaseMessagingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void updateNotificationComment(kltn.entity.Notification noti) {
+		FirebaseMessaging f = FirebaseMessaging.getInstance(secondaryApp);
+		NotiComment data = new NotiComment(notificationRepository.save(noti));
+		DeviceToken de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId()).get();
+		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
+				.build();
+		ObjectMapper o = new ObjectMapper();
+		Message message = null;
+		try {
+			message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.getFCMToken())
+					.setNotification(notification).build();
+		} catch (JsonProcessingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		String response = null;
+		try {
+			response = f.send(message);
+			System.out.println(response);
+		} catch (FirebaseMessagingException e) {
+			e.printStackTrace();
+		}
 	}
 }

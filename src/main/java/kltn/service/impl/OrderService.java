@@ -24,14 +24,21 @@ import kltn.api.output.ListOrder;
 import kltn.converter.OrderConverter;
 import kltn.converter.ProductConverter;
 import kltn.dto.OrderDTO;
+import kltn.entity.Action;
 import kltn.entity.Item;
+import kltn.entity.Notification;
 import kltn.entity.Order;
 import kltn.entity.Payment;
 import kltn.entity.Product;
+import kltn.entity.Shop;
+import kltn.entity.User;
 import kltn.event.PushEventUpdateOrderUser;
 import kltn.firebase.UpdateStatusOrder;
 import kltn.event.AutoUpdateStatus3;
+import kltn.event.PushEventNotiOrderShop;
+import kltn.event.PushEventNotiOrderUser;
 import kltn.event.PushEventUpdateOrderShop;
+import kltn.repository.ActionRepository;
 import kltn.repository.ItemRepository;
 import kltn.repository.OrderRepository;
 import kltn.repository.ProductRepository;
@@ -59,7 +66,10 @@ public class OrderService implements IOrderService {
 	private ItemRepository itemRepository;
 
 	@Autowired
-	private ApplicationEventPublisher ApplicationEventPublisher;
+	private ApplicationEventPublisher applicationEventPublisher;
+
+	@Autowired
+	private ActionRepository actionRepository;
 
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
@@ -92,13 +102,37 @@ public class OrderService implements IOrderService {
 				.orElseThrow(() -> new Exception("id was not found"));
 		or.setStatus(status);
 		Order o = orderRepository.save(or);
-		UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate());
-		//push realtime user
-		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
-	//	push realtime shop
-		ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, data));
-	//	push change status 2 to 3
-		ApplicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, orderId, Common.getIdFromAuth(auth)));
+		UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(),
+				o.getShop().getId(), o.getCreatedDate());
+		// push realtime user
+		applicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
+		// push realtime shop
+		UpdateStatusOrder dataS = new UpdateStatusOrder(o.getId(), o.getShop().getId(), o.getOrderCode(), o.getStatus(),
+				o.getShop().getId(), o.getCreatedDate());
+		applicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, dataS));
+		// push change status 2 to 3
+		if (status == Common.ORDER_TRANSPORT && status != Common.ORDER_SUCCESS)
+			applicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, orderId, Common.getIdFromAuth(auth)));
+
+		Shop shop = o.getShop();
+		Notification user = new Notification();
+		user.setAvatar(shop.getAvatar());
+		user.setType(Common.NOTI_ORDER);
+		user.setOrderId(o.getId());
+		user.setStatus(o.getStatus());
+		user.setTime(Common.parse(o.getCreatedDate()));
+		user.setOrderCode(o.getOrderCode());
+		user.setUser(o.getUser());
+		applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, user));
+		Notification shopN = new Notification();
+		shopN.setAvatar(shop.getAvatar());
+		shopN.setType(Common.NOTI_ORDER);
+		shopN.setOrderId(o.getId());
+		shopN.setStatus(o.getStatus());
+		shopN.setTime(Common.parse(o.getCreatedDate()));
+		shopN.setOrderCode(o.getOrderCode());
+		shopN.setShop(o.getShop());
+		applicationEventPublisher.publishEvent(new PushEventNotiOrderShop(this, shopN));
 	}
 
 	@Override
@@ -106,15 +140,49 @@ public class OrderService implements IOrderService {
 	public void updateStatusSuccess(int orderId, String shopId, int status) {
 		// TODO Auto-generated method stub
 		Optional<Order> order = orderRepository.findOneByIdAndShop_Id(orderId, shopId);
+		Order or = null;
 		if (order.isPresent()) {
-			Order or = order.get();
+			or = order.get();
 			or.setStatus(status);
 			Order o = orderRepository.save(or);
-			UpdateStatusOrder data = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(), o.getStatus(), o.getShop().getId(), o.getCreatedDate());
-		//realtime user
-			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, data));
-		//realtime shop
-			ApplicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, data));
+			UpdateStatusOrder dataU = new UpdateStatusOrder(o.getId(), o.getUser().getId(), o.getOrderCode(),
+					o.getStatus(), o.getShop().getId(), o.getCreatedDate());
+			// realtime user
+			applicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, dataU));
+			// realtime shop
+			UpdateStatusOrder dataS = new UpdateStatusOrder(o.getId(), o.getShop().getId(), o.getOrderCode(),
+					o.getStatus(), o.getShop().getId(), o.getCreatedDate());
+			applicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, dataS));
+
+			for (Item i : o.getDetail()) {
+				Action ac = new Action();
+				ac.setName(Common.ACTION_BOUGHT);
+				ac.setUser(o.getUser());
+				ac.setProduct(i.getProduct());
+				ac.setIsRating(0);
+				actionRepository.save(ac);
+			}
+
+			Shop shop = o.getShop();
+			Notification noti = new Notification();
+			noti.setAvatar(shop.getAvatar());
+			noti.setType(Common.NOTI_ORDER);
+			noti.setOrderId(o.getId());
+			noti.setStatus(o.getStatus());
+			noti.setTime(Common.parse(o.getCreatedDate()));
+			noti.setOrderCode(o.getOrderCode());
+			noti.setUser(o.getUser());
+			applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
+			
+			Notification notiS = new Notification();
+			notiS.setAvatar(shop.getAvatar());
+			notiS.setType(Common.NOTI_ORDER);
+			notiS.setOrderId(o.getId());
+			notiS.setStatus(o.getStatus());
+			notiS.setTime(Common.parse(o.getCreatedDate()));
+			notiS.setOrderCode(o.getOrderCode());
+			notiS.setShop(o.getShop());
+			applicationEventPublisher.publishEvent(new PushEventNotiOrderShop(this, notiS));
 		}
 
 	}

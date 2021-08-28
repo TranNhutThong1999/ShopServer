@@ -24,7 +24,7 @@ public class ShopDTO {
 	
 	
 	private String avatar;
-	private String nameShop;
+	private String name;
 	private String code;
 	private String hotLine;
 	private String website;

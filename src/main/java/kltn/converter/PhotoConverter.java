@@ -40,4 +40,15 @@ public class PhotoConverter {
 	public String toLinkCategory(String name) {
 		return constant.showImage + File.separator + "images" + File.separator + "category" + File.separator + name;
 	}
+
+	public String toLinkAvatarUser(String name) {
+		if(name.substring(0, 4).equalsIgnoreCase("http")) return name;
+		return constant.showImage + File.separator + "images" + File.separator + "avatar" + File.separator + "user"
+				+ File.separator + name;
+	}
+
+	public String toLinkAvatarShop(String name) {
+		return constant.showImage + File.separator + "images" + File.separator + "avatar" + File.separator + "shop"
+				+ File.separator + name;
+	}
 }

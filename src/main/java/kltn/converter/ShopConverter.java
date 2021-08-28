@@ -22,7 +22,7 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 	private ProductConverter productConverter;
 
 	@Autowired
-	private Constants constant;
+	private PhotoConverter photoConverter;
 	
 	@Override
 	public Shop toEntity(ShopDTO d) {
@@ -35,7 +35,7 @@ public class ShopConverter implements IConverter<Shop, ShopDTO> {
 		// TODO Auto-generated method stub
 		ShopDTO shop = modelMapper.map(s, ShopDTO.class);
 		if(s.getAvatar() != null) {
-			shop.setAvatar(constant.showImage + File.separator + "images" + File.separator + s.getAvatar());;
+			shop.setAvatar(photoConverter.toLinkAvatarShop(s.getAvatar()));
 		}
 		if (s.getAddress() != null) {
 			shop.setAddressId(s.getAddress().getId());

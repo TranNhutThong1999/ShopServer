@@ -16,7 +16,7 @@ public interface IShopService {
 
 	void delete(Authentication auth);
 
-	void update(ShopDTO shop, Authentication auth);
+	ShopDTO update(ShopDTO shop, Authentication auth);
 	
 	String sendOTP(String mail) throws Exception;
 

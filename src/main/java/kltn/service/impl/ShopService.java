@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -101,7 +102,7 @@ public class ShopService implements IShopService {
 			logger.error("shopId was not found " + s.getId());
 			return new Exception("shopId was not found " + s.getId());
 		});
-		shop.setNameShop(s.getNameShop());
+		shop.setName(s.getName());
 		shop.setCode(UUID.randomUUID().toString());
 		shop.setHotLine(s.getHotLine());
 		shop.setWebsite(s.getWebsite());
@@ -204,11 +205,11 @@ public class ShopService implements IShopService {
 	}
 
 	@Override
-	public void update(ShopDTO shop, Authentication auth) {
+	public ShopDTO update(ShopDTO shop, Authentication auth) {
 		// TODO Auto-generated method stub
 		Shop old = shopRepository.findById(Common.getIdFromAuth(auth)).get();
 		// Shop s = shopConverter.toEntity(shop);
-		old.setNameShop(shop.getNameShop());
+		old.setName(shop.getName());
 		old.setPhone(shop.getPhone());
 		old.setHotLine(shop.getHotLine());
 		old.setWebsite(shop.getWebsite());
@@ -242,7 +243,7 @@ public class ShopService implements IShopService {
 
 		old.setAddress(address);
 
-		shopRepository.save(old);
+		return shopConverter.toDTO(shopRepository.save(old));
 	}
 
 	@Override
@@ -268,7 +269,8 @@ public class ShopService implements IShopService {
 	@Override
 	public List<NotificationDTO> getListNoti(Authentication auth) {
 		// TODO Auto-generated method stub
-		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth)).stream()
+		Sort sort = Sort.by(Sort.Direction.ASC,"createDate");
+		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth), sort).stream()
 				.map((x) -> modelMapper.map(x, NotificationDTO.class)).collect(Collectors.toList());
 	}
 

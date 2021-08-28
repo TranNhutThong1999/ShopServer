@@ -31,6 +31,9 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 	@Autowired
 	private UserRepository userRepository;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@Override
 	public Comment toEntity(CommentOuput d) {
 		return modelMapper.map(d, Comment.class);
@@ -46,12 +49,12 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 			User u = d.getUser();
 			outPut.setUserId(u.getId());
 			outPut.setFullName(u.getFirstName() + " " + u.getLastName());
-			outPut.setUserAvatar(u.getPictureURL());
+			outPut.setUserAvatar(photoConverter.toLinkAvatarUser(u.getPictureURL()));
 		} else {
 			Shop s = d.getShop();
 			outPut.setShopId(s.getId());
-			outPut.setFullName(s.getNameShop());
-			outPut.setUserAvatar(s.getAvatar());
+			outPut.setFullName(s.getName());
+			outPut.setUserAvatar(photoConverter.toLinkAvatarShop(s.getAvatar()));
 		}
 		return outPut;
 	}
@@ -83,12 +86,12 @@ public class CommentConverter implements IConverter<Comment, CommentOuput> {
 			User u = d.getUser();
 			outPut.setUserId(u.getId());
 			outPut.setFullName(u.getFirstName() + " " + u.getLastName());
-			outPut.setUserAvatar(u.getPictureURL());
+			outPut.setUserAvatar(photoConverter.toLinkAvatarUser(u.getPictureURL()));
 		} else {
 			Shop s = d.getShop();
 			outPut.setShopId(s.getId());
-			outPut.setFullName(s.getNameShop());
-			outPut.setUserAvatar(s.getAvatar());
+			outPut.setFullName(s.getName());
+			outPut.setUserAvatar(photoConverter.toLinkAvatarShop(s.getAvatar()));
 		}
 		
 		return outPut;

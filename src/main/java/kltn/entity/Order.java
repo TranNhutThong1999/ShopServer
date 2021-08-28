@@ -15,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "orders")
+@Table(name = "order")
 public class Order extends Abstract {
 	private String orderCode;
 	private String orderTime;

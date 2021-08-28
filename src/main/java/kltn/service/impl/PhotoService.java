@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ import kltn.util.Constants;
 
 @Service
 public class PhotoService implements IPhotoService {
+	Logger logger = LoggerFactory.getLogger(PhotoService.class);
+	
 	@Autowired
 	private ProductRepository productRepository;
 
@@ -105,23 +109,28 @@ public class PhotoService implements IPhotoService {
 		String[] cut = m.getName().split("\\.");
 		String random = UUID.randomUUID().toString();
 		String name = cut[0] + random + "." + cut[1];
+//		File f = new File(constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
+//				"shop" + File.separator + name);
 		FileOutputStream fos = new FileOutputStream(
-				constant.rootURL + File.separator + "/images" + File.separator + name);
+				constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
+				"shop" + File.separator + name);
 		byte[] image = Base64.getDecoder().decode(m.getBase64String());
 		fos.write(image);
 		fos.flush();
 		fos.close();
-		s.setAvatar(name);
 		if (s.getAvatar() != null) {
-			File f = new File(constant.rootURL + File.separator + "/images" + File.separator + s.getAvatar());
-			f.deleteOnExit();
+			File f = new File(constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
+					"shop" + File.separator + s.getAvatar());
+			f.delete();
 		}
-		return shopRepository.save(s).getAvatar();
+		s.setAvatar(name);
+		System.out.println(s.getAvatar());
+		return photoConverter.toLinkAvatarShop(shopRepository.save(s).getAvatar());
 	}
 
 	public String updatePhoto(List<PhotoDTO> photos, Product pro) {
 		// TODO Auto-generated method stub
-		String result = pro.getPhotos();
+		String result = pro.getPhotos() == null ? "" : pro.getPhotos();
 		for (PhotoDTO o : photos) {
 			if (o.getBase64String() == null || o.getBase64String().equals("")) 
 				result = deletePhoto(result, o.getName());
@@ -140,8 +149,9 @@ public class PhotoService implements IPhotoService {
 			if (e.equals(""))
 				continue;
 			if (e.equals(name)) {
-				File f = new File(constant.rootURL + File.separator + "/images" + File.separator + name);
-				f.deleteOnExit();
+				File f = new File(constant.rootURL + File.separator + "images" + File.separator + name);
+				logger.info("delete: "+f.getAbsolutePath());
+				f.delete();
 				continue;
 			}
 			result += name + ",";
@@ -155,11 +165,12 @@ public class PhotoService implements IPhotoService {
 			String random = UUID.randomUUID().toString();
 			String name = cut[0] + random + "." + cut[1];
 			FileOutputStream fos = new FileOutputStream(
-					constant.rootURL + File.separator + "/images" + File.separator + name);
+					constant.rootURL + File.separator + "images" + File.separator + name);
 			byte[] image = Base64.getDecoder().decode(dto.getBase64String());
 			fos.write(image);
 			fos.flush();
 			fos.close();
+			logger.info("add photo : "+ constant.rootURL + File.separator + "images" + File.separator + name);
 			photos += name + ",";
 			return photos;
 		} catch (FileNotFoundException e) {

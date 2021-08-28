@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -46,10 +47,10 @@ public class FirebaseShop {
 
 	@Autowired
 	private NotificationRepository notificationRepository;
-	
+
 	@Autowired
-	private DeviceTokenRepository deviceTokenRepository; 
-	
+	private DeviceTokenRepository deviceTokenRepository;
+
 	@PostConstruct
 	public void initialize() {
 		try {
@@ -88,7 +89,7 @@ public class FirebaseShop {
 					item.put("status", o.getStatus());
 					orderId.put(String.valueOf(o.getOrderId()), item);
 					userId.put(o.getUserId(), orderId);
-					System.out.println("run shop "+ o.getUserId());
+					System.out.println("run shop " + o.getUserId());
 					ref.updateChildrenAsync(userId);
 					return;
 				}
@@ -214,6 +215,7 @@ public class FirebaseShop {
 			}
 		});
 	}
+
 	public void updateNotificationOrder(kltn.entity.Notification noti) {
 		noti = Common.setDataOrder(noti);
 		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
@@ -234,7 +236,7 @@ public class FirebaseShop {
 		try {
 			response = f.send(message);
 			System.out.println(response);
-			
+
 		} catch (FirebaseMessagingException e) {
 			e.printStackTrace();
 		}
@@ -243,24 +245,26 @@ public class FirebaseShop {
 	public void updateNotificationComment(kltn.entity.Notification noti) {
 		FirebaseMessaging f = FirebaseMessaging.getInstance(onceApp);
 		NotiComment data = new NotiComment(notificationRepository.save(noti));
-		DeviceToken de = deviceTokenRepository.findOneByShop_Id(noti.getShop().getId()).get();
-		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
-				.build();
-		ObjectMapper o = new ObjectMapper();
-		Message message = null;
-		try {
-			message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.getFCMToken())
-					.setNotification(notification).build();
-		} catch (JsonProcessingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String response = null;
-		try {
-			response = f.send(message);
-			System.out.println(response);
-		} catch (FirebaseMessagingException e) {
-			e.printStackTrace();
+		Optional<DeviceToken> de = deviceTokenRepository.findOneByShop_Id(noti.getShop().getId());
+		if (de.isPresent()) {
+			Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
+					.build();
+			ObjectMapper o = new ObjectMapper();
+			Message message = null;
+			try {
+				message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.get().getFCMToken())
+						.setNotification(notification).build();
+			} catch (JsonProcessingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			String response = null;
+			try {
+				response = f.send(message);
+				System.out.println(response);
+			} catch (FirebaseMessagingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

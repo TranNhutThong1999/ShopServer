@@ -12,11 +12,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import kltn.api.output.CommentOuput;
 import kltn.converter.CommentConverter;
+import kltn.converter.PhotoConverter;
 import kltn.entity.Comment;
 import kltn.entity.Notification;
 import kltn.entity.Product;
@@ -58,6 +60,9 @@ public class CommentService implements ICommentService {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@Override
 	public CommentOuput save(CommentOuput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
@@ -88,9 +93,9 @@ public class CommentService implements ICommentService {
 
 					// notify to user parent
 					Notification notificationUser = new Notification();
-					notificationUser.setAvatar(reply.getShop().getAvatar());
+					notificationUser.setAvatar(photoConverter.toLinkAvatarShop(reply.getShop().getAvatar()));
 					notificationUser.setType(Common.NOTI_CMT);
-					notificationUser.setTitle(reply.getShop().getNameShop());
+					notificationUser.setTitle(reply.getShop().getName());
 					notificationUser.setSubTitle("Đã trả lời bình luận của bạn trong một sản phẩm");
 					notificationUser.setProductId(cm.getProduct().getId());
 					notificationUser.setCommentId(reply.getId());
@@ -115,9 +120,9 @@ public class CommentService implements ICommentService {
 
 						done.add(o.getId());
 						Notification child = new Notification();
-						child.setAvatar(reply.getShop().getAvatar());
+						child.setAvatar(photoConverter.toLinkAvatarShop(reply.getShop().getAvatar()));
 						child.setType(Common.NOTI_CMT);
-						child.setTitle(reply.getShop().getNameShop());
+						child.setTitle(reply.getShop().getName());
 						child.setSubTitle("Đã trả lời bình luận một sản phẩm");
 						child.setProductId(cm.getProduct().getId());
 						child.setCommentId(reply.getId());
@@ -168,7 +173,8 @@ public class CommentService implements ICommentService {
 	@Override
 	public List<CommentOuput> getListCommentProduct(int productId, Authentication auth) {
 		// TODO Auto-generated method stub
-		return commentRepository.findAllByProduct_IdAndProduct_Shop_Id(productId, Common.getIdFromAuth(auth)).stream()
+		Sort sort =Sort.by(Sort.Direction.DESC, "createdDate");
+		return commentRepository.findAllByProduct_IdAndProduct_Shop_Id(productId, Common.getIdFromAuth(auth), sort).stream()
 				.map(commentConverter::toDTO).collect(Collectors.toList());
 	}
 

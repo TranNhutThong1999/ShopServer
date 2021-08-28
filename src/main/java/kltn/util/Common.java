@@ -64,6 +64,6 @@ public class Common {
 	}
 
 	public static String parse(Date date) {
-		return new SimpleDateFormat("MM-dd-yyyy").format(date);
+		return new SimpleDateFormat("dd-MM-yyyy").format(date);
 	}
 }

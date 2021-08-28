@@ -17,11 +17,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import kltn.api.output.ListOrder;
 import kltn.converter.OrderConverter;
+import kltn.converter.PhotoConverter;
 import kltn.converter.ProductConverter;
 import kltn.dto.OrderDTO;
 import kltn.entity.Action;
@@ -71,10 +73,14 @@ public class OrderService implements IOrderService {
 	@Autowired
 	private ActionRepository actionRepository;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
 		// TODO Auto-generated method stub
-		List<Order> order = orderRepository.findByShop_Id(Common.getIdFromAuth(auth));
+		Sort sort = Sort.by(Sort.Direction.DESC,"id");
+		List<Order> order = orderRepository.findByShop_Id(Common.getIdFromAuth(auth), sort);
 		List<ListOrder> result = new ArrayList<ListOrder>();
 		for (Order o : order) {
 			result.add(orderConverter.tolist(o.getDetail().get(0), o));
@@ -116,7 +122,7 @@ public class OrderService implements IOrderService {
 
 		Shop shop = o.getShop();
 		Notification user = new Notification();
-		user.setAvatar(shop.getAvatar());
+		user.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
 		user.setType(Common.NOTI_ORDER);
 		user.setOrderId(o.getId());
 		user.setStatus(o.getStatus());
@@ -125,7 +131,7 @@ public class OrderService implements IOrderService {
 		user.setUser(o.getUser());
 		applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, user));
 		Notification shopN = new Notification();
-		shopN.setAvatar(shop.getAvatar());
+		shopN.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
 		shopN.setType(Common.NOTI_ORDER);
 		shopN.setOrderId(o.getId());
 		shopN.setStatus(o.getStatus());
@@ -165,7 +171,7 @@ public class OrderService implements IOrderService {
 
 			Shop shop = o.getShop();
 			Notification noti = new Notification();
-			noti.setAvatar(shop.getAvatar());
+			noti.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
 			noti.setType(Common.NOTI_ORDER);
 			noti.setOrderId(o.getId());
 			noti.setStatus(o.getStatus());
@@ -175,7 +181,7 @@ public class OrderService implements IOrderService {
 			applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
 			
 			Notification notiS = new Notification();
-			notiS.setAvatar(shop.getAvatar());
+			notiS.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
 			notiS.setType(Common.NOTI_ORDER);
 			notiS.setOrderId(o.getId());
 			notiS.setStatus(o.getStatus());

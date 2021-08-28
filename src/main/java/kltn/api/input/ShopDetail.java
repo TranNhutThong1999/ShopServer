@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class ShopDetail {
 	private String id;
-	private String nameShop;
+	private String name;
 	private String code;
 	private String hotLine;
 	private String website;

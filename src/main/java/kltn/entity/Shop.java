@@ -36,7 +36,7 @@ public class Shop  extends AbstractId  {
 	@GenericGenerator(name = "my_generator", strategy = "kltn.util.MyGenerator")
 	@Column(nullable = false)
 	private String id;
-	private String nameShop;
+	private String name;
 	private String avatar;
 	private String phone;
 	private String email;

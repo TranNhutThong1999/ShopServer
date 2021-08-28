@@ -127,9 +127,9 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 		product.setCategory(cateOutPut);
 		product.setCategoryId(s.getCategory().getId());
 		product.setShopId(s.getShop().getId());
-		product.setShopName(s.getShop().getNameShop());
+		product.setShopName(s.getShop().getName());
 		if (s.getShop().getAvatar() != null)
-			product.setShopAvatar(photoConverter.toLink(s.getShop().getAvatar()));
+			product.setShopAvatar(photoConverter.toLinkAvatarShop(s.getShop().getAvatar()));
 		try {
 			// product.setRating(futureRating.get());
 			product.setTotalStar(futureStar.get());

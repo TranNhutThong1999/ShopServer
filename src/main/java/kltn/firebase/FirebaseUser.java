@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -46,10 +47,10 @@ public class FirebaseUser {
 
 	@Autowired
 	private NotificationRepository notificationRepository;
-	
+
 	@Autowired
-	private DeviceTokenRepository deviceTokenRepository; 
-	
+	private DeviceTokenRepository deviceTokenRepository;
+
 	@PostConstruct
 	public void initialize() {
 		try {
@@ -83,14 +84,14 @@ public class FirebaseUser {
 					for (DataSnapshot data : snapshot.getChildren()) {
 						orderId.put(String.valueOf(data.getKey()), data.getValue());
 					}
-					
+
 					item.put("code", o.getCode());
 					item.put("createDate", o.getCreateDate());
 					item.put("shopId", o.getShopId());
 					item.put("status", o.getStatus());
 					orderId.put(String.valueOf(o.getOrderId()), item);
 					userId.put(o.getUserId(), orderId);
-					System.out.println("run user "+ o.getUserId());
+					System.out.println("run user " + o.getUserId());
 					ref.updateChildrenAsync(userId);
 					return;
 				}
@@ -131,7 +132,7 @@ public class FirebaseUser {
 								.child(String.valueOf(r.getParentCommentId())).child("childs").getChildren()) {
 							childCommentId.put(String.valueOf(data.getKey()), data.getValue());
 						}
-					
+
 						for (DataSnapshot data : snapshot.child(String.valueOf(r.getProductId()))
 								.child(String.valueOf(r.getParentCommentId())).getChildren()) {
 							childs.put(String.valueOf(data.getKey()), data.getValue());// childs, content, date
@@ -141,7 +142,6 @@ public class FirebaseUser {
 							commentId.put(String.valueOf(data.getKey()), data.getValue());// list commentId
 						}
 
-					
 						for (DataSnapshot data : snapshot.getChildren()) {
 							productId.put(String.valueOf(data.getKey()), data.getValue());
 						}
@@ -218,6 +218,7 @@ public class FirebaseUser {
 			}
 		});
 	}
+
 	public void updateNotificationOrder(kltn.entity.Notification noti) {
 		noti = Common.setDataOrder(noti);
 		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
@@ -238,7 +239,7 @@ public class FirebaseUser {
 		try {
 			response = f.send(message);
 			System.out.println(response);
-			
+
 		} catch (FirebaseMessagingException e) {
 			e.printStackTrace();
 		}
@@ -247,24 +248,26 @@ public class FirebaseUser {
 	public void updateNotificationComment(kltn.entity.Notification noti) {
 		FirebaseMessaging f = FirebaseMessaging.getInstance(secondaryApp);
 		NotiComment data = new NotiComment(notificationRepository.save(noti));
-		DeviceToken de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId()).get();
-		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
-				.build();
-		ObjectMapper o = new ObjectMapper();
-		Message message = null;
-		try {
-			message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.getFCMToken())
-					.setNotification(notification).build();
-		} catch (JsonProcessingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String response = null;
-		try {
-			response = f.send(message);
-			System.out.println(response);
-		} catch (FirebaseMessagingException e) {
-			e.printStackTrace();
+		Optional<DeviceToken> de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId());
+		if (de.isPresent()) {
+			Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
+					.build();
+			ObjectMapper o = new ObjectMapper();
+			Message message = null;
+			try {
+				message = Message.builder().putData("data", o.writeValueAsString(data)).setToken(de.get().getFCMToken())
+						.setNotification(notification).build();
+			} catch (JsonProcessingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			String response = null;
+			try {
+				response = f.send(message);
+				System.out.println(response);
+			} catch (FirebaseMessagingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

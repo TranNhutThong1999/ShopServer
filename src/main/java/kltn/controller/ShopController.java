@@ -247,7 +247,7 @@ public class ShopController {
 	public ResponseEntity<?> updateShop(@RequestBody ShopDTO shop, Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
-			shopService.update(shop, auth);
+			outPut.setData(shopService.update(shop, auth));
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());

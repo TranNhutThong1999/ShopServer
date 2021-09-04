@@ -117,7 +117,7 @@ public class ProductService implements IProductService {
 		int percen = (int) ((dto.getPriceSale() * 100) / dto.getPrice());
 		p.setSale(100 - percen);
 		p.setQuantitySold(0);
-		if (dto.getPhotos().size() > 0) {
+		if (dto.getPhotos() != null) {
 			p.setPhotos(photoService.saveOnePhotoProduct(p , dto.getPhotos()));
 		}
 		Product pro = productRepository.save(p);
@@ -151,8 +151,11 @@ public class ProductService implements IProductService {
 		p.setWeight(product.getWeight());
 		p.setCategory(categoryRepository.findById(product.getCategoryId())
 				.orElseThrow(() -> new Exception("categoryId was not found")));
-		if (product.getPhotos().size() > 0) {
+		if (product.getPhotos() != null) {
 			p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
+		}
+		if(p.getDetail() != null || !p.getDetail().equals("")) {
+			p.setDetail(generateDetail(p.getDetail(), p.getCategory().getCategory().getName(), p.getCategory().getName()));
 		}
 		productRepository.save(p);
 	}
@@ -190,5 +193,9 @@ public class ProductService implements IProductService {
 		 }
 		return result;
 	}
-
+	private String generateDetail(String detail, String nameParentCate, String childParentCate) {
+		String cateOld = detail.split(";")[0];
+		String suffix = detail.substring(cateOld.length());
+		return nameParentCate +" - "+ childParentCate + suffix;
+	}
 }

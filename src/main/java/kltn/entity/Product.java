@@ -28,6 +28,8 @@ public class Product extends Abstract{
 	private int avaiable;
 	private int quantitySold;
 	private double weight;
+	
+	@Column(columnDefinition = "TEXT")
 	private String detail;
 	private String photos;
 	@ManyToOne

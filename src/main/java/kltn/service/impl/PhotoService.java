@@ -138,6 +138,7 @@ public class PhotoService implements IPhotoService {
 				result = addPhoto(result, o);
 			
 		}
+		logger.info("result: "+result);
 		return result;
 		
 	}

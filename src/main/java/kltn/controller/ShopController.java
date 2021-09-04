@@ -13,6 +13,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -69,9 +70,6 @@ public class ShopController {
 
 	@Autowired
 	private JwtTokenProvider jwt;
-
-	@Autowired
-	private IAddressService addressService; 
 	
 	@Autowired
 	private ResourceBundleMessageSource resource;
@@ -130,13 +128,15 @@ public class ShopController {
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 	@PutMapping(value="/detail")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> createShopDetail(@RequestBody ShopDetail d) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
 			outPut.setData(shopService.createDetail(d));
 		} catch (Exception e) {
+			System.out.println(e.getLocalizedMessage());
 			outPut.setSuccess(false);
-			outPut.setMessage(e.getMessage());
+			outPut.setMessage(e.getLocalizedMessage());
 			outPut.setCode(HttpStatus.BAD_REQUEST);
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.BAD_REQUEST);
 		}
@@ -144,6 +144,7 @@ public class ShopController {
 	}
 
 	@GetMapping("/me")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getOneShop(Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -157,6 +158,7 @@ public class ShopController {
 	}
 
 	@GetMapping("/address")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getAddress(Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		outPut.setData(shopService.getAddress(auth));
@@ -174,6 +176,7 @@ public class ShopController {
 
 
 	@PostMapping("/avatar")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> saveAvatar(@RequestBody UploadFileInput m, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -222,6 +225,7 @@ public class ShopController {
 	}
 
 	@PutMapping("changepassword")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> changePassword(@RequestBody Map<String, String> data, Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -244,6 +248,7 @@ public class ShopController {
 	}
 	
 	@PutMapping
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> updateShop(@RequestBody ShopDTO shop, Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -255,6 +260,7 @@ public class ShopController {
 	}
 	
 	@GetMapping("/comment/new")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getlistCommentNew(Authentication auth, int limit) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		outPut.setData(commentService.findByShopAndLimit(auth, limit));
@@ -262,6 +268,7 @@ public class ShopController {
 	}
 	
 	@GetMapping("/order/list")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getListOrder(Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -273,6 +280,7 @@ public class ShopController {
 	}
 	
 	@GetMapping("/order")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getOrder(@RequestParam int id, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -284,6 +292,7 @@ public class ShopController {
 	}
 	
 	@PutMapping("/order/tranport")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> updateStatusOrder(@RequestBody Map<String, String> data, Authentication auth) {
 		try {
 			ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -295,6 +304,7 @@ public class ShopController {
 	}
 	
 	@PostMapping("/fcmtoken")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> addFCMToken(@RequestBody Map<String, String> data, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -306,6 +316,7 @@ public class ShopController {
 	}
 	
 	@GetMapping("/notification")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getListNoti(Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -317,6 +328,7 @@ public class ShopController {
 	}
 	
 	@PutMapping("/notification")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> UpdateIsSeen(Authentication auth, @RequestBody Map<String, Integer> data) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -328,10 +340,11 @@ public class ShopController {
 	}
 	
 	@PutMapping("/order/cancel")
-	public ResponseEntity<?> cancelOrder(Authentication auth, @RequestBody Map<String, Integer> data) {
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> cancelOrder(Authentication auth, @RequestBody Map<String, String> data) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			orderService.updateStatus( data.get("orderId"), auth, Common.ORDER_CANCEL);
+			orderService.updateCancelStatus(Integer.valueOf(data.get("orderId")), data.get("reason"),auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}

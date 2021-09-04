@@ -15,7 +15,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "order")
+@Table(name = "orders")
 public class Order extends Abstract {
 	private String orderCode;
 	private String orderTime;
@@ -40,6 +40,7 @@ public class Order extends Abstract {
 	@JoinColumn(name = "payment_id")
 	private Payment payment;
 	
+	private String reasonCancel;
 	private String transportedName;
 	private float tempPrice;
 	private float feeShip;

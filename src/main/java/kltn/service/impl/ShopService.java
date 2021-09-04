@@ -102,6 +102,10 @@ public class ShopService implements IShopService {
 			logger.error("shopId was not found " + s.getId());
 			return new Exception("shopId was not found " + s.getId());
 		});
+		if(shop.getCode()!=null){
+			logger.error("code existed");
+			throw new Exception("code existed " + s.getId());
+		}
 		shop.setName(s.getName());
 		shop.setCode(UUID.randomUUID().toString());
 		shop.setHotLine(s.getHotLine());

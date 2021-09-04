@@ -14,7 +14,7 @@ public interface IOrderService {
 	List<ListOrder> getListOrder(Authentication auth);
 	
 	OrderDTO getOrder(int id, Authentication auth) throws Exception;
-	
+	void updateCancelStatus(int orderId, String reason, Authentication auth) throws Exception;
 	void updateStatus(int orderId, Authentication auth, int status) throws Exception;
 	void updateStatusSuccess(int orderId, String shopId, int status);
 }

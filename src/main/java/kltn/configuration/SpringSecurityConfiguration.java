@@ -54,11 +54,11 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable().addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.authorizeRequests()
-		.antMatchers(HttpMethod.GET, "/shop/photo", "/product/comment", "/product","/basic/**").permitAll()
-		.antMatchers(HttpMethod.POST, "/shop/login","/shop/register", "/shop/sendotp", "/shop/checkotp","/shop/verify").permitAll()
-		.antMatchers(HttpMethod.PUT,"/shop/forgotpassword").permitAll()
-		.anyRequest().authenticated();
+		http.authorizeRequests().anyRequest().permitAll();
+//		.antMatchers(HttpMethod.GET, "/shop/photo", "/product/comment", "/product","/basic/**").permitAll()
+//		.antMatchers(HttpMethod.POST, "/shop/login","/shop/register", "/shop/sendotp", "/shop/checkotp","/shop/verify").permitAll()
+//		.antMatchers(HttpMethod.PUT,"/shop/forgotpassword").permitAll()
+//		.anyRequest().authenticated();
 		http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
 	}
 

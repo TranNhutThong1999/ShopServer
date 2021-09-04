@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,6 +59,7 @@ public class ProductController {
 		}
 	}
 	@PostMapping
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> createProduct(@RequestBody ProductDTO product, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -70,6 +72,7 @@ public class ProductController {
 	}
 
 	@PostMapping(value = "/comment")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> comment(Authentication auth, @RequestBody CommentOuput m) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -81,6 +84,7 @@ public class ProductController {
 	}
 
 	@GetMapping(value = "/comment", produces = "application/json")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getCommentByProductId(@RequestParam(required = true) int productId, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		outPut.setData(commentService.getListCommentProduct(productId, auth));
@@ -110,6 +114,7 @@ public class ProductController {
 //	}
 	
 	@PutMapping("/infor")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> UpdateProduct(@RequestBody UpdateInforProduct product, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -121,6 +126,7 @@ public class ProductController {
 	}
 	
 	@PutMapping("/detail")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> UpdateProductDetail(@RequestBody UpdateDetailProduct detail, Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
@@ -132,10 +138,11 @@ public class ProductController {
 	}
 	
 	@DeleteMapping
-	public ResponseEntity<?> deleteProduct(Authentication auth, @RequestBody Map<String, Integer> data) {
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> deleteProduct(Authentication auth, @RequestParam int id ) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			productService.delete(data.get("id"), auth);
+			productService.delete(id, auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
@@ -143,6 +150,7 @@ public class ProductController {
 	}
 	
 	@GetMapping("/photo")
+	@PreAuthorize("isAuthenticated()")
 	public ResponseEntity<?> getlistPhoto(Authentication auth) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		List<PhotoDTO> photo = productService.getListPhotoByShop(auth);

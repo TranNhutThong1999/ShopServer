@@ -69,7 +69,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	public ProductList toList(Product s) {
 		// TODO Auto-generated method stub
 		ProductList product = modelMapper.map(s, ProductList.class);
-		if (s.getPhotos() != null) {
+		if (s.getPhotos() != null && !s.getPhotos().equals("")) {
 			product.setPhoto(photoConverter.toLink(s.getPhotos().split(",")[0]));
 		}
 		double sum = ratingRepository.sumStar(s.getId());
@@ -109,7 +109,7 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 			double quantity = realQuantity == 0 ? 1 : realQuantity;
 			return sum / quantity;
 		}, executor);
-		if (s.getPhotos() != null) {
+		if (s.getPhotos() != null && !s.getPhotos().equals("")) {
 			List<String> l = Arrays.asList(s.getPhotos().split(","));
 			product.setPhotos(l.stream().map(photoConverter::toDTO).collect(Collectors.toList()));
 		}

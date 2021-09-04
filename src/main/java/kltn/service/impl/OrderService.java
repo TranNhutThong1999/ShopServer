@@ -117,9 +117,7 @@ public class OrderService implements IOrderService {
 				o.getShop().getId(), o.getCreatedDate());
 		applicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, dataS));
 		// push change status 2 to 3
-		if (status == Common.ORDER_TRANSPORT && status != Common.ORDER_SUCCESS)
-			applicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, orderId, Common.getIdFromAuth(auth)));
-
+		
 		Shop shop = o.getShop();
 		Notification user = new Notification();
 		user.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
@@ -193,4 +191,32 @@ public class OrderService implements IOrderService {
 
 	}
 
+	@Override
+	public void updateCancelStatus(int orderId, String reason, Authentication auth) throws Exception {
+		// TODO Auto-generated method stub
+		Optional<Order> o = orderRepository.findOneByIdAndShop_Id(orderId, Common.getIdFromAuth(auth));
+		Order or = null;
+		if (o.isPresent()) {
+			or = o.get();
+			if (or.getStatus() != Common.ORDER_SUCCESS && or.getStatus() != Common.ORDER_CANCEL) {
+				or.setStatus(Common.ORDER_CANCEL);
+				or.setReasonCancel(reason);
+				or = orderRepository.save(or);
+				UpdateStatusOrder dataU = new UpdateStatusOrder(or.getId(), or.getUser().getId(), or.getOrderCode(),
+						or.getStatus(), or.getShop().getId(), or.getCreatedDate());
+				// realtime user
+				applicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, dataU));
+			
+				Notification noti = new Notification();
+				noti.setAvatar(photoConverter.toLinkAvatarShop(or.getShop().getAvatar()));
+				noti.setType(Common.NOTI_ORDER);
+				noti.setOrderId(or.getId());
+				noti.setStatus(or.getStatus());
+				noti.setTime(Common.parse(or.getCreatedDate()));
+				noti.setOrderCode(or.getOrderCode());
+				noti.setUser(or.getUser());
+				applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
+			}
+		}
+	}
 }

@@ -93,7 +93,7 @@ public class CommentService implements ICommentService {
 
 					// notify to user parent
 					Notification notificationUser = new Notification();
-					notificationUser.setAvatar(photoConverter.toLinkAvatarShop(reply.getShop().getAvatar()));
+					notificationUser.setAvatar(reply.getShop().getAvatar());
 					notificationUser.setType(Common.NOTI_CMT);
 					notificationUser.setTitle(reply.getShop().getName());
 					notificationUser.setSubTitle("Đã trả lời bình luận của bạn trong một sản phẩm");
@@ -120,7 +120,7 @@ public class CommentService implements ICommentService {
 
 						done.add(o.getId());
 						Notification child = new Notification();
-						child.setAvatar(photoConverter.toLinkAvatarShop(reply.getShop().getAvatar()));
+						child.setAvatar(reply.getShop().getAvatar());
 						child.setType(Common.NOTI_CMT);
 						child.setTitle(reply.getShop().getName());
 						child.setSubTitle("Đã trả lời bình luận một sản phẩm");

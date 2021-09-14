@@ -1,5 +1,6 @@
 package kltn.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,7 @@ import kltn.api.input.ShopDetail;
 import kltn.dto.AddressDTO;
 import kltn.dto.NotificationDTO;
 import kltn.dto.ShopDTO;
+import kltn.dto.StatisticalDTO;
 
 public interface IShopService {
 	ShopDTO save(ShopDTO s);
@@ -37,4 +39,6 @@ public interface IShopService {
 	List<NotificationDTO> getListNoti(Authentication auth);
 	
 	void setIsSeen(Authentication auth, int id);
+	
+	StatisticalDTO getDataMonth(String type, String time, Authentication auth);
 }

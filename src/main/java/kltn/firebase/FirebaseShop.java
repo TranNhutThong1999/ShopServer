@@ -31,6 +31,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 
+import kltn.converter.PhotoConverter;
 import kltn.entity.DeviceToken;
 import kltn.repository.DeviceTokenRepository;
 import kltn.repository.NotificationRepository;
@@ -51,6 +52,9 @@ public class FirebaseShop {
 	@Autowired
 	private DeviceTokenRepository deviceTokenRepository;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@PostConstruct
 	public void initialize() {
 		try {
@@ -219,6 +223,7 @@ public class FirebaseShop {
 	public void updateNotificationOrder(kltn.entity.Notification noti) {
 		noti = Common.setDataOrder(noti);
 		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
+		data.setAvatar(photoConverter.toLinkAvatarShop(data.getAvatar()));
 		FirebaseMessaging f = FirebaseMessaging.getInstance(onceApp);
 		DeviceToken de = deviceTokenRepository.findOneByShop_Id(noti.getShop().getId()).get();
 		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
@@ -245,6 +250,7 @@ public class FirebaseShop {
 	public void updateNotificationComment(kltn.entity.Notification noti) {
 		FirebaseMessaging f = FirebaseMessaging.getInstance(onceApp);
 		NotiComment data = new NotiComment(notificationRepository.save(noti));
+		data.setAvatar(photoConverter.toLinkAvatarShop(data.getAvatar()));
 		Optional<DeviceToken> de = deviceTokenRepository.findOneByShop_Id(noti.getShop().getId());
 		if (de.isPresent()) {
 			Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())

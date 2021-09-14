@@ -34,6 +34,7 @@ public class EventListener {
 	
 	@Autowired
 	private Constants constants;
+	
 	@Async
 	@org.springframework.context.event.EventListener
 	@Transactional

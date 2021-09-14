@@ -115,12 +115,12 @@ public class OrderService implements IOrderService {
 		// push realtime shop
 		UpdateStatusOrder dataS = new UpdateStatusOrder(o.getId(), o.getShop().getId(), o.getOrderCode(), o.getStatus(),
 				o.getShop().getId(), o.getCreatedDate());
+		System.out.println("before run sleep");
 		applicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, dataS));
 		// push change status 2 to 3
-		
-		Shop shop = o.getShop();
+		applicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, o.getId(), o.getShop().getId()));
 		Notification user = new Notification();
-		user.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
+		user.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		user.setType(Common.NOTI_ORDER);
 		user.setOrderId(o.getId());
 		user.setStatus(o.getStatus());
@@ -129,7 +129,7 @@ public class OrderService implements IOrderService {
 		user.setUser(o.getUser());
 		applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, user));
 		Notification shopN = new Notification();
-		shopN.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
+		shopN.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		shopN.setType(Common.NOTI_ORDER);
 		shopN.setOrderId(o.getId());
 		shopN.setStatus(o.getStatus());
@@ -158,18 +158,17 @@ public class OrderService implements IOrderService {
 					o.getStatus(), o.getShop().getId(), o.getCreatedDate());
 			applicationEventPublisher.publishEvent(new PushEventUpdateOrderShop(this, dataS));
 
-			for (Item i : o.getDetail()) {
-				Action ac = new Action();
-				ac.setName(Common.ACTION_BOUGHT);
-				ac.setUser(o.getUser());
-				ac.setProduct(i.getProduct());
-				ac.setIsRating(0);
-				actionRepository.save(ac);
-			}
+//			for (Item i : o.getDetail()) {
+//				Action ac = new Action();
+//				ac.setName(Common.ACTION_BOUGHT);
+//				ac.setUser(o.getUser());
+//				ac.setProduct(i.getProduct());
+//				ac.setIsRating(0);
+//				actionRepository.save(ac);
+//			}
 
-			Shop shop = o.getShop();
 			Notification noti = new Notification();
-			noti.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
+			noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			noti.setType(Common.NOTI_ORDER);
 			noti.setOrderId(o.getId());
 			noti.setStatus(o.getStatus());
@@ -179,7 +178,7 @@ public class OrderService implements IOrderService {
 			applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
 			
 			Notification notiS = new Notification();
-			notiS.setAvatar(photoConverter.toLinkAvatarShop(shop.getAvatar()));
+			notiS.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			notiS.setType(Common.NOTI_ORDER);
 			notiS.setOrderId(o.getId());
 			notiS.setStatus(o.getStatus());
@@ -208,7 +207,7 @@ public class OrderService implements IOrderService {
 				applicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, dataU));
 			
 				Notification noti = new Notification();
-				noti.setAvatar(photoConverter.toLinkAvatarShop(or.getShop().getAvatar()));
+				noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 				noti.setType(Common.NOTI_ORDER);
 				noti.setOrderId(or.getId());
 				noti.setStatus(or.getStatus());

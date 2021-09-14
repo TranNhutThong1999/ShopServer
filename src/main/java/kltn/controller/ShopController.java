@@ -1,11 +1,11 @@
 package kltn.controller;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.security.auth.login.CredentialException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +20,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,17 +35,16 @@ import kltn.api.input.OtpInput;
 import kltn.api.input.ShopDetail;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
-import kltn.dto.PhotoDTO;
 import kltn.dto.ShopDTO;
 import kltn.jwt.JwtTokenProvider;
-import kltn.service.IAddressService;
+import kltn.security.CustomUserDetail;
+import kltn.security.MyShop;
 import kltn.service.ICommentService;
 import kltn.service.IOrderService;
 import kltn.service.IPhotoService;
 import kltn.service.IProductService;
 import kltn.service.IShopService;
 import kltn.util.Common;
-import kltn.util.EmailService;
 import kltn.util.ValidationBindingResult;
 
 @RestController
@@ -80,6 +77,9 @@ public class ShopController {
 	@Autowired
 	private IOrderService orderService;
 	
+	@Autowired
+	private CustomUserDetail customUserDetail;
+	
 	@PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> login(@RequestBody LoginInput s) {
 		ResponseValue outPut = new ResponseValue();
@@ -107,7 +107,8 @@ public class ShopController {
 		} catch (DisabledException e) {
 			outPut.setSuccess(false);
 			outPut.setCode(HttpStatus.LOCKED);
-			outPut.setMessage(resource.getMessage("user.login.notactive", null, new Locale("vi")));
+			String id = ((MyShop)customUserDetail.loadUserByUsername(s.getEmail())).getId();
+			outPut.setMessage(resource.getMessage("user.login.notactive", null, new Locale("vi"))+","+id);
 			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.LOCKED);
 		}
 	}
@@ -344,10 +345,29 @@ public class ShopController {
 	public ResponseEntity<?> cancelOrder(Authentication auth, @RequestBody Map<String, String> data) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			orderService.updateCancelStatus(Integer.valueOf(data.get("orderId")), data.get("reason"),auth);
+			orderService.updateCancelStatus(Integer.valueOf(data.get("id")), data.get("reason"),auth);
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@GetMapping("/statistical")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> tk(@RequestParam String type, @RequestParam String time, Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			outPut.setData(shopService.getDataMonth(type, time, auth));
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+	public static void main(String[] args) {
+		
+		String input = "09-2021" ;  // December 2016.
+		DateTimeFormatter f = DateTimeFormatter.ofPattern( "MM-uuuu" );
+		YearMonth ym = YearMonth.parse( input , f );
+        System.out.println(ym.toString());
 	}
 }

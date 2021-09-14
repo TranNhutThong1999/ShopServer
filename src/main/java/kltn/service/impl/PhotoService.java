@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-
 import kltn.api.input.UploadFileInput;
 import kltn.converter.PhotoConverter;
 import kltn.dto.PhotoDTO;
@@ -40,7 +39,7 @@ import kltn.util.Constants;
 @Service
 public class PhotoService implements IPhotoService {
 	Logger logger = LoggerFactory.getLogger(PhotoService.class);
-	
+
 	@Autowired
 	private ProductRepository productRepository;
 
@@ -108,19 +107,18 @@ public class PhotoService implements IPhotoService {
 				.orElseThrow(() -> new Exception("shop was not found"));
 		String[] cut = m.getName().split("\\.");
 		String random = UUID.randomUUID().toString();
-		String name = cut[0] + random + "." + cut[1];
+		String name = "shop" + cut[0] + random + "." + cut[1];
 //		File f = new File(constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
 //				"shop" + File.separator + name);
-		FileOutputStream fos = new FileOutputStream(
-				constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
-				"shop" + File.separator + name);
+		FileOutputStream fos = new FileOutputStream(constant.rootURL + File.separator + "images" + File.separator
+				+ "avatar" + File.separator + "shop" + File.separator + name);
 		byte[] image = Base64.getDecoder().decode(m.getBase64String());
 		fos.write(image);
 		fos.flush();
 		fos.close();
 		if (s.getAvatar() != null) {
-			File f = new File(constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator +
-					"shop" + File.separator + s.getAvatar());
+			File f = new File(constant.rootURL + File.separator + "images" + File.separator + "avatar" + File.separator
+					+ "shop" + File.separator + s.getAvatar());
 			f.delete();
 		}
 		s.setAvatar(name);
@@ -132,15 +130,16 @@ public class PhotoService implements IPhotoService {
 		// TODO Auto-generated method stub
 		String result = pro.getPhotos() == null ? "" : pro.getPhotos();
 		for (PhotoDTO o : photos) {
-			if (o.getBase64String() == null || o.getBase64String().equals("")) 
+			if (o.getLink() != null) {
+				if(o.getLink().equals("")) 
 				result = deletePhoto(result, o.getName());
-			 else 
+			} else 
 				result = addPhoto(result, o);
-			
+
 		}
-		logger.info("result: "+result);
+		logger.info("result: " + result);
 		return result;
-		
+
 	}
 
 	private String deletePhoto(String photos, String name) {
@@ -151,7 +150,7 @@ public class PhotoService implements IPhotoService {
 				continue;
 			if (e.equals(name)) {
 				File f = new File(constant.rootURL + File.separator + "images" + File.separator + name);
-				logger.info("delete: "+f.getAbsolutePath());
+				logger.info("delete: " + f.getAbsolutePath());
 				f.delete();
 				continue;
 			}
@@ -171,7 +170,7 @@ public class PhotoService implements IPhotoService {
 			fos.write(image);
 			fos.flush();
 			fos.close();
-			logger.info("add photo : "+ constant.rootURL + File.separator + "images" + File.separator + name);
+			logger.info("add photo : " + constant.rootURL + File.separator + "images" + File.separator + name);
 			photos += name + ",";
 			return photos;
 		} catch (FileNotFoundException e) {

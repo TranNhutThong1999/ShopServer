@@ -51,4 +51,12 @@ public class PhotoConverter {
 		return constant.showImage + File.separator + "images" + File.separator + "avatar" + File.separator + "shop"
 				+ File.separator + name;
 	}
+	
+	public String tolinkAvNoti(String name) {
+		if(name.contains("http")) return name;
+		if(name.contains("shop")) return toLinkAvatarShop(name);
+		if(name.contains("product")) return toLink(name.substring(7));
+		return toLinkAvatarUser(name);
+	}
+
 }

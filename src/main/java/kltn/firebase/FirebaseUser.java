@@ -31,6 +31,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 
+import kltn.converter.PhotoConverter;
 import kltn.entity.DeviceToken;
 import kltn.repository.DeviceTokenRepository;
 import kltn.repository.NotificationRepository;
@@ -51,6 +52,9 @@ public class FirebaseUser {
 	@Autowired
 	private DeviceTokenRepository deviceTokenRepository;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+	
 	@PostConstruct
 	public void initialize() {
 		try {
@@ -222,6 +226,7 @@ public class FirebaseUser {
 	public void updateNotificationOrder(kltn.entity.Notification noti) {
 		noti = Common.setDataOrder(noti);
 		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
+		data.setAvatar(photoConverter.toLinkAvatarUser(data.getAvatar()));
 		FirebaseMessaging f = FirebaseMessaging.getInstance(secondaryApp);
 		DeviceToken de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId()).get();
 		Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())
@@ -248,6 +253,7 @@ public class FirebaseUser {
 	public void updateNotificationComment(kltn.entity.Notification noti) {
 		FirebaseMessaging f = FirebaseMessaging.getInstance(secondaryApp);
 		NotiComment data = new NotiComment(notificationRepository.save(noti));
+		data.setAvatar(photoConverter.toLinkAvatarUser(data.getAvatar()));
 		Optional<DeviceToken> de = deviceTokenRepository.findOneByUser_Id(noti.getUser().getId());
 		if (de.isPresent()) {
 			Notification notification = Notification.builder().setTitle(noti.getTitle()).setBody(noti.getSubTitle())

@@ -1,7 +1,15 @@
 package kltn.service.impl;
 
+import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -14,14 +22,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.threeten.bp.Year;
 
 import kltn.SHOPConstant;
 import kltn.api.input.ShopDetail;
+import kltn.api.input.tk;
 import kltn.converter.AddressConverter;
+import kltn.converter.PhotoConverter;
 import kltn.converter.ShopConverter;
 import kltn.dto.AddressDTO;
 import kltn.dto.NotificationDTO;
 import kltn.dto.ShopDTO;
+import kltn.dto.StatisticalDTO;
 import kltn.entity.Address;
 import kltn.entity.DeviceToken;
 import kltn.entity.District;
@@ -40,6 +52,8 @@ import kltn.security.MyShop;
 import kltn.service.IShopService;
 import kltn.util.Common;
 import kltn.util.EmailService;
+import kltn.util.Month;
+import kltn.util.StatisticalMonth;
 
 @Service
 public class ShopService implements IShopService {
@@ -81,6 +95,9 @@ public class ShopService implements IShopService {
 	@Autowired
 	private NotificationRepository notificationRepository;
 
+	@Autowired
+	private PhotoConverter photoConverter;
+
 	@Override
 	public ShopDTO save(ShopDTO s) {
 		// TODO Auto-generated method stub
@@ -102,7 +119,7 @@ public class ShopService implements IShopService {
 			logger.error("shopId was not found " + s.getId());
 			return new Exception("shopId was not found " + s.getId());
 		});
-		if(shop.getCode()!=null){
+		if (shop.getCode() != null) {
 			logger.error("code existed");
 			throw new Exception("code existed " + s.getId());
 		}
@@ -217,7 +234,13 @@ public class ShopService implements IShopService {
 		old.setPhone(shop.getPhone());
 		old.setHotLine(shop.getHotLine());
 		old.setWebsite(shop.getWebsite());
-
+		if(!shop.getEmail().equals(old.getEmail())) {
+			old.setEmail(shop.getEmail());
+			old.setEnable(false);
+			old.generateToken();
+			old.setTimeTokenFuture(SHOPConstant.TIME_OTP_EXPIRE);
+			emailService.sendRegisterMessage(old.getEmail(), old.getOtp());
+		}
 		Address address = old.getAddress();
 		address.setLocation(shop.getLocation());
 
@@ -255,13 +278,13 @@ public class ShopService implements IShopService {
 		// TODO Auto-generated method stub
 		Optional<DeviceToken> de = deviceTokenRepository.findOneByShop_Id(Common.getIdFromAuth(auth));
 		DeviceToken d = null;
-		if(!de.isPresent()) {
-			 d = new DeviceToken();
+		if (!de.isPresent()) {
+			d = new DeviceToken();
 			d.setFCMToken(token);
 			d.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
 			d.setCreateDate(new Date());
 			deviceTokenRepository.save(d);
-		}else {
+		} else {
 			d = de.get();
 			d.setFCMToken(token);
 			d.setCreateDate(new Date());
@@ -273,9 +296,12 @@ public class ShopService implements IShopService {
 	@Override
 	public List<NotificationDTO> getListNoti(Authentication auth) {
 		// TODO Auto-generated method stub
-		Sort sort = Sort.by(Sort.Direction.ASC,"createDate");
-		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth), sort).stream()
-				.map((x) -> modelMapper.map(x, NotificationDTO.class)).collect(Collectors.toList());
+		Sort sort = Sort.by(Sort.Direction.DESC, "createDate");
+		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth), sort).stream().map((x) -> {
+			NotificationDTO noti = modelMapper.map(x, NotificationDTO.class);
+			noti.setAvatar(photoConverter.tolinkAvNoti(noti.getAvatar()));
+			return noti;
+		}).collect(Collectors.toList());
 	}
 
 	@Override
@@ -289,4 +315,116 @@ public class ShopService implements IShopService {
 		}
 	}
 
+	public StatisticalDTO getDataMonth(String type, String time, Authentication auth) {
+
+		if (type.equalsIgnoreCase("revenue")) {
+			if (time.length() < 5) {
+				Year year = Year.parse(time);
+
+				SimpleDateFormat formatDay = new SimpleDateFormat("MM");
+				List<StatisticalMonth> list = new ArrayList<StatisticalMonth>();
+				for (int i = 1; i <= 12; i++) {
+					list.add(new StatisticalMonth(i, 0));
+				}
+
+				List<Map<String, Object>> s = shopRepository.getYear(Common.getIdFromAuth(auth), year.getValue(),
+						Common.ORDER_SUCCESS);
+				float total = 0f;
+				for (Map<String, Object> i : s) {
+					int d = Integer.valueOf(formatDay.format((Date) i.get("date")).toString());
+					float money = ((Double) i.get("money")).floatValue() / 1000000;
+					total += money;
+					list = list.stream().map((x) -> {
+						if (x.getTime() == d)
+							x.setTotal(x.getTotal() + money);
+						return x;
+					}).collect(Collectors.toList());
+				}
+				return new StatisticalDTO(total, list);
+
+			} else {
+				SimpleDateFormat formatDay = new SimpleDateFormat("dd");
+				Calendar calendar = Calendar.getInstance();
+				DateTimeFormatter f = DateTimeFormatter.ofPattern("MM-uuuu");
+				YearMonth ym = YearMonth.parse(time, f);
+
+				calendar.set(ym.getYear(), ym.getMonth().getValue(), 0);
+				int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+				List<StatisticalMonth> list = new ArrayList<StatisticalMonth>();
+				for (int i = 1; i <= maxDay; i++) {
+					list.add(new StatisticalMonth(i, 0));
+				}
+
+				List<Map<String, Object>> s = shopRepository.getMonth(Common.getIdFromAuth(auth), ym.getYear(),
+						ym.getMonthValue(), Common.ORDER_SUCCESS);
+				float total = 0f;
+				for (Map<String, Object> i : s) {
+					int d = Integer.valueOf(formatDay.format((Date) i.get("date")).toString());
+					float money = ((Double) i.get("money")).floatValue() / 1000000;
+					total += money;
+					list = list.stream().map((x) -> {
+						if (x.getTime() == d)
+							x.setTotal(x.getTotal() + money);
+						return x;
+					}).collect(Collectors.toList());
+				}
+				return new StatisticalDTO(total, list);
+			}
+		} else if (type.equalsIgnoreCase("totalOrder")) {
+
+			if (time.length() < 5) {
+				Year year = Year.parse(time);
+
+				SimpleDateFormat formatDay = new SimpleDateFormat("MM");
+				List<StatisticalMonth> list = new ArrayList<StatisticalMonth>();
+				for (int i = 1; i <= 12; i++) {
+					list.add(new StatisticalMonth(i, 0));
+				}
+
+				List<Map<String, Object>> s = shopRepository.getTotalYear(Common.getIdFromAuth(auth), year.getValue(),
+						Common.ORDER_SUCCESS);
+				float total = 0f;
+				for (Map<String, Object> i : s) {
+					int d = Integer.valueOf(formatDay.format((Date) i.get("date")).toString());
+					float number = ((BigInteger) i.get("money")).floatValue();
+					total += number;
+					list = list.stream().map((x) -> {
+						if (x.getTime() == d)
+							x.setTotal(x.getTotal() + number);
+						return x;
+					}).collect(Collectors.toList());
+				}
+				return new StatisticalDTO(total, list);
+
+			} else {
+				SimpleDateFormat formatDay = new SimpleDateFormat("dd");
+				Calendar calendar = Calendar.getInstance();
+				DateTimeFormatter f = DateTimeFormatter.ofPattern("MM-uuuu");
+				YearMonth ym = YearMonth.parse(time, f);
+
+				calendar.set(ym.getYear(), ym.getMonth().getValue(), 0);
+				int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+				List<StatisticalMonth> list = new ArrayList<StatisticalMonth>();
+				for (int i = 1; i <= maxDay; i++) {
+					list.add(new StatisticalMonth(i, 0));
+				}
+				List<Map<String, Object>> s = shopRepository.getTotalMonth(Common.getIdFromAuth(auth), ym.getYear(),
+						ym.getMonthValue(), Common.ORDER_SUCCESS);
+				float total = 0f;
+				for (Map<String, Object> i : s) {
+					int d = Integer.valueOf(formatDay.format((Date) i.get("date")).toString());
+					float number = ((BigInteger) i.get("money")).floatValue();
+					total += number;
+					list = list.stream().map((x) -> {
+						if (x.getTime() == d)
+							x.setTotal(x.getTotal() + number);
+						return x;
+					}).collect(Collectors.toList());
+				}
+				return new StatisticalDTO(total, list);
+			}
+		}
+		return null;
+
+	}
 }

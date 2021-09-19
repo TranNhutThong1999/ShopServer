@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kltn.api.output.ResponseValue;
 import kltn.service.ICategoryService;
+import kltn.service.ICountryService;
 
 @RestController
 @RequestMapping("/basic")
@@ -17,6 +18,9 @@ public class BasicController {
 	@Autowired
 	private ICategoryService categoryService;
 
+	@Autowired
+	private ICountryService countryService;
+	
 	@GetMapping("/category")
 	public ResponseEntity<?> getlistCategory() {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
@@ -35,6 +39,13 @@ public class BasicController {
 	public ResponseEntity<?> getlistCategoryChildrent(@RequestParam int parentId) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		outPut.setData(categoryService.findAllCategorychildrent(parentId));
+		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+	}
+	
+	@GetMapping("/country")
+	public ResponseEntity<?> getCountry() {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		outPut.setData(countryService.findAll());
 		return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
 	}
 }

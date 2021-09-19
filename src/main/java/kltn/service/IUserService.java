@@ -2,12 +2,9 @@ package kltn.service;
 
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
-
 import kltn.dto.UserDTO;
 import kltn.entity.User;
 
-@Service
 public interface IUserService {
 	Optional<User> findOneByPhone(String phone);
 

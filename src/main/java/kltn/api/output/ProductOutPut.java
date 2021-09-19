@@ -10,9 +10,9 @@ import lombok.Data;
 public class ProductOutPut {
 	private int id;
 	private String name;
-	private float price;
+	private double price;
 	private int sale;
-	private float priceSale;
+	private double priceSale;
 	private String description;
 	private int categoryId;
 	private CategoryOutPut category;

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.modelmapper.ModelMapper;
+import javax.transaction.Transactional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.google.rpc.context.AttributeContext.Auth;
-
 import kltn.api.input.UpdateInforProduct;
 import kltn.api.input.UpdateDetailProduct;
 import kltn.api.output.ProductList;
@@ -29,12 +28,15 @@ import kltn.converter.ProductConverter;
 import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.entity.Category;
+import kltn.entity.Item;
+import kltn.entity.Order;
 import kltn.entity.Product;
 import kltn.entity.Shop;
 import kltn.repository.CategoryRepository;
+import kltn.repository.ItemRepository;
+import kltn.repository.OrderRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
-import kltn.security.MyShop;
 import kltn.service.IProductService;
 import kltn.util.Common;
 import kltn.util.Constants;
@@ -53,9 +55,6 @@ public class ProductService implements IProductService {
 	private ShopRepository shopRepository;
 
 	@Autowired
-	private ModelMapper modelMapper;
-
-	@Autowired
 	private CategoryRepository categoryRepository;
 
 	@Autowired
@@ -66,6 +65,12 @@ public class ProductService implements IProductService {
 
 	@Autowired
 	private PhotoService photoService;
+
+	@Autowired
+	private ItemRepository itemRepository;
+
+	@Autowired
+	private OrderRepository orderRepository;
 
 	@Override
 	public ProductOutPut findOneById(int id) throws Exception {
@@ -118,7 +123,7 @@ public class ProductService implements IProductService {
 		p.setSale(100 - percen);
 		p.setQuantitySold(0);
 		if (dto.getPhotos() != null) {
-			p.setPhotos(photoService.saveOnePhotoProduct(p , dto.getPhotos()));
+			p.setPhotos(photoService.saveOnePhotoProduct(p, dto.getPhotos()));
 		}
 		Product pro = productRepository.save(p);
 		return productConverter.toDTO(pro);
@@ -154,8 +159,9 @@ public class ProductService implements IProductService {
 		if (product.getPhotos() != null) {
 			p.setPhotos(photoService.updatePhoto(product.getPhotos(), p));
 		}
-		if(p.getDetail() != null || !p.getDetail().equals("")) {
-			p.setDetail(generateDetail(p.getDetail(), p.getCategory().getCategory().getName(), p.getCategory().getName()));
+		if (p.getDetail() != null || !p.getDetail().equals("")) {
+			p.setDetail(
+					generateDetail(p.getDetail(), p.getCategory().getCategory().getName(), p.getCategory().getName()));
 		}
 		productRepository.save(p);
 	}
@@ -170,16 +176,26 @@ public class ProductService implements IProductService {
 	}
 
 	@Override
+	@Transactional
 	public void delete(int id, Authentication auth) {
 		// TODO Auto-generated method stub
 		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
-		if (p.isPresent())
-		productRepository.delete(p.get());
-		for (String x : p.get().getPhotos().split(",")) {
-			if (x.equals(""))
-				continue;
-			File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x);
-			f.deleteOnExit();
+		if (p.isPresent()) {
+			List<Item> i = itemRepository.findByProduct_Id(id);
+			for(Item item : i) {
+				Order o = item.getOrder();
+				System.out.println(o.getDetail().size());
+				if (o.getDetail().size()==1) {
+					orderRepository.delete(o);
+				}
+			}
+			productRepository.delete(p.get());
+			for (String x : p.get().getPhotos().split(",")) {
+				if (x.equals(""))
+					continue;
+				File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x);
+				f.deleteOnExit();
+			}
 		}
 	}
 
@@ -188,14 +204,16 @@ public class ProductService implements IProductService {
 		// TODO Auto-generated method stub
 		List<Product> pro = productRepository.findByShop_Id(Common.getIdFromAuth(auth));
 		List<PhotoDTO> result = new ArrayList<PhotoDTO>();
-		 for(Product o : pro) {
-			 result.addAll(Arrays.asList(o.getPhotos().split(",")).stream().map(photoConverter::toDTO).collect(Collectors.toList()));
-		 }
+		for (Product o : pro) {
+			result.addAll(Arrays.asList(o.getPhotos().split(",")).stream().map(photoConverter::toDTO)
+					.collect(Collectors.toList()));
+		}
 		return result;
 	}
+
 	private String generateDetail(String detail, String nameParentCate, String childParentCate) {
 		String cateOld = detail.split(";")[0];
 		String suffix = detail.substring(cateOld.length());
-		return nameParentCate +" - "+ childParentCate + suffix;
+		return nameParentCate + " - " + childParentCate + suffix;
 	}
 }

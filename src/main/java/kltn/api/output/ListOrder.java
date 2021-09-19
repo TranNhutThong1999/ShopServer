@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ListOrder {
+	private String orderCode;
 	private int productId;
 	private int orderId;
 	private String photo;

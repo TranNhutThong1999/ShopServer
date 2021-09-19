@@ -60,9 +60,6 @@ public class CommentService implements ICommentService {
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
-	@Autowired
-	private PhotoConverter photoConverter;
-	
 	@Override
 	public CommentOuput save(CommentOuput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
@@ -97,8 +94,7 @@ public class CommentService implements ICommentService {
 					notificationUser.setType(Common.NOTI_CMT);
 					notificationUser.setTitle(reply.getShop().getName());
 					notificationUser.setSubTitle("Đã trả lời bình luận của bạn trong một sản phẩm");
-					notificationUser.setProductId(cm.getProduct().getId());
-					notificationUser.setCommentId(reply.getId());
+					notificationUser.setReply(reply);
 					notificationUser.setTime(Common.parse(reply.getCreatedDate()));
 					notificationUser.setUser(cm.getUser());
 					System.out.println("push noti user parent is User" + cm.getUser().getId());
@@ -124,8 +120,7 @@ public class CommentService implements ICommentService {
 						child.setType(Common.NOTI_CMT);
 						child.setTitle(reply.getShop().getName());
 						child.setSubTitle("Đã trả lời bình luận một sản phẩm");
-						child.setProductId(cm.getProduct().getId());
-						child.setCommentId(reply.getId());
+						child.setReply(reply);
 						child.setTime(Common.parse(reply.getCreatedDate()));
 						if (o.getUser() == null && o.getShop() != null) {// check user or shop
 							System.out.println("push noti Shop child comment " + o.getShop().getId());

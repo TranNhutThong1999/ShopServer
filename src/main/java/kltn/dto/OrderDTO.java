@@ -21,8 +21,8 @@ public class OrderDTO extends AbstractDTO{
 	private int isPaymentOnline;
 	private int isPayment;
 	
-	private float tempPrice;
-	private float feeShip;
+	private double tempPrice;
+	private double feeShip;
 	private double TotalMoney;
 	
 	

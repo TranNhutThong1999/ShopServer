@@ -1,22 +1,12 @@
 package kltn.service.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -30,7 +20,6 @@ import kltn.converter.PhotoConverter;
 import kltn.dto.PhotoDTO;
 import kltn.entity.Product;
 import kltn.entity.Shop;
-import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.service.IPhotoService;
 import kltn.util.Common;
@@ -39,9 +28,6 @@ import kltn.util.Constants;
 @Service
 public class PhotoService implements IPhotoService {
 	Logger logger = LoggerFactory.getLogger(PhotoService.class);
-
-	@Autowired
-	private ProductRepository productRepository;
 
 	@Autowired
 	private PhotoConverter photoConverter;
@@ -60,36 +46,6 @@ public class PhotoService implements IPhotoService {
 		}
 	}
 
-	@Override
-	public void savePhotosProduct(int productId, List<UploadFileInput> m, Authentication auth) throws Exception {
-//		Product p = productRepository.findOneByIdAndShop_Id(productId, Common.getIdFromAuth(auth))
-//				.orElseThrow(() -> new Exception("Author"));
-//		ExecutorService executor = Executors.newFixedThreadPool(5);
-//		m.stream().forEach((x) -> {
-//			CompletableFuture.runAsync(() -> {
-//				try {
-//					String[] cut = x.getName().split("\\.");
-//					String random = UUID.randomUUID().toString();
-//					String name = cut[0] + random + "." + cut[1];
-//					FileOutputStream fos = new FileOutputStream(
-//							constant.rootURL + File.separator + "/images" + File.separator + name);
-//					byte[] image = Base64.getDecoder().decode(x.getBase64String());
-//					fos.write(image);
-//					fos.flush();
-//					fos.close();
-//					Photo photo = new Photo();
-//					photo.setName(name);
-//					photo.setProduct(p);
-//					photoRepository.save(photo);
-//				} catch (FileNotFoundException e) {
-//				} catch (IOException e) {
-//				}
-//
-//			}, executor);
-//
-//		});
-//		executor.shutdown();
-	}
 
 	@Override
 	public String saveOnePhotoProduct(Product p, List<PhotoDTO> m) {
@@ -128,12 +84,14 @@ public class PhotoService implements IPhotoService {
 
 	public String updatePhoto(List<PhotoDTO> photos, Product pro) {
 		// TODO Auto-generated method stub
-		String result = pro.getPhotos() == null ? "" : pro.getPhotos();
+		String result = "";
 		for (PhotoDTO o : photos) {
 			if (o.getLink() != null) {
-				if(o.getLink().equals("")) 
-				result = deletePhoto(result, o.getName());
-			} else 
+				if (o.getLink().equals(""))
+					 deletePhoto(o.getName());
+				else
+					result += o.getName() + ",";
+			} else
 				result = addPhoto(result, o);
 
 		}
@@ -142,28 +100,20 @@ public class PhotoService implements IPhotoService {
 
 	}
 
-	private String deletePhoto(String photos, String name) {
-		String[] list = photos.split(",");
-		String result = "";
-		for (String e : list) {
-			if (e.equals(""))
-				continue;
-			if (e.equals(name)) {
+	private void deletePhoto(String name) {
 				File f = new File(constant.rootURL + File.separator + "images" + File.separator + name);
 				logger.info("delete: " + f.getAbsolutePath());
 				f.delete();
-				continue;
-			}
-			result += name + ",";
-		}
-		return result;
 	}
 
 	private String addPhoto(String photos, PhotoDTO dto) {
 		try {
 			String[] cut = dto.getName().split("\\.");
-			String random = UUID.randomUUID().toString();
-			String name = cut[0] + random + "." + cut[1];
+			String name = dto.getName();
+			if (cut[0].length() < 10) {
+				String random = UUID.randomUUID().toString();
+				name = cut[0] + random + "." + cut[1];
+			}
 			FileOutputStream fos = new FileOutputStream(
 					constant.rootURL + File.separator + "images" + File.separator + name);
 			byte[] image = Base64.getDecoder().decode(dto.getBase64String());

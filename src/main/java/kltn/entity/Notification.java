@@ -29,12 +29,22 @@ public class Notification {
 	private String title;
 	private String subTitle;
 	private String time;
-	private int productId;
-	private String orderCode;
-	private int commentId;
 	private int status;
-	private int orderId;
 	private int isSeen;
+	
+	
+	@ManyToOne
+	@JoinColumn(name = "comment_id")
+	private Comment comment;
+	
+	@ManyToOne
+	@JoinColumn(name = "reply_id")
+	private Reply reply;
+	
+	
+	@ManyToOne
+	@JoinColumn(name = "order_id")
+	private Order order;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id")
@@ -48,6 +58,13 @@ public class Notification {
 		super();
 		this.createDate = new Date();
 		this.isSeen = 0;
+	}
+
+	@Override
+	public String toString() {
+		return "Notification [id=" + id + ", type=" + type + ", avatar=" + avatar + ", createDate=" + createDate
+				+ ", title=" + title + ", subTitle=" + subTitle + ", time=" + time + ", status=" + status + ", isSeen="
+				+ isSeen +  ", order=" + order +  "]";
 	}
 	
 	

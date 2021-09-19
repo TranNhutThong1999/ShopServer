@@ -19,9 +19,9 @@ import lombok.Data;
 @Table(name = "product")
 public class Product extends Abstract{
 	private String name;
-	private float price;
+	private double price;
 	private int sale;
-	private float priceSale;
+	private double priceSale;
 	
 	@Column(columnDefinition = "TEXT")
 	private String description;
@@ -31,6 +31,8 @@ public class Product extends Abstract{
 	
 	@Column(columnDefinition = "TEXT")
 	private String detail;
+	
+	@Column(columnDefinition = "TEXT")
 	private String photos;
 	@ManyToOne
 	@JoinColumn(name="category_id")
@@ -45,4 +47,10 @@ public class Product extends Abstract{
 	
 	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Rating> ratings;
+	
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Item> item;
+	
+	@OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Action> action;
 }

@@ -10,6 +10,7 @@ import java.util.Random;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -58,6 +59,12 @@ public class Shop  extends AbstractId  {
 
 	@OneToMany(mappedBy = "shop", cascade = CascadeType.REMOVE)
 	private List<Comment> comment;
+	
+	@OneToMany(mappedBy = "shop", cascade = CascadeType.REMOVE)
+	private List<Reply> replies;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private List<Notification> notifications;
 
 	public String generateToken() {
 		Random rnd = new Random();

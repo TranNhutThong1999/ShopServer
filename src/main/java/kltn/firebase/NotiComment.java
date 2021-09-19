@@ -20,8 +20,13 @@ public class NotiComment {
 		this.title = noti.getTitle();
 		this.subTitle = noti.getSubTitle();
 		this.time = noti.getTime();
-		this.productId = noti.getProductId();
-		this.commentId =noti.getCommentId();
+		if(noti.getComment() != null) {
+			this.productId = noti.getComment().getProduct().getId();
+			this.commentId =noti.getComment().getId();
+		}else {
+			this.productId = noti.getReply().getComment().getProduct().getId();
+			this.commentId =noti.getReply().getId();
+		}
 	}
 
 	public int getType() {

@@ -3,6 +3,7 @@ package kltn.controller;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import kltn.api.input.ShopDetail;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ShopDTO;
+import kltn.entity.Order;
 import kltn.jwt.JwtTokenProvider;
 import kltn.security.CustomUserDetail;
 import kltn.security.MyShop;
@@ -318,10 +320,12 @@ public class ShopController {
 	
 	@GetMapping("/notification")
 	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<?> getListNoti(Authentication auth) {
+	public ResponseEntity<?> getListNoti(Authentication auth,
+			@RequestParam(required = false, defaultValue = "5") int pageSize,
+			@RequestParam(required = false, defaultValue = "0") int pageNumber) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
-			outPut.setData(shopService.getListNoti(auth));
+			outPut.setData(shopService.getListNoti(auth, pageSize, pageNumber));
 		} catch (Exception e) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
 		}
@@ -330,7 +334,7 @@ public class ShopController {
 	
 	@PutMapping("/notification")
 	@PreAuthorize("isAuthenticated()")
-	public ResponseEntity<?> UpdateIsSeen(Authentication auth, @RequestBody Map<String, Integer> data) {
+	public ResponseEntity<?> UpdateIsSeen(Authentication auth, @RequestBody Map<String, String> data) {
 		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
 		try {
 			shopService.setIsSeen(auth, data.get("id"));
@@ -363,6 +367,19 @@ public class ShopController {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 	}
+	
+	@GetMapping("/statistical/export")
+	@PreAuthorize("isAuthenticated()")
+	public ResponseEntity<?> exportExcel(@RequestParam String time, Authentication auth) {
+		ResponseValue outPut = new ResponseValue(true, HttpStatus.OK.value(), "success");
+		try {
+			shopService.exportExcel(time, auth);
+			return new ResponseEntity<ResponseValue>(outPut, HttpStatus.OK);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+	
 	public static void main(String[] args) {
 		
 		String input = "09-2021" ;  // December 2016.
@@ -370,4 +387,5 @@ public class ShopController {
 		YearMonth ym = YearMonth.parse( input , f );
         System.out.println(ym.toString());
 	}
+	
 }

@@ -4,47 +4,29 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import kltn.api.output.ListOrder;
 import kltn.converter.OrderConverter;
-import kltn.converter.PhotoConverter;
-import kltn.converter.ProductConverter;
 import kltn.dto.OrderDTO;
-import kltn.entity.Action;
-import kltn.entity.Item;
 import kltn.entity.Notification;
 import kltn.entity.Order;
-import kltn.entity.Payment;
-import kltn.entity.Product;
-import kltn.entity.Shop;
-import kltn.entity.User;
 import kltn.event.PushEventUpdateOrderUser;
 import kltn.firebase.UpdateStatusOrder;
 import kltn.event.AutoUpdateStatus3;
 import kltn.event.PushEventNotiOrderShop;
 import kltn.event.PushEventNotiOrderUser;
 import kltn.event.PushEventUpdateOrderShop;
-import kltn.repository.ActionRepository;
-import kltn.repository.ItemRepository;
 import kltn.repository.OrderRepository;
-import kltn.repository.ProductRepository;
-import kltn.repository.UserRepository;
 import kltn.service.IOrderService;
 import kltn.util.Common;
 
@@ -56,26 +38,11 @@ public class OrderService implements IOrderService {
 	private OrderConverter orderConverter;
 
 	@Autowired
-	private ProductRepository productRepository;
-
-	@Autowired
 	private OrderRepository orderRepository;
-
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private ItemRepository itemRepository;
 
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
 
-	@Autowired
-	private ActionRepository actionRepository;
-
-	@Autowired
-	private PhotoConverter photoConverter;
-	
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
 		// TODO Auto-generated method stub
@@ -122,19 +89,17 @@ public class OrderService implements IOrderService {
 		Notification user = new Notification();
 		user.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		user.setType(Common.NOTI_ORDER);
-		user.setOrderId(o.getId());
+		user.setOrder(o);
 		user.setStatus(o.getStatus());
 		user.setTime(Common.parse(o.getCreatedDate()));
-		user.setOrderCode(o.getOrderCode());
 		user.setUser(o.getUser());
 		applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, user));
 		Notification shopN = new Notification();
 		shopN.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		shopN.setType(Common.NOTI_ORDER);
-		shopN.setOrderId(o.getId());
+		shopN.setOrder(o);
 		shopN.setStatus(o.getStatus());
 		shopN.setTime(Common.parse(o.getCreatedDate()));
-		shopN.setOrderCode(o.getOrderCode());
 		shopN.setShop(o.getShop());
 		applicationEventPublisher.publishEvent(new PushEventNotiOrderShop(this, shopN));
 	}
@@ -170,20 +135,18 @@ public class OrderService implements IOrderService {
 			Notification noti = new Notification();
 			noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			noti.setType(Common.NOTI_ORDER);
-			noti.setOrderId(o.getId());
+			noti.setOrder(o);
 			noti.setStatus(o.getStatus());
 			noti.setTime(Common.parse(o.getCreatedDate()));
-			noti.setOrderCode(o.getOrderCode());
 			noti.setUser(o.getUser());
 			applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
 			
 			Notification notiS = new Notification();
 			notiS.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			notiS.setType(Common.NOTI_ORDER);
-			notiS.setOrderId(o.getId());
+			notiS.setOrder(o);
 			notiS.setStatus(o.getStatus());
 			notiS.setTime(Common.parse(o.getCreatedDate()));
-			notiS.setOrderCode(o.getOrderCode());
 			notiS.setShop(o.getShop());
 			applicationEventPublisher.publishEvent(new PushEventNotiOrderShop(this, notiS));
 		}
@@ -209,10 +172,9 @@ public class OrderService implements IOrderService {
 				Notification noti = new Notification();
 				noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 				noti.setType(Common.NOTI_ORDER);
-				noti.setOrderId(or.getId());
+				noti.setOrder(or);
 				noti.setStatus(or.getStatus());
 				noti.setTime(Common.parse(or.getCreatedDate()));
-				noti.setOrderCode(or.getOrderCode());
 				noti.setUser(or.getUser());
 				applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
 			}

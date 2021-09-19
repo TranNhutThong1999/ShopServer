@@ -41,4 +41,10 @@ public class Constants {
 	
 	@Value("${spring.mail.username}")
 	private String emailSend;
+	
+	@Value("${thongke.donvi}")
+	private int donvi;
+	
+	@Value("${excel.folder.path}")
+	private String folder;
 }

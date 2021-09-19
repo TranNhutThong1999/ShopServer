@@ -1,14 +1,26 @@
 package kltn.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -72,7 +84,7 @@ public class EmailService {
 		}
 
 	}
-	
+
 	@Async
 	public void sendOtpMessage(String to, String otp) {
 		String toAddress = "thongmap0909310872@gmail.com";
@@ -113,6 +125,33 @@ public class EmailService {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	}
+
+	@Async
+	public void sendFile(String to, String path, String name) {
+		String fromAddress = constants.getEmailSend();
+		String senderName = "Hi Shop Support";
+		String subject = "File thống kê";
+		MimeMessage message = emailSender.createMimeMessage();
+	
+		try {
+			MimeMessageHelper helper = new MimeMessageHelper(message,true, CharEncoding.UTF_8);
+			helper.setFrom(fromAddress, senderName);
+			helper.setTo(to);
+			helper.setSubject(subject);
+			FileSystemResource file = new FileSystemResource(new File(path));
+			helper.setText("");
+			helper.addAttachment(name, file);
+			emailSender.send(message);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 
 	}
 

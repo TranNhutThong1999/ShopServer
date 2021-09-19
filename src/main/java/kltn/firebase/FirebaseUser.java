@@ -224,6 +224,7 @@ public class FirebaseUser {
 	}
 
 	public void updateNotificationOrder(kltn.entity.Notification noti) {
+		System.out.println(noti.getOrder().toString());
 		noti = Common.setDataOrder(noti);
 		NotiOrder data = new NotiOrder(notificationRepository.save(noti));
 		data.setAvatar(photoConverter.toLinkAvatarUser(data.getAvatar()));

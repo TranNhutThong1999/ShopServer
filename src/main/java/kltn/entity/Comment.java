@@ -2,6 +2,7 @@ package kltn.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -17,7 +18,7 @@ import lombok.Data;
 public class Comment extends Abstract{
 	private String content;
 	
-	@OneToMany(mappedBy = "comment", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "comment", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Reply> replies;
 	
 	@ManyToOne
@@ -31,4 +32,7 @@ public class Comment extends Abstract{
 	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private List<Notification> notifications;
 }

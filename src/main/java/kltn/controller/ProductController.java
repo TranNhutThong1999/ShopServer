@@ -1,7 +1,6 @@
 package kltn.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,15 +20,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import kltn.api.input.UpdateDetailProduct;
 import kltn.api.input.UpdateInforProduct;
-import kltn.api.input.UploadFileInput;
 import kltn.api.output.CommentOuput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.service.ICommentService;
-import kltn.service.IPhotoService;
 import kltn.service.IProductService;
-import kltn.service.IRatingService;
 
 @RestController
 @RequestMapping("/product")
@@ -40,12 +36,6 @@ public class ProductController {
 
 	@Autowired
 	private ICommentService commentService;
-
-	@Autowired
-	private IRatingService ratingService;
-
-	@Autowired
-	private IPhotoService photoService;
 
 	@GetMapping(produces = "application/json")
 	public ResponseEntity<?> getOneProduct(@RequestParam(required = true) int id) {

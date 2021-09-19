@@ -1,19 +1,15 @@
 package kltn.converter;
 
-import java.io.File;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Component;
 
 import kltn.api.output.ListOrder;
 import kltn.dto.OrderDTO;
-import kltn.dto.ItemDTO;
 import kltn.entity.Item;
 import kltn.entity.Order;
-import kltn.util.Constants;
 
 @Component
 public class OrderConverter implements IConverter<Order, OrderDTO>{
@@ -35,6 +31,7 @@ public class OrderConverter implements IConverter<Order, OrderDTO>{
 
 	public ListOrder tolist(Item s, Order or) {
 		ListOrder list = new ListOrder();
+		list.setOrderCode(or.getOrderCode());
 		list.setPrice(s.getPrice());
 		list.setName(s.getProduct().getName());
 		if(s.getProduct().getPhotos() != null) {

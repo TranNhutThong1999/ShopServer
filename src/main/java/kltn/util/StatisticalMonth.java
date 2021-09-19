@@ -3,8 +3,8 @@ package kltn.util;
 
 public class StatisticalMonth {
 	private int time;
-	private float total;
-	public StatisticalMonth(int time, float total) {
+	private double total;
+	public StatisticalMonth(int time, double total) {
 		super();
 		this.time = time;
 		this.total = total;
@@ -15,10 +15,10 @@ public class StatisticalMonth {
 	public void setTime(int time) {
 		this.time = time;
 	}
-	public float getTotal() {
+	public double getTotal() {
 		return total;
 	}
-	public void setTotal(float total) {
+	public void setTotal(double total) {
 		this.total = total;
 	}
 	

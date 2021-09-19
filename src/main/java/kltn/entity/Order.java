@@ -42,8 +42,14 @@ public class Order extends Abstract {
 	
 	private String reasonCancel;
 	private String transportedName;
-	private float tempPrice;
-	private float feeShip;
-	private float totalMoney;
+	private double tempPrice;
+	private double feeShip;
+	private double totalMoney;
+	@Override
+	public String toString() {
+		return "Order [orderCode=" + orderCode + ", totalMoney=" + totalMoney + "]";
+	}
+	
+	
 	
 }

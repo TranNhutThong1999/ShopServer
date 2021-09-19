@@ -2,6 +2,7 @@ package kltn.entity;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -28,4 +29,7 @@ public class Reply extends Abstract{
 	@ManyToOne
 	@JoinColumn(name = "shop_id")
 	private Shop shop;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	private List<Notification> notifications;
 }

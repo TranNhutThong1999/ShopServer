@@ -32,13 +32,10 @@ public class NotiOrder {
 		this.title =noti.getTitle();
 		this.subTitle = noti.getSubTitle();
 		this.time = noti.getTime();
-	//	this.productId = noti.getProductId();
-		this.orderCode = noti.getOrderCode();
+		this.orderCode = noti.getOrder().getOrderCode();
 		this.status = noti.getStatus();
-		this.orderId = noti.getOrderId();
+		this.orderId = noti.getOrder().getId();
 	}
-
-	
 
 	public String getId() {
 		return id;

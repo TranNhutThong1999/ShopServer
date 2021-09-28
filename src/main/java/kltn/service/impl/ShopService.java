@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -237,10 +238,13 @@ public class ShopService implements IShopService {
 	@Override
 	public void updatePassword(String shopId, String password, String otp) throws Exception {
 		// TODO Auto-generated method stub
-		Shop s = shopRepository.findOneByIdAndOtp(shopId, otp).orElseThrow(() -> new Exception("shopId was not found"));
+		Shop s = shopRepository.findById(shopId).orElseThrow(() -> new Exception("shopId was not found"));
+		if(otp.equals(s.getOtp())) {
 		s.setPassword(encoder.encode(password));
 		s.setOtp("");
 		shopRepository.save(s);
+		}
+		logger.error("can not find otp: " + otp);
 	}
 
 	@Override
@@ -323,7 +327,16 @@ public class ShopService implements IShopService {
 		// TODO Auto-generated method stub
 		Sort sort = Sort.by(Sort.Direction.DESC, "createDate");
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-		return notificationRepository.findByShop_Id(Common.getIdFromAuth(auth), pageable).map((x) -> {
+		List<NotificationDTO> listNoti =  notificationRepository.findByShop_Id(Common.getIdFromAuth(auth), pageable).filter((x) ->{
+			if (x.getOrder() == null) {
+				if (x.getComment() != null) {
+						if(x.getComment().getProduct().isDeleted() == true) return false;
+				} else if(x.getReply() != null ){
+					if(x.getReply().getComment().getProduct().isDeleted() == true) return false;
+				}
+			}
+			return true;
+		}).map((x) -> {
 			NotificationDTO noti = modelMapper.map(x, NotificationDTO.class);
 			if (x.getOrder() == null) {
 				if (x.getComment() != null) {
@@ -331,17 +344,16 @@ public class ShopService implements IShopService {
 					noti.setProductId(x.getComment().getProduct().getId());
 				} else {
 					noti.setCommentId(x.getReply().getId());
-					noti.setProductId(x.getReply().getId());
+					noti.setProductId(x.getReply().getComment().getProduct().getId());
 				}
-
-				return noti;
 			} else {
 				noti.setOrderId(x.getOrder().getId());
 				noti.setOrderCode(x.getOrder().getOrderCode());
 			}
 			noti.setAvatar(photoConverter.tolinkAvNoti(noti.getAvatar()));
 			return noti;
-		});
+		}).toList();
+		return new PageImpl<NotificationDTO>(listNoti);
 	}
 
 	@Override
@@ -397,11 +409,11 @@ public class ShopService implements IShopService {
 
 				List<Map<String, Object>> s = shopRepository.getMonth(Common.getIdFromAuth(auth), ym.getYear(),
 						ym.getMonthValue(), Common.ORDER_SUCCESS);
-				float total = 0f;
+				double total = 0.0;
 				for (Map<String, Object> i : s) {
 					int d = Integer.valueOf(i.get("date").toString().substring(0, 2));
 					double money = Double.valueOf(i.get("money").toString()) / constants.getDonvi();
-					total += Double.valueOf(i.get("total").toString());
+					total += Double.valueOf(i.get("money").toString());
 					list = list.stream().map((x) -> {
 						if (x.getTime() == d) {
 							x.setTotal(money);

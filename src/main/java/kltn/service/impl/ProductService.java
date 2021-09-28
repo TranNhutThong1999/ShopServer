@@ -1,10 +1,10 @@
 package kltn.service.impl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -28,18 +28,13 @@ import kltn.converter.ProductConverter;
 import kltn.dto.PhotoDTO;
 import kltn.dto.ProductDTO;
 import kltn.entity.Category;
-import kltn.entity.Item;
-import kltn.entity.Order;
 import kltn.entity.Product;
 import kltn.entity.Shop;
 import kltn.repository.CategoryRepository;
-import kltn.repository.ItemRepository;
-import kltn.repository.OrderRepository;
 import kltn.repository.ProductRepository;
 import kltn.repository.ShopRepository;
 import kltn.service.IProductService;
 import kltn.util.Common;
-import kltn.util.Constants;
 
 @Service
 public class ProductService implements IProductService {
@@ -61,22 +56,13 @@ public class ProductService implements IProductService {
 	private PhotoConverter photoConverter;
 
 	@Autowired
-	private Constants constants;
-
-	@Autowired
 	private PhotoService photoService;
-
-	@Autowired
-	private ItemRepository itemRepository;
-
-	@Autowired
-	private OrderRepository orderRepository;
 
 	@Override
 	public ProductOutPut findOneById(int id) throws Exception {
 		// TODO Auto-generated method stub
 		return productConverter.toProductOutPut(
-				productRepository.findById(id).orElseThrow(() -> new Exception("productId was not found")));
+				productRepository.findOneByIdAndIsDeleted(id, false).orElseThrow(() -> new Exception("productId was not found")));
 	}
 
 	@Override
@@ -88,9 +74,9 @@ public class ProductService implements IProductService {
 		});
 		Pageable pageable = PageRequest.of(pageNumber, pageSize);
 		if (ca.getCategory() != null) {
-			return productRepository.findByCategory_Id(pageable, cateroryId).map(productConverter::toList);
+			return productRepository.findByCategory_IdAndIsDeleted(pageable, cateroryId, false).map(productConverter::toList);
 		}
-		return productRepository.findByCategory_Category_Id(pageable, cateroryId).map(productConverter::toList);
+		return productRepository.findByCategory_IdAndIsDeleted(pageable, cateroryId, false).map(productConverter::toList);
 	}
 
 	@Override
@@ -105,7 +91,7 @@ public class ProductService implements IProductService {
 		// TODO Auto-generated method stub
 		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-		return productRepository.findByShop_Id(Common.getIdFromAuth(auth), pageable).map(productConverter::toList);
+		return productRepository.findByShop_IdAndIsDeleted(Common.getIdFromAuth(auth), false, pageable).map(productConverter::toList);
 	}
 
 	@Override
@@ -119,6 +105,7 @@ public class ProductService implements IProductService {
 			return new Exception("Category was not found");
 		}));
 		p.setShop(u);
+		p.setDeleted(false);
 		int percen = (int) ((dto.getPriceSale() * 100) / dto.getPrice());
 		p.setSale(100 - percen);
 		p.setQuantitySold(0);
@@ -146,7 +133,7 @@ public class ProductService implements IProductService {
 	@Override
 	public void updateInfor(UpdateInforProduct product, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Product p = productRepository.findOneByIdAndShop_Id(product.getId(), Common.getIdFromAuth(auth))
+		Product p = productRepository.findOneByIdAndShop_IdAndIsDeleted(product.getId(), Common.getIdFromAuth(auth),false)
 				.orElseThrow(() -> new Exception("id was not found"));
 		p.setName(product.getName());
 		p.setPrice(product.getPrice());
@@ -154,6 +141,7 @@ public class ProductService implements IProductService {
 		p.setDescription(product.getDescription());
 		p.setAvaiable(product.getAvaiable());
 		p.setWeight(product.getWeight());
+		p.setDeleted(p.isDeleted());
 		p.setCategory(categoryRepository.findById(product.getCategoryId())
 				.orElseThrow(() -> new Exception("categoryId was not found")));
 		if (product.getPhotos() != null) {
@@ -169,40 +157,27 @@ public class ProductService implements IProductService {
 	@Override
 	public void updateDetail(UpdateDetailProduct detail, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Product p = productRepository.findOneByIdAndShop_Id(detail.getId(), Common.getIdFromAuth(auth))
+		Product p = productRepository.findOneByIdAndShop_IdAndIsDeleted(detail.getId(), Common.getIdFromAuth(auth),false)
 				.orElseThrow(() -> new Exception("id was not found"));
 		p.setDetail(detail.getDetail());
 		productRepository.save(p);
 	}
 
 	@Override
-	@Transactional
 	public void delete(int id, Authentication auth) {
 		// TODO Auto-generated method stub
-		Optional<Product> p = productRepository.findOneByIdAndShop_Id(id, Common.getIdFromAuth(auth));
-		if (p.isPresent()) {
-			List<Item> i = itemRepository.findByProduct_Id(id);
-			for(Item item : i) {
-				Order o = item.getOrder();
-				System.out.println(o.getDetail().size());
-				if (o.getDetail().size()==1) {
-					orderRepository.delete(o);
-				}
-			}
-			productRepository.delete(p.get());
-			for (String x : p.get().getPhotos().split(",")) {
-				if (x.equals(""))
-					continue;
-				File f = new File(constants.rootURL + File.separator + "/images" + File.separator + x);
-				f.deleteOnExit();
-			}
+		Optional<Product> optional = productRepository.findOneByIdAndShop_IdAndIsDeleted(id, Common.getIdFromAuth(auth), false);
+		if (optional.isPresent()) {
+			Product p = optional.get();
+			p.setDeleted(true);
+			productRepository.save(p);
 		}
 	}
 
 	@Override
 	public List<PhotoDTO> getListPhotoByShop(Authentication auth) {
 		// TODO Auto-generated method stub
-		List<Product> pro = productRepository.findByShop_Id(Common.getIdFromAuth(auth));
+		List<Product> pro = productRepository.findByShop_IdAndIsDeleted(Common.getIdFromAuth(auth), false);
 		List<PhotoDTO> result = new ArrayList<PhotoDTO>();
 		for (Product o : pro) {
 			result.addAll(Arrays.asList(o.getPhotos().split(",")).stream().map(photoConverter::toDTO)
@@ -210,10 +185,23 @@ public class ProductService implements IProductService {
 		}
 		return result;
 	}
+	
+	public void changeData() {
+		List<Product> l = productRepository.findAll();
+		for(Product e: l) {
+			Random rnd = new Random();
+			int number = rnd.nextInt(99999999);
+			e.setCode(String.format("%08d", number));
+			productRepository.save(e);
+		}
+	}
 
 	private String generateDetail(String detail, String nameParentCate, String childParentCate) {
 		String cateOld = detail.split(";")[0];
 		String suffix = detail.substring(cateOld.length());
 		return nameParentCate + " - " + childParentCate + suffix;
+	}
+	public static void main(String[] args) {
+		
 	}
 }

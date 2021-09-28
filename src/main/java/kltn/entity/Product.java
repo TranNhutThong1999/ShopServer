@@ -19,6 +19,7 @@ import lombok.Data;
 @Table(name = "product")
 public class Product extends Abstract{
 	private String name;
+	private String code;
 	private double price;
 	private int sale;
 	private double priceSale;
@@ -28,6 +29,7 @@ public class Product extends Abstract{
 	private int avaiable;
 	private int quantitySold;
 	private double weight;
+	private boolean isDeleted;
 	
 	@Column(columnDefinition = "TEXT")
 	private String detail;

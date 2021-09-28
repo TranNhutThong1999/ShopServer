@@ -37,15 +37,6 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private IPhotoService photoService;
-
-	@Autowired
-	private ProductRepository productRepository;
-
-	@Autowired
-	private CategoryConverter categoryConverter;
-
-	@Autowired
 	private RatingRepository ratingRepository;
 
 	@Autowired
@@ -56,9 +47,6 @@ public class ProductConverter implements IConverter<Product, ProductDTO> {
 
 	@Autowired
 	private PhotoConverter photoConverter;
-
-	@Autowired
-	private RatingConverter ratingConverter;
 
 	@Override
 	public Product toEntity(ProductDTO d) {

@@ -12,23 +12,21 @@ import kltn.entity.Comment;
 import kltn.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
-	Optional<Product> findOneById(int id);
+	Optional<Product> findOneByIdAndIsDeleted(int id, boolean isDeleted);
 
-	Page<Product> findByShop_Id(String shopId, Pageable p);
+	Page<Product> findByShop_IdAndIsDeleted(String shopId, boolean isDeleted, Pageable p);
 
 	// @Query(value = "select product.* from product, sub_category where
 	// product.sub_category_id = sub_category.id and sub_category.id =
 	// :subCateroryId limit :quantity",nativeQuery = true)
-	Page<Product> findByCategory_Id(Pageable p, int cateroryId);
+	Page<Product> findByCategory_IdAndIsDeleted(Pageable p, int cateroryId, boolean isDeleted);
 
-	@Query(value = "select * from product order by rand() limit :limit", nativeQuery = true)
+	@Query(value = "select * from product where is_deleted = false order by rand() limit :limit", nativeQuery = true)
 	List<Product> findRandomLimit(int limit);
 
-	Page<Product> findByShop_Id(int id, Pageable p);
+	Optional<Product> findOneByIdAndShop_IdAndIsDeleted(int id, String shopId, boolean isDeleted);
 
-	Optional<Product> findOneByIdAndShop_Id(int id, String shopId);
-
-	Page<Product> findByCategory_Category_Id(Pageable p, int cateroryId);
+	Page<Product> findByCategory_Category_IdAndIsDeleted(Pageable p, int cateroryId, boolean isDeleted);
 	
-	List<Product> findByShop_Id(String shopId);
+	List<Product> findByShop_IdAndIsDeleted(String shopId, boolean isDeleted);
 }

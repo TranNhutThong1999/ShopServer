@@ -13,6 +13,8 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -24,8 +26,11 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import kltn.service.impl.ShopService;
+
 @Component
 public class EmailService {
+	Logger logger = LoggerFactory.getLogger(EmailService.class);
 	@Autowired
 	private JavaMailSender emailSender;
 
@@ -144,6 +149,7 @@ public class EmailService {
 			helper.setText("");
 			helper.addAttachment(name, file);
 			emailSender.send(message);
+			logger.info("send "+ path +" to mail: "+to);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

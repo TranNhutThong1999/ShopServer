@@ -3,7 +3,6 @@ package kltn.controller;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -37,7 +36,6 @@ import kltn.api.input.ShopDetail;
 import kltn.api.input.UploadFileInput;
 import kltn.api.output.ResponseValue;
 import kltn.dto.ShopDTO;
-import kltn.entity.Order;
 import kltn.jwt.JwtTokenProvider;
 import kltn.security.CustomUserDetail;
 import kltn.security.MyShop;
@@ -86,6 +84,7 @@ public class ShopController {
 	public ResponseEntity<?> login(@RequestBody LoginInput s) {
 		ResponseValue outPut = new ResponseValue();
 		try {
+			productService.changeData();
 			Authentication auth = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(s.getEmail(), s.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(auth);

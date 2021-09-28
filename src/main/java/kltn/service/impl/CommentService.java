@@ -63,14 +63,14 @@ public class CommentService implements ICommentService {
 	@Override
 	public CommentOuput save(CommentOuput m, Authentication auth) throws Exception {
 		// TODO Auto-generated method stub
-		Optional<Product> pro = productRepository.findOneByIdAndShop_Id(m.getProductId(), Common.getIdFromAuth(auth));
+		Optional<Product> pro = productRepository.findOneByIdAndShop_IdAndIsDeleted(m.getProductId(), Common.getIdFromAuth(auth), false);
 		if (pro.isPresent()) {
 			Shop u = ShopRepository.findOneById(Common.getIdFromAuth(auth)).get();
 			Comment cm = null;
 			if (m.getParentId() == null) {
 				cm = commentConverter.toEntity(m);
 				cm.setShop(u);
-				cm.setProduct(productRepository.findOneById(m.getProductId())
+				cm.setProduct(productRepository.findOneByIdAndIsDeleted(m.getProductId(), false)
 						.orElseThrow(() -> new Exception("productId was not found")));
 				cm = commentRepository.save(cm);
 				return commentConverter.toDTO(cm);

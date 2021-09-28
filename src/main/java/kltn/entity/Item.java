@@ -17,8 +17,7 @@ public class Item extends Abstract{
 	
 	private int quantity;
 	
-	private float price;
-	
+	private float price;	
 	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private Product product;

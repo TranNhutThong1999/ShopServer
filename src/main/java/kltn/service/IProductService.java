@@ -35,4 +35,5 @@ public interface IProductService {
 	void delete(int id, Authentication auth);
 	
 	List<PhotoDTO> getListPhotoByShop(Authentication auth);
+	void changeData();
 }

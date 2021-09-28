@@ -1,6 +1,11 @@
 package kltn.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -46,7 +51,7 @@ public class OrderService implements IOrderService {
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
 		// TODO Auto-generated method stub
-		Sort sort = Sort.by(Sort.Direction.DESC,"id");
+		Sort sort = Sort.by(Sort.Direction.DESC, "id");
 		List<Order> order = orderRepository.findByShop_Id(Common.getIdFromAuth(auth), sort);
 		List<ListOrder> result = new ArrayList<ListOrder>();
 		for (Order o : order) {
@@ -87,7 +92,7 @@ public class OrderService implements IOrderService {
 		// push change status 2 to 3
 		applicationEventPublisher.publishEvent(new AutoUpdateStatus3(this, o.getId(), o.getShop().getId()));
 		Notification user = new Notification();
-		user.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
+		user.setAvatar("product" + or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		user.setType(Common.NOTI_ORDER);
 		user.setOrder(o);
 		user.setStatus(o.getStatus());
@@ -95,7 +100,7 @@ public class OrderService implements IOrderService {
 		user.setUser(o.getUser());
 		applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, user));
 		Notification shopN = new Notification();
-		shopN.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
+		shopN.setAvatar("product" + or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 		shopN.setType(Common.NOTI_ORDER);
 		shopN.setOrder(o);
 		shopN.setStatus(o.getStatus());
@@ -133,16 +138,16 @@ public class OrderService implements IOrderService {
 //			}
 
 			Notification noti = new Notification();
-			noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
+			noti.setAvatar("product" + or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			noti.setType(Common.NOTI_ORDER);
 			noti.setOrder(o);
 			noti.setStatus(o.getStatus());
 			noti.setTime(Common.parse(o.getCreatedDate()));
 			noti.setUser(o.getUser());
 			applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
-			
+
 			Notification notiS = new Notification();
-			notiS.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
+			notiS.setAvatar("product" + or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 			notiS.setType(Common.NOTI_ORDER);
 			notiS.setOrder(o);
 			notiS.setStatus(o.getStatus());
@@ -168,9 +173,9 @@ public class OrderService implements IOrderService {
 						or.getStatus(), or.getShop().getId(), or.getCreatedDate());
 				// realtime user
 				applicationEventPublisher.publishEvent(new PushEventUpdateOrderUser(this, dataU));
-			
+
 				Notification noti = new Notification();
-				noti.setAvatar("product"+or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
+				noti.setAvatar("product" + or.getDetail().get(0).getProduct().getPhotos().split(",")[0]);
 				noti.setType(Common.NOTI_ORDER);
 				noti.setOrder(or);
 				noti.setStatus(or.getStatus());
@@ -179,5 +184,80 @@ public class OrderService implements IOrderService {
 				applicationEventPublisher.publishEvent(new PushEventNotiOrderUser(this, noti));
 			}
 		}
+	}
+
+	 public void updateData() {
+		List<Order> order = orderRepository.findAll();
+		Calendar calendar = Calendar.getInstance();
+		Date date1 = null;
+		String orderTime = null;
+		String dayOfWeek = null;
+		for (Order o : order) {
+			try {
+				date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getCreatedDate().toString());
+				calendar.setTime(date1);
+				calendar.add(Calendar.DATE, -3);
+//				System.out.println( o.getCreatedDate().toString());
+//				System.out.println(calendar.getTime());
+//				System.out.println(calendar.get(Calendar.MONTH));
+				int day = calendar.get(Calendar.DAY_OF_WEEK);
+				switch (day) {
+				case Calendar.MONDAY:
+					dayOfWeek = "Thứ Hai";
+					break;
+				case Calendar.TUESDAY:
+					dayOfWeek = "Thứ Ba";
+					break;
+				case Calendar.WEDNESDAY:
+					dayOfWeek = "Thứ Tư";
+					break;
+				case Calendar.THURSDAY:
+					dayOfWeek = "Thứ Năm";
+					break;
+				case Calendar.FRIDAY:
+					dayOfWeek = "Thứ Sáu";
+					break;
+				case Calendar.SATURDAY:
+					dayOfWeek = "Thứ Bảy";
+					break;
+				case Calendar.SUNDAY:
+					dayOfWeek = "Chủ Nhật";
+					break;
+				}
+				String[] list = o.getCreatedDate().toString().split("-");
+				orderTime = dayOfWeek + ", ngày " +calendar.get(Calendar.DAY_OF_MONTH) + " tháng " + (calendar.get(Calendar.MONTH)+1) + ", " + calendar.get(Calendar.YEAR);
+				System.out.println(orderTime);
+				o.setOrderTime(orderTime);
+				orderRepository.save(o);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+	}
+
+	public static void main(String[] args) {
+		Calendar calendar = Calendar.getInstance();
+		Date date1 = null;
+		try {
+			date1 = new SimpleDateFormat("yyyy-MM-dd").parse("2021-12-09 11:48:10.967000");
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		calendar.setTime(date1);
+		calendar.add(Calendar.DATE, -3);
+		String[] list = "2021-05-28 11:48:10.967000".split("-");
+		// calendar.set(Integer.valueOf(list[0]), Integer.valueOf(list[1]),
+		// Integer.valueOf(list[2].substring(0,2)));
+//		calendar.set(Calendar.MONTH, 5);
+//		calendar.set(Calendar.YEAR, 2021);
+//		calendar.set(Calendar.DAY_OF_WEEK, 15);
+		// calendar.add(Calendar.DATE, -5);
+		// int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+		System.out.println(calendar.getTime());
+		System.out.println(calendar.get(Calendar.MONTH)+1);
 	}
 }

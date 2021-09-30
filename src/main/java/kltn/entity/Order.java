@@ -1,6 +1,7 @@
 package kltn.entity;
 
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -20,6 +21,7 @@ public class Order extends Abstract {
 	private String orderCode;
 	private String orderTime;
 	private String deliveryTime;
+	private Date deliveryDate;
 
 	@ManyToOne
 	@JoinColumn(name = "user_id")

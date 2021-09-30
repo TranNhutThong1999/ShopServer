@@ -84,7 +84,6 @@ public class ShopController {
 	public ResponseEntity<?> login(@RequestBody LoginInput s) {
 		ResponseValue outPut = new ResponseValue();
 		try {
-			productService.changeData();
 			Authentication auth = authenticationManager
 					.authenticate(new UsernamePasswordAuthenticationToken(s.getEmail(), s.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(auth);

@@ -306,18 +306,18 @@ public class ShopService implements IShopService {
 	public void saveFCMToken(String token, Authentication auth) {
 		// TODO Auto-generated method stub
 		Optional<DeviceToken> de = deviceTokenRepository.findOneByShop_Id(Common.getIdFromAuth(auth));
-		DeviceToken d = null;
-		if (!de.isPresent()) {
-			d = new DeviceToken();
-			d.setFCMToken(token);
-			d.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
-			d.setCreateDate(new Date());
-			deviceTokenRepository.save(d);
-		} else {
-			d = de.get();
-			d.setFCMToken(token);
-			d.setCreateDate(new Date());
-			deviceTokenRepository.save(d);
+		DeviceToken device = null;
+		if (de.isPresent()) {
+			device = de.get();
+			device.setFCMToken(token);
+			device.setCreateDate(new Date());
+			deviceTokenRepository.save(device);
+		} else {		
+			device = new DeviceToken();
+			device.setFCMToken(token);
+			device.setShop(shopRepository.findById(Common.getIdFromAuth(auth)).get());
+			device.setCreateDate(new Date());
+			deviceTokenRepository.save(device);
 		}
 
 	}

@@ -185,79 +185,175 @@ public class OrderService implements IOrderService {
 			}
 		}
 	}
-
-	 public void updateData() {
-		List<Order> order = orderRepository.findAll();
-		Calendar calendar = Calendar.getInstance();
-		Date date1 = null;
-		String orderTime = null;
-		String dayOfWeek = null;
-		for (Order o : order) {
-			try {
-				date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getCreatedDate().toString());
-				calendar.setTime(date1);
-				calendar.add(Calendar.DATE, -3);
-//				System.out.println( o.getCreatedDate().toString());
-//				System.out.println(calendar.getTime());
-//				System.out.println(calendar.get(Calendar.MONTH));
-				int day = calendar.get(Calendar.DAY_OF_WEEK);
-				switch (day) {
-				case Calendar.MONDAY:
-					dayOfWeek = "Thứ Hai";
-					break;
-				case Calendar.TUESDAY:
-					dayOfWeek = "Thứ Ba";
-					break;
-				case Calendar.WEDNESDAY:
-					dayOfWeek = "Thứ Tư";
-					break;
-				case Calendar.THURSDAY:
-					dayOfWeek = "Thứ Năm";
-					break;
-				case Calendar.FRIDAY:
-					dayOfWeek = "Thứ Sáu";
-					break;
-				case Calendar.SATURDAY:
-					dayOfWeek = "Thứ Bảy";
-					break;
-				case Calendar.SUNDAY:
-					dayOfWeek = "Chủ Nhật";
-					break;
-				}
-				String[] list = o.getCreatedDate().toString().split("-");
-				orderTime = dayOfWeek + ", ngày " +calendar.get(Calendar.DAY_OF_MONTH) + " tháng " + (calendar.get(Calendar.MONTH)+1) + ", " + calendar.get(Calendar.YEAR);
-				System.out.println(orderTime);
-				o.setOrderTime(orderTime);
-				orderRepository.save(o);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		
-	}
+//
+//	public void updateDataStringDetrict3Day() {
+//		List<Order> order = orderRepository.findAll();
+//		Calendar calendar = Calendar.getInstance();
+//		Date date1 = null;
+//		String orderTime = null;
+//		String dayOfWeek = null;
+//		for (Order o : order) {
+//			try {
+//				date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getCreatedDate().toString());
+//				calendar.setTime(date1);
+//				calendar.add(Calendar.DATE, -3);
+////				System.out.println( o.getCreatedDate().toString());
+////				System.out.println(calendar.getTime());
+////				System.out.println(calendar.get(Calendar.MONTH));
+//			
+//				Date date = calendar.getTime();
+//				SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+//				String d = sm.format(date);
+//				o.setCreatedDate(sm.parse(d));
+//				 orderRepository.save(o);
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		}
+//
+//	}
+//
+//	public void updateDataStringDeliveryTime() {
+//		List<Order> order = orderRepository.findAll();
+//		Calendar calendar = Calendar.getInstance();
+//		Date date1 = null;
+//		String orderTime = null;
+//		String dayOfWeek = null;
+//		for (Order o : order) {
+//			try {
+//				date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getDeliveryDate().toString());
+//				calendar.setTime(date1);
+//				// calendar.add(Calendar.DATE, -3);
+////					System.out.println( o.getCreatedDate().toString());
+////					System.out.println(calendar.getTime());
+////					System.out.println(calendar.get(Calendar.MONTH));
+//				int day = calendar.get(Calendar.DAY_OF_WEEK);
+//				switch (day) {
+//				case Calendar.MONDAY:
+//					dayOfWeek = "Thứ Hai";
+//					break;
+//				case Calendar.TUESDAY:
+//					dayOfWeek = "Thứ Ba";
+//					break;
+//				case Calendar.WEDNESDAY:
+//					dayOfWeek = "Thứ Tư";
+//					break;
+//				case Calendar.THURSDAY:
+//					dayOfWeek = "Thứ Năm";
+//					break;
+//				case Calendar.FRIDAY:
+//					dayOfWeek = "Thứ Sáu";
+//					break;
+//				case Calendar.SATURDAY:
+//					dayOfWeek = "Thứ Bảy";
+//					break;
+//				case Calendar.SUNDAY:
+//					dayOfWeek = "Chủ Nhật";
+//					break;
+//				}
+//				String[] list = o.getCreatedDate().toString().split("-");
+//				orderTime = dayOfWeek + ", ngày " + calendar.get(Calendar.DAY_OF_MONTH) + " tháng "
+//						+ (calendar.get(Calendar.MONTH) + 1) + ", " + calendar.get(Calendar.YEAR);
+//				System.out.println(orderTime);
+//				o.setDeliveryTime(orderTime);
+//				// orderRepository.save(o);
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		}
+//
+//	}
+//
+//	public void randomCreateDate() {
+//		List<Order> order = orderRepository.findAll();
+//		Calendar calendar = Calendar.getInstance();
+//		Date date1 = null;
+//		String orderTime = null;
+//		String dayOfWeek = null;
+//		for (Order o : order) {
+//			if (o.getId() >= 78) {
+//				try {
+//					date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getCreatedDate().toString());
+//					calendar.setTime(date1);
+//					calendar.set(Calendar.MONTH, getRandomNumber(1, 9));
+//					calendar.set(Calendar.DATE, getRandomNumber(1, 28));
+//					Date date = calendar.getTime();
+//					SimpleDateFormat sm = new SimpleDateFormat("yyyy-MM-dd");
+//					String d = sm.format(date);
+//					o.setCreatedDate(sm.parse(d));
+//					orderRepository.save(o);
+//				} catch (ParseException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
+//
+//		}
+//	}
+//
+//	public void updateDeliveryDate() {
+//		List<Order> order = orderRepository.findAll();
+//		Calendar calendar = Calendar.getInstance();
+//		Date date1 = null;
+//		String orderTime = null;
+//		String dayOfWeek = null;
+//		for (Order o : order) {
+//
+//			try {
+//				date1 = new SimpleDateFormat("yyyy-MM-dd").parse(o.getCreatedDate().toString());
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			calendar.setTime(date1);
+//		//	calendar.add(Calendar.DATE, -3);
+////			System.out.println( o.getCreatedDate().toString());
+////			System.out.println(calendar.getTime());
+////			System.out.println(calendar.get(Calendar.MONTH));
+//			int day = calendar.get(Calendar.DAY_OF_WEEK);
+//			switch (day) {
+//			case Calendar.MONDAY:
+//				dayOfWeek = "Thứ Hai";
+//				break;
+//			case Calendar.TUESDAY:
+//				dayOfWeek = "Thứ Ba";
+//				break;
+//			case Calendar.WEDNESDAY:
+//				dayOfWeek = "Thứ Tư";
+//				break;
+//			case Calendar.THURSDAY:
+//				dayOfWeek = "Thứ Năm";
+//				break;
+//			case Calendar.FRIDAY:
+//				dayOfWeek = "Thứ Sáu";
+//				break;
+//			case Calendar.SATURDAY:
+//				dayOfWeek = "Thứ Bảy";
+//				break;
+//			case Calendar.SUNDAY:
+//				dayOfWeek = "Chủ Nhật";
+//				break;
+//			}
+//			String[] list = o.getCreatedDate().toString().split("-");
+//			orderTime = dayOfWeek + ", ngày " + calendar.get(Calendar.DAY_OF_MONTH) + " tháng "
+//					+ (calendar.get(Calendar.MONTH) + 1) + ", " + calendar.get(Calendar.YEAR);
+//			System.out.println(orderTime);
+//			o.setOrderTime(orderTime);
+//			orderRepository.save(o);
+//
+//		}
+//
+//	}
+//
+//	public int getRandomNumber(int min, int max) {
+//		return (int) ((Math.random() * (max - min)) + min);
+//	}
 
 	public static void main(String[] args) {
-		Calendar calendar = Calendar.getInstance();
-		Date date1 = null;
-		try {
-			date1 = new SimpleDateFormat("yyyy-MM-dd").parse("2021-12-09 11:48:10.967000");
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		calendar.setTime(date1);
-		calendar.add(Calendar.DATE, -3);
-		String[] list = "2021-05-28 11:48:10.967000".split("-");
-		// calendar.set(Integer.valueOf(list[0]), Integer.valueOf(list[1]),
-		// Integer.valueOf(list[2].substring(0,2)));
-//		calendar.set(Calendar.MONTH, 5);
-//		calendar.set(Calendar.YEAR, 2021);
-//		calendar.set(Calendar.DAY_OF_WEEK, 15);
-		// calendar.add(Calendar.DATE, -5);
-		// int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		System.out.println(calendar.getTime());
-		System.out.println(calendar.get(Calendar.MONTH)+1);
+
 	}
 }

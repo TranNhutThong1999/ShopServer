@@ -13,4 +13,6 @@ import kltn.entity.Notification;
 public interface NotificationRepository extends JpaRepository<Notification, Integer>{
 	Page<Notification> findByShop_Id(String userId, Pageable page);
 	Optional<Notification> findOneByIdAndShop_Id(String id, String shopId);
+	
+	List<Notification> findByOrder_Id(int id);
 }

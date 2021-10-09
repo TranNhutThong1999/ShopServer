@@ -17,5 +17,4 @@ public interface IOrderService {
 	void updateStatus(int orderId, Authentication auth, int status) throws Exception;
 
 	void updateStatusSuccess(int orderId, String shopId, int status);
-	//void updateDataStringDetrict3Day();
 }

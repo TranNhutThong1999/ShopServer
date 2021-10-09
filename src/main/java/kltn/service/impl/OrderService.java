@@ -31,6 +31,7 @@ import kltn.event.AutoUpdateStatus3;
 import kltn.event.PushEventNotiOrderShop;
 import kltn.event.PushEventNotiOrderUser;
 import kltn.event.PushEventUpdateOrderShop;
+import kltn.repository.NotificationRepository;
 import kltn.repository.OrderRepository;
 import kltn.service.IOrderService;
 import kltn.util.Common;
@@ -47,6 +48,9 @@ public class OrderService implements IOrderService {
 
 	@Autowired
 	private ApplicationEventPublisher applicationEventPublisher;
+	
+	@Autowired
+	private NotificationRepository notificationRepository;
 
 	@Override
 	public List<ListOrder> getListOrder(Authentication auth) {
@@ -185,7 +189,7 @@ public class OrderService implements IOrderService {
 			}
 		}
 	}
-//
+
 //	public void updateDataStringDetrict3Day() {
 //		List<Order> order = orderRepository.findAll();
 //		Calendar calendar = Calendar.getInstance();
@@ -214,7 +218,7 @@ public class OrderService implements IOrderService {
 //		}
 //
 //	}
-//
+
 //	public void updateDataStringDeliveryTime() {
 //		List<Order> order = orderRepository.findAll();
 //		Calendar calendar = Calendar.getInstance();
@@ -258,7 +262,7 @@ public class OrderService implements IOrderService {
 //						+ (calendar.get(Calendar.MONTH) + 1) + ", " + calendar.get(Calendar.YEAR);
 //				System.out.println(orderTime);
 //				o.setDeliveryTime(orderTime);
-//				// orderRepository.save(o);
+//				 orderRepository.save(o);
 //			} catch (ParseException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
@@ -267,7 +271,7 @@ public class OrderService implements IOrderService {
 //		}
 //
 //	}
-//
+
 //	public void randomCreateDate() {
 //		List<Order> order = orderRepository.findAll();
 //		Calendar calendar = Calendar.getInstance();
@@ -294,7 +298,7 @@ public class OrderService implements IOrderService {
 //
 //		}
 //	}
-//
+
 //	public void updateDeliveryDate() {
 //		List<Order> order = orderRepository.findAll();
 //		Calendar calendar = Calendar.getInstance();
@@ -353,6 +357,28 @@ public class OrderService implements IOrderService {
 //		return (int) ((Math.random() * (max - min)) + min);
 //	}
 
+//	public void updateNoti() {
+//		List<Order> order = orderRepository.findAll();
+//		for(Order o : order) {
+//			List<Notification> l = notificationRepository.findByOrder_Id(o.getId());
+//			for(Notification n: l) {
+//				n.setCreateDate(o.getCreatedDate());
+//				notificationRepository.save(n);
+//			}
+//			
+//		}
+//	}
+//	public void updateNotiTime() {
+//		List<Notification> noti = notificationRepository.findAll();
+//		String date = "";
+//		for(Notification o : noti) {
+//			date = new SimpleDateFormat("dd-MM-yyyy").format(o.getCreateDate());
+//			System.out.println(date);
+//			o.setTime(date);
+//			notificationRepository.save(o);
+//			
+//		}
+//	}
 	public static void main(String[] args) {
 
 	}
